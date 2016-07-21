@@ -1,11 +1,11 @@
-# ¼ÆËã²»±äÁ¿½×Êı
+# è®¡ç®—ä¸å˜é‡é˜¶æ•°
 InvOrder:=module()
 	option package;
 	export findInvariantsOrder;
 	local findOrder,findItemOrder;
 
 	(*
-	 * ¼ÆËã²»±äÁ¿µÄ´ÎÊı
+	 * è®¡ç®—ä¸å˜é‡çš„æ¬¡æ•°
 	*)
 	findInvariantsOrder:=proc(ee)
 		if not type(denom(ee),'numeric') then
@@ -16,7 +16,7 @@ InvOrder:=module()
 	end proc:
 
 	(*
-	 * ¼ÆËãÆë´Î±í´ïÊ½µÄµÄ´ÎÊı£¨²»º¬·ÖÄ¸£©
+	 * è®¡ç®—é½æ¬¡è¡¨è¾¾å¼çš„çš„æ¬¡æ•°ï¼ˆä¸å«åˆ†æ¯ï¼‰
 	*)
 	findOrder:=proc(ee)
 		local e;
@@ -29,7 +29,7 @@ InvOrder:=module()
 	end proc:
 
 	(*
-	 * ¼ÆËãÒ»ÏîµÄ´ÎÊı
+	 * è®¡ç®—ä¸€é¡¹çš„æ¬¡æ•°
 	*)
 	findItemOrder:=proc(ee)
 		local s,_e;

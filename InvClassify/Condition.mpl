@@ -1,4 +1,4 @@
-# Çó½âµÄ³ÉÁ¢Ìõ¼þ
+# æ±‚è§£çš„æˆç«‹æ¡ä»¶
 Condition:=module()
 	option	package;
 	export	findSolutionDomain;
@@ -8,11 +8,11 @@ Condition:=module()
 			classifySolve;
 
 	(*
-	 * Çó ½âµÄ ¶¨ÒåÓò
-	 * ·µ»ØµÄÌõ¼þÖÐÇó½âÁËµ¥±äÁ¿Ô¼Êø
-	 * ±£ÁôÁË¶à±äÁ¿Ô¼Êø
-	 * ÔÚºóÐøÊ¹ÓÃÖÐ¸ù¾Ýµ¥±äÁ¿Ô¼ÊøÈ¡ÌØ½â£¬ÔÚÑéÖ¤ÊÇ·ñÂè×æ¶à±äÁ¿Ô¼Êø
-	 * ²»Âú×ãÔòÈË¹¤È¡ÌØ½â
+	 * æ±‚ è§£çš„ å®šä¹‰åŸŸ
+	 * è¿”å›žçš„æ¡ä»¶ä¸­æ±‚è§£äº†å•å˜é‡çº¦æŸ
+	 * ä¿ç•™äº†å¤šå˜é‡çº¦æŸ
+	 * åœ¨åŽç»­ä½¿ç”¨ä¸­æ ¹æ®å•å˜é‡çº¦æŸå–ç‰¹è§£ï¼Œåœ¨éªŒè¯æ˜¯å¦å¦ˆç¥–å¤šå˜é‡çº¦æŸ
+	 * ä¸æ»¡è¶³åˆ™äººå·¥å–ç‰¹è§£
 	*)
 	findSolutionDomain:=proc(s)
 		local con;
@@ -22,8 +22,8 @@ Condition:=module()
 	end proc:
 
 	(*
-	 * Çó½â±í´ïÊ½µÄ¶¨ÒåÓò
-	 * Ö»¿¼ÂÇ + * ^ ln
+	 * æ±‚è§£è¡¨è¾¾å¼çš„å®šä¹‰åŸŸ
+	 * åªè€ƒè™‘ + * ^ ln
 	*)
 	findDomain:=proc(ee)
 		local S,r;
@@ -33,8 +33,8 @@ Condition:=module()
 	end proc:
 
 	(*
-	 * Çó½â±í´ïÊ½µÄ¶¨ÒåÓòÔ¼ÊøÌõ¼þ
-	 * Ö»¿¼ÂÇ + * ^ ln
+	 * æ±‚è§£è¡¨è¾¾å¼çš„å®šä¹‰åŸŸçº¦æŸæ¡ä»¶
+	 * åªè€ƒè™‘ + * ^ ln
 	*)
 	findDomainCondtions:=proc(e,S::evaln(set))
 		local _e;
@@ -68,9 +68,9 @@ Condition:=module()
 		return;
 	end proc:
 
-	# ²»µÈÊ½Ô¼Êø·ÖÀàÇó½â
-	# ºÏ²¢µ¥±äÁ¿Ô¼Êø
-	# ±£Áô¶à±äÁ¿Ô¼Êø
+	# ä¸ç­‰å¼çº¦æŸåˆ†ç±»æ±‚è§£
+	# åˆå¹¶å•å˜é‡çº¦æŸ
+	# ä¿ç•™å¤šå˜é‡çº¦æŸ
 	classifySolve:=proc(con::set)
 		local t,sd,ns,c,ind,x;
 		t:=table();

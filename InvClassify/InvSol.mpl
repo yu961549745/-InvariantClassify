@@ -1,18 +1,18 @@
 (*
- * ���治��������״̬�Ķ���
+ * 保存不变量分类状态的对象
  * 
- * ״̬��Ϊ��
- * 	1 ����ƫ΢�ַ��������ʧ��
- * 	2 ���������������ʧ��
- * 	3 ȡ�ؽ�ʧ��
- * 	4 �任�������ʧ��
- * 	5 �任�������ɹ����ؽ�����Ǵ���Ԫ���Ƿ��Ǵ���Ԫ�����˹��ж�
+ * 状态分为：
+ * 	1 线性偏微分方程组求解失败
+ * 	2 不变量方程组求解失败
+ * 	3 取特解失败
+ * 	4 变换方程求解失败
+ * 	5 变换方程求解成功，特解可能是代表元，是否是代表元留给人工判断
  * 	
- * һ�����������̿����ж����
- * һ�����Ӧһ���ؽ⣬��Ӧһ������Ԫ
- * һ�����������̿����ж������Ԫ
- * һ���ؽ�ֻ��Ӧһ������Ԫ
- * �����������Ԫ�������Ƚ�Ʈ��
+ * 一个不变量方程可能有多个解
+ * 一个解对应一个特解，对应一个代表元
+ * 一个不变量方程可能有多个代表元
+ * 一个特解只对应一个代表元
+ * 但是这个代表元的条件比较飘渺
 *)
 InvSol:=module()
 	option object;
@@ -36,7 +36,7 @@ InvSol:=module()
 		nvars,
 		As::static,
 		A::static;
-	# �������ĳ�ʼ��̫�鷳�ˣ�ModuleApply��ModuleCopy��д��
+	# 带参数的初始化太麻烦了，ModuleApply和ModuleCopy不写了
 	export getDisplayIeq::static:=proc(self::InvSol)
 		local Delta;
 		return {seq(Delta[i]=rhs(self:-ieq[i]),i=1..numelems(self:-Delta))};

@@ -1,15 +1,15 @@
-# ȡ�ؽ�
+# 取特解
 Fetch:=module()
 	option package;
 	export	fetchSimpleSolution;
 	local	fetchIeq;
 
 	(*
-	 * ȡ�ؽ�
-	 * ���ɱ���ȡ0
-	 * ���ݵ�����Լ��ȡ���ڽ�����
-	 * ��֤�Ƿ���������Լ��
-	 * ���㷵���ؽ⣬���򷵻�NULL
+	 * 取特解
+	 * 自由变量取0
+	 * 根据单变量约束取最邻近整数
+	 * 验证是否满足多变量约束
+	 * 满足返回特解，否则返回NULL
 	*)
 	fetchSimpleSolution:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
 		local f,C,sc,vc,t,r,rf,_rf,i,n,sols,res,sol,con;
@@ -45,8 +45,8 @@ Fetch:=module()
 		return res;
 	end proc:
 
-	# ���� <> < <= ��Լ������ȡ�ؽ�
-	# ȡ�������������ڽ�����
+	# 对于 <> < <= 的约束条件取特解
+	# 取满足条件的最邻近整数
 	fetchIeq:=proc(x)
 		local r;
 		if type(x,`<>`) then

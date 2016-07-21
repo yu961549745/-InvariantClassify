@@ -1,9 +1,9 @@
-# »ù±¾¼ÆËã
-#	½»»»×Ó±í
-#	°éËæ±ä»»¾ØÕó
-#	²»±äÁ¿µÄÆ«Î¢·Ö·½³Ì
-#	¸ù¾İÆ«Î¢·Ö·½³ÌÇó²»±äÁ¿
-#	°´ÕÕ¸´ÔÓ¶ÈÉıĞòÅÅĞò
+# åŸºæœ¬è®¡ç®—
+#	äº¤æ¢å­è¡¨
+#	ä¼´éšå˜æ¢çŸ©é˜µ
+#	ä¸å˜é‡çš„åå¾®åˆ†æ–¹ç¨‹
+#	æ ¹æ®åå¾®åˆ†æ–¹ç¨‹æ±‚ä¸å˜é‡
+#	æŒ‰ç…§å¤æ‚åº¦å‡åºæ’åº
 Basic:=module()
 	option package;
 	export	d,
@@ -22,33 +22,33 @@ Basic:=module()
 	uses `YJT/Pa`=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;
 
 	ModuleLoad:=proc()
-		# ¼ÓÔØ°üÊ±¸Ä±äÎ¢·ÖËã×ÓµÄÏÔÊ¾·½Ê½
+		# åŠ è½½åŒ…æ—¶æ”¹å˜å¾®åˆ†ç®—å­çš„æ˜¾ç¤ºæ–¹å¼
 		PDETools:-declare('quiet'):
 	end proc;
 	ModuleLoad();
     
 
 	(*
-	 * ĞŞ¸ÄÎ¢·ÖËã×ÓµÄ·ûºÅ¼¯ºÏ
+	 * ä¿®æ”¹å¾®åˆ†ç®—å­çš„ç¬¦å·é›†åˆ
 	*)
 	setSymbols:=proc(s::set(name):=default_syms)
-		description "ÉèÖÃº¯ÊıµÄ±äÁ¿Ãû¼¯ºÏ";
+		description "è®¾ç½®å‡½æ•°çš„å˜é‡åé›†åˆ";
 		syms:=s;
 	end proc;
 
 	(*
-	 * »ñÈ¡±äÁ¿Ãû¼¯ºÏ
+	 * è·å–å˜é‡åé›†åˆ
 	*)
 	getSymbols:=proc()
-		description "»ñÈ¡±äÁ¿Ãû¼¯ºÏ";
+		description "è·å–å˜é‡åé›†åˆ";
 		syms;
 	end proc;
 
 	(*
-	 * ×Ô¶¨ÒåÎ¢·ÖËã×Ó²Ù×÷£¬×÷ÓÃµ½º¯ÊıfÉÏ
+	 * è‡ªå®šä¹‰å¾®åˆ†ç®—å­æ“ä½œï¼Œä½œç”¨åˆ°å‡½æ•°fä¸Š
 	*)
 	d:=proc()
-		description "ÓÃÓÚÉú³ÉÎ¢·ÖËã×Ó±í´ïÊ½";
+		description "ç”¨äºç”Ÿæˆå¾®åˆ†ç®—å­è¡¨è¾¾å¼";
 		if not {_passed} subset syms then
 			error sprintf("only can use symbols in %a ,"
 			"use setSymbols command to use other symbols",syms);
@@ -56,29 +56,29 @@ Basic:=module()
 		diff(`YJT/Pa`(syms[]),_passed);
 	end proc;
 
-	# ×Ô¶¨Òå½»»»×Ó¼ÆËã·û
+	# è‡ªå®šä¹‰äº¤æ¢å­è®¡ç®—ç¬¦
 	`&*`:=proc(a,b)
-		description "¼ÆËãÁ½¸öÉú³ÉÎ¢·ÖËã×ÓµÄ½»»»×Ó";
+		description "è®¡ç®—ä¸¤ä¸ªç”Ÿæˆå¾®åˆ†ç®—å­çš„äº¤æ¢å­";
 		expand(eval(subs(`YJT/Pa`(syms[])=b,a)-subs(`YJT/Pa`(syms[])=a,b)));
 	end proc:
 	
 	(*
-	 * ½«±í´ïÊ½·Ö½âÎª·ÇÏßĞÔÏî²¢ÌáÈ¡ÏµÊı
-	 * ÊäÈë£º
-	 *	  f ±í´ïÊ½
-	 * Êä³ö£º
-	 *	 T ·ÇÏßĞÔÏî->ÏµÊı µÄÓ³Éä±í
+	 * å°†è¡¨è¾¾å¼åˆ†è§£ä¸ºéçº¿æ€§é¡¹å¹¶æå–ç³»æ•°
+	 * è¾“å…¥ï¼š
+	 *	  f è¡¨è¾¾å¼
+	 * è¾“å‡ºï¼š
+	 *	 T éçº¿æ€§é¡¹->ç³»æ•° çš„æ˜ å°„è¡¨
 	*)
 	getKd:=proc(f)
 		local T:=table(),kd;
 		
 		(* 
-		 * ½«±í´ïÊ½·Ö½âÎª·ÇÏßĞÔ»ù²¢ÌáÈ¡ÏµÊıµÄµİ¹é×Óº¯Êı
-		 * ÊäÈë£º
-		 *	 f ±í´ïÊ½
-		 *	 T ±£´æ½á¹ûµÄ±í
-		 * Êä³ö£º
-		 *	 T T»á±»ĞŞ¸Ä
+		 * å°†è¡¨è¾¾å¼åˆ†è§£ä¸ºéçº¿æ€§åŸºå¹¶æå–ç³»æ•°çš„é€’å½’å­å‡½æ•°
+		 * è¾“å…¥ï¼š
+		 *	 f è¡¨è¾¾å¼
+		 *	 T ä¿å­˜ç»“æœçš„è¡¨
+		 * è¾“å‡ºï¼š
+		 *	 T Tä¼šè¢«ä¿®æ”¹
 		*)
 		kd:=proc(f,T)
 		local i,p,v,x;
@@ -109,12 +109,12 @@ Basic:=module()
 	end proc:
 	
 	(*
-	 * »ñÈ¡±í´ïÊ½¹ØÓÚ¸ø¶¨·ÇÏßĞÔÏî¼¯µÄÏµÊıÏòÁ¿
-	 * ÊäÈë£º
-	 *	 f	±í´ïÊ½
-	 *	 s	·ÇÏßĞÔÏî¼¯
-	 * Êä³ö£º
-	 *	 v	ÏµÊıÏòÁ¿
+	 * è·å–è¡¨è¾¾å¼å…³äºç»™å®šéçº¿æ€§é¡¹é›†çš„ç³»æ•°å‘é‡
+	 * è¾“å…¥ï¼š
+	 *	 f	è¡¨è¾¾å¼
+	 *	 s	éçº¿æ€§é¡¹é›†
+	 * è¾“å‡ºï¼š
+	 *	 v	ç³»æ•°å‘é‡
 	*)
 	getPmVec:=proc(f,s)
 		local n,v,i,tb;
@@ -130,53 +130,53 @@ Basic:=module()
 	end proc:
 	
 	(*
-	 * Çó½â±í´ïÊ½¹ØÓÚ»ùµÄÏßĞÔ±í³ö
-	 * ÊäÈë£º
-	 *	 f	±í´ïÊ½
-	 *	 A	»ù¹ØÓÚ·ÇÏßĞÔÏî¼¯µÄÏµÊı¾ØÕó
-	 *	 stbs	·ÇÏßĞÔÏî¼¯
-	 *	 sbs	»ùµÄ·ûºÅ±íÊ¾
-	 * Êä³ö£º
-	 *	 r	±í´ïÊ½¹ØÓÚ»ùµÄÏßĞÔ±í³ö£¬Çó½âÊ§°Ü·µ»ØÔ­±í´ïÊ½
+	 * æ±‚è§£è¡¨è¾¾å¼å…³äºåŸºçš„çº¿æ€§è¡¨å‡º
+	 * è¾“å…¥ï¼š
+	 *	 f	è¡¨è¾¾å¼
+	 *	 A	åŸºå…³äºéçº¿æ€§é¡¹é›†çš„ç³»æ•°çŸ©é˜µ
+	 *	 stbs	éçº¿æ€§é¡¹é›†
+	 *	 sbs	åŸºçš„ç¬¦å·è¡¨ç¤º
+	 * è¾“å‡ºï¼š
+	 *	 r	è¡¨è¾¾å¼å…³äºåŸºçš„çº¿æ€§è¡¨å‡ºï¼Œæ±‚è§£å¤±è´¥è¿”å›åŸè¡¨è¾¾å¼
 	*)
 	ans2v:=proc(f,A,stbs)
 		local r;
 		try
 			r:=LinearAlgebra[LinearSolve](A,getPmVec(f,stbs));
 		catch:
-			error "Ëù¸øÉú³ÉÔª²»ÄÜ¹¹³ÉÒ»×é»ù";
+			error "æ‰€ç»™ç”Ÿæˆå…ƒä¸èƒ½æ„æˆä¸€ç»„åŸº";
 		end try;
 	end proc:
 	
 
 	(*
-	* ¼ÆËãËùÓĞ½á¹û
-	* ÊäÈë£ºÒ»×éÉú³ÉÔª
-	* Êä³ö£º
-	* 	AD	°éËæ±ä»»¾ØÕóµÄÊı×é
+	* è®¡ç®—æ‰€æœ‰ç»“æœ
+	* è¾“å…¥ï¼šä¸€ç»„ç”Ÿæˆå…ƒ
+	* è¾“å‡ºï¼š
+	* 	AD	ä¼´éšå˜æ¢çŸ©é˜µçš„æ•°ç»„
 	* 	ADA	A[1]*A[2]*...*A[n]
-	* 	dts	²»±äÁ¿Êı×é
+	* 	dts	ä¸å˜é‡æ•°ç»„
 	*)
 	getTransformMatrixAndPDE:=proc(vv::list)
 		local tbs,stbs,vvv,M,n,sbs,i,j,A,tmpv,MK,AD,ADA,ADT,BA,pPhi,eq,AList,dts,eqs;
 		
 		vvv:=expand(vv):
 		n:=numelems(vvv):
-		sbs:=Vector[row](1..n,i->cat(''v'',``[i])):# Éú³ÉÔªµÄ±íÊ¾·ûºÅ
+		sbs:=Vector[row](1..n,i->cat(''v'',``[i])):# ç”Ÿæˆå…ƒçš„è¡¨ç¤ºç¬¦å·
 		printf("Input:");
 		print(seq(sbs[i]=vv[i],i=1..n));
 		
-		# ¼ÆËã½»»»×Ó¾ØÕó£¬ÕâÀïµÃµ½µÄÊÇ¹ØÓÚfµÄ½á¹û£¬ĞèÒª½øÒ»²½ÓÃ»ù±íÊ¾
+		# è®¡ç®—äº¤æ¢å­çŸ©é˜µï¼Œè¿™é‡Œå¾—åˆ°çš„æ˜¯å…³äºfçš„ç»“æœï¼Œéœ€è¦è¿›ä¸€æ­¥ç”¨åŸºè¡¨ç¤º
 		M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &* vvv[j]):
 		MK:=Matrix(1..n,1..n);
 		
-		# ½«Ô­½»»»×Ó±íÓÃ»ù±í³ö
-		tbs:=getKd~(vvv):# ·ÇÏßĞÔÏî¼°ÆäÏµÊıÓ³Éä±í
-		stbs:={map(indices,tbs,'nolist')[]}:# ·ÇÏßĞÔÏî¼¯
-		# Éú³ÉÔª¹ØÓÚ·ÇÏßĞÔÏî¼¯µÄÏµÊı¾ØÕó
+		# å°†åŸäº¤æ¢å­è¡¨ç”¨åŸºè¡¨å‡º
+		tbs:=getKd~(vvv):# éçº¿æ€§é¡¹åŠå…¶ç³»æ•°æ˜ å°„è¡¨
+		stbs:={map(indices,tbs,'nolist')[]}:# éçº¿æ€§é¡¹é›†
+		# ç”Ÿæˆå…ƒå…³äºéçº¿æ€§é¡¹é›†çš„ç³»æ•°çŸ©é˜µ
 		A:=Matrix(1..numelems(stbs),1..numelems(tbs),
 		(i,j)->`if`(assigned(tbs[j][stbs[i]]),tbs[j][stbs[i]],0)):
-		# ¼ÆËãÃ¿¸ö½»»»×Ó¹ØÓÚÉú³ÉÔªµÄÏµÊı
+		# è®¡ç®—æ¯ä¸ªäº¤æ¢å­å…³äºç”Ÿæˆå…ƒçš„ç³»æ•°
 		for i from 1 to n do
 			for j from 1 to n do
 				if evalb(M(i,j)<>0) then
@@ -197,7 +197,7 @@ Basic:=module()
 		print(M);
 
 		
-		# °éËæ¾ØÕó
+		# ä¼´éšçŸ©é˜µ
 		AD:=Array(1..n);
 		ADA:=LinearAlgebra[IdentityMatrix](n);
 		ADT:=Matrix(1..n,1..n);
@@ -215,7 +215,7 @@ Basic:=module()
 		printf("Adjoint representation table:");
 		print(ADT);
 
-		# ¼ÆËã²»±äÁ¿
+		# è®¡ç®—ä¸å˜é‡
 		BA:=Matrix(1..n,1..n,(i,j)->b[i]*a[j]);
 		pPhi:=add(BA*~M);
 		eqs:=getPDE(pPhi,sbs);
@@ -223,33 +223,33 @@ Basic:=module()
 	end proc:
 
 	(*
-	 * ¼ÆËã²»±äÁ¿
+	 * è®¡ç®—ä¸å˜é‡
 	*)
 	getInvariants:=proc(eqs)
 		local res;
-		printf("Æ«Î¢·Ö·½³Ì\n");
+		printf("åå¾®åˆ†æ–¹ç¨‹\n");
 		print~(eqs);
 		res:=pdsolve(eqs);
 		res:=res[];
 		res:=[op(op(2,res))];
-		res:=sortByComplexity(res);# °´ÕÕ¸´ÔÓ¶ÈÉıĞòÊä³ö
-		printf("½âµÃµÄ²»±äÁ¿\n");
+		res:=sortByComplexity(res);# æŒ‰ç…§å¤æ‚åº¦å‡åºè¾“å‡º
+		printf("è§£å¾—çš„ä¸å˜é‡\n");
 		map(x->print('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
-		res:=simplifyInvariants(res);# ²»±äÁ¿»¯¼ò
+		res:=simplifyInvariants(res);# ä¸å˜é‡åŒ–ç®€
 		res:=simpleSimplify~(res);
-		res:=sortByComplexity(res);# °´ÕÕ¸´ÔÓ¶ÈÉıĞòÊä³ö
-		printf("»¯¼òºóµÄ²»±äÁ¿\n");
+		res:=sortByComplexity(res);# æŒ‰ç…§å¤æ‚åº¦å‡åºè¾“å‡º
+		printf("åŒ–ç®€åçš„ä¸å˜é‡\n");
 		map(x->print('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
 		return res;
 	end proc;
 
 	(*
-	 * Éú³É²»±äÁ¿µÄÆ«Î¢·Ö·½³Ì×é
-	 * ÊäÈë£º
+	 * ç”Ÿæˆä¸å˜é‡çš„åå¾®åˆ†æ–¹ç¨‹ç»„
+	 * è¾“å…¥ï¼š
 	 * 	p		[w,v],w=sum(b[j]*v[j]),v=sum(a[i]*v[i])
-	 * 	sbs		Éú³ÉÔª·ûºÅ¼¯
-	 * Êä³ö£º
-	 * 	Æ«Î¢·Ö·½³Ì×é
+	 * 	sbs		ç”Ÿæˆå…ƒç¬¦å·é›†
+	 * è¾“å‡ºï¼š
+	 * 	åå¾®åˆ†æ–¹ç¨‹ç»„
 	*)
 	getPDE:=proc(p,sbs)
 		local n:=numelems(sbs),syms:=[seq(a[i],i=1..n)],i,eq,eqs,
@@ -263,8 +263,8 @@ Basic:=module()
 	end proc:
 	
 	(*
-	 * »¯¼ò²»±äÁ¿
-	 * ¶ÔÓÚÒ»¸ö²»±äÁ¿µÄ·Ö×ÓºÍ·ÖÄ¸£¬·Ö±ğ³¢ÊÔÓÃ³Ë·¨ºÍ¼Ó·¨µÄ¹æÔò½øĞĞ»¯¼ò
+	 * åŒ–ç®€ä¸å˜é‡
+	 * å¯¹äºä¸€ä¸ªä¸å˜é‡çš„åˆ†å­å’Œåˆ†æ¯ï¼Œåˆ†åˆ«å°è¯•ç”¨ä¹˜æ³•å’ŒåŠ æ³•çš„è§„åˆ™è¿›è¡ŒåŒ–ç®€
 	*)
 	simplifyInvariants:=proc(iinvs)
 		local invs,tmp,i,j,n,vars,vset,vv,v1,v2;
@@ -299,8 +299,8 @@ Basic:=module()
 		return vv;
 	end proc;
 
-	# Èç¹û²»±äÁ¿µÄ½×ÊıÊÇ·ÖÊıµÄ
-	# ¾Íµ÷Õû²»±äÁ¿µÄ½×Êı
+	# å¦‚æœä¸å˜é‡çš„é˜¶æ•°æ˜¯åˆ†æ•°çš„
+	# å°±è°ƒæ•´ä¸å˜é‡çš„é˜¶æ•°
 	invOrd:=proc(v)
 		local ord;
 		ord:=findInvariantsOrder(v);
@@ -313,9 +313,9 @@ Basic:=module()
 	
 	
 	(*
-	 * Èô²»±äÁ¿
+	 * è‹¥ä¸å˜é‡
 	 * 	D[i]=f(D[j1],D[j2],...,D[jn])+g(a[1],...,a[m]), j1,j2,...,jn!=i
-	 * Ôò»¯¼òÎª
+	 * åˆ™åŒ–ç®€ä¸º
 	 * 	D[i]=g(a[1],...,a[m])
 	*)
 	spAdd:=proc(ee,vars)
@@ -334,9 +334,9 @@ Basic:=module()
 	end proc;
 	
 	(*
-	 * Èô²»±äÁ¿
+	 * è‹¥ä¸å˜é‡
 	 * 	D[i]=f(D[j1],D[j2],...,D[jn])*g(a[1],...,a[m]), j1,j2,...,jn!=i
-	 * Ôò»¯¼òÎª
+	 * åˆ™åŒ–ç®€ä¸º
 	 * 	D[i]=g(a[1],...,a[m])
 	*)
 	spMul:=proc(ee,vars)
@@ -355,8 +355,8 @@ Basic:=module()
 	end proc;
 	
 	(*
-	 * ²»±äÁ¿µÄ¼òµ¥»¯¼ò
-	 * ÏûÈ¥·ÖÄ¸ÖĞµÄ±¶Êı
+	 * ä¸å˜é‡çš„ç®€å•åŒ–ç®€
+	 * æ¶ˆå»åˆ†æ¯ä¸­çš„å€æ•°
 	*)
 	simpleSimplify:=proc(ee)
 		local n,d;
@@ -364,7 +364,7 @@ Basic:=module()
 		d:=denom(ee);
 		d:=factor(d);
 		if type(d,`*`) then
-			# ÇÉÃîµÄĞ´·¨£¬ÆäËüµØ·½µÄforÑ­»·¶¼lowÁË¡£
+			# å·§å¦™çš„å†™æ³•ï¼Œå…¶å®ƒåœ°æ–¹çš„forå¾ªç¯éƒ½lowäº†ã€‚
 			d:=remove(type,d,'numeric');
 		elif type(d,'numeric') then
 			d:=1;
@@ -373,7 +373,7 @@ Basic:=module()
 	end proc;
 
 	(*
-	 * °´ÕÕ¸´ÔÓ¶ÈÉıĞò
+	 * æŒ‰ç…§å¤æ‚åº¦å‡åº
 	*)
 	sortByComplexity:=proc(s::list)
 		return ListTools[Reverse](SolveTools[SortByComplexity](s));

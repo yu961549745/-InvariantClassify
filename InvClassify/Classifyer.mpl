@@ -36,7 +36,7 @@ Classifyer:=module()
 		return;
 	end proc:
 
-	# ÔİÊ±Ã»×öÖØ¸´´ú±íÔªµÄ´¦Àí
+	# æš‚æ—¶æ²¡åšé‡å¤ä»£è¡¨å…ƒçš„å¤„ç†
 	getSols:=proc()
 		return sort([sols[]],'key'=(x->x:-ieqCode));
 	end proc:
@@ -55,55 +55,55 @@ Classifyer:=module()
 		local spos,pos,nDelta;
 		
 		if evalb(sol:-stateCode=1) then
-			# ³¢ÊÔÇó½âÆ«Î¢·Ö·½³Ì×é
-			# Èç¹ûËùÓĞ·½³Ì×éÎª¿Õ£¬ÔòÍ£Ö¹Çó½â
+			# å°è¯•æ±‚è§£åå¾®åˆ†æ–¹ç¨‹ç»„
+			# å¦‚æœæ‰€æœ‰æ–¹ç¨‹ç»„ä¸ºç©ºï¼Œåˆ™åœæ­¢æ±‚è§£
 			if evalb(sol:-oeq={}) then
 				return;
 			end if;
 			nDelta:=getInvariants(sol:-oeq);
-			# Çó½âÊ§°Ü
+			# æ±‚è§£å¤±è´¥
 			if evalb(indets(nDelta,name) intersect {seq(a[i],i=1..sol:-nvars)} = {}) then
-				# Çó½âÊ§°Ü²»Ìí¼Ó½â
-				# ²»¿¼ÂÇ²»ÄÜÇó½â²»±äÁ¿µÄÇé¿ö
+				# æ±‚è§£å¤±è´¥ä¸æ·»åŠ è§£
+				# ä¸è€ƒè™‘ä¸èƒ½æ±‚è§£ä¸å˜é‡çš„æƒ…å†µ
 				return;
 			end if;
 			spos:=numelems(sol:-Delta)+1;
 			sol:-Delta:=[sol:-Delta[],nDelta[]]:
 			sol:-orders:=findInvariantsOrder~(sol:-Delta):
-			# ½¨Á¢ºÍÇó½â²»±äÁ¿·½³Ì×é
+			# å»ºç«‹å’Œæ±‚è§£ä¸å˜é‡æ–¹ç¨‹ç»„
 			for pos from spos to numelems(sol:-Delta) do
 				buildInvariantsEquations(sol,pos);
 			end do;
-			# Éú³ÉĞÂµÄ²»±äÁ¿
+			# ç”Ÿæˆæ–°çš„ä¸å˜é‡
 			genInvariants(sol);
 		elif evalb(sol:-stateCode=2) then
-			# Çó½â²»±äÁ¿·½³Ì×é
+			# æ±‚è§£ä¸å˜é‡æ–¹ç¨‹ç»„
 			solveInvariantsEquations(sol);
 		elif evalb(sol:-stateCode=3) then
-			# È¡´ú±íÔª
+			# å–ä»£è¡¨å…ƒ
 			fetchRep(sol);
 		elif evalb(sol:-stateCode=4) then
-			# Çó½â±ä»»·½³Ì
+			# æ±‚è§£å˜æ¢æ–¹ç¨‹
 			solveTransformEquation(sol);
 		end if;
 		return;
 	end proc:
 
-	# ½¨Á¢²»±äÁ¿µÄ·½³Ì×é
+	# å»ºç«‹ä¸å˜é‡çš„æ–¹ç¨‹ç»„
 	buildInvariantsEquations:=proc(_sol::InvSol,pos::posint)
 		global sols,cid;
 		local sol,rs,i,n,x,xpos,eqs;
 		n:=numelems(_sol:-Delta);
-		# ·ÖÆæÅ¼ÌÖÂÛ
-		# ½×Êı¿ÉÄÜÊÇ·ÖÊı
-		# ²»±äÁ¿µÄ´Î·½»¹ÊÇ²»±äÁ¿£¬Ö±½Ó¿´·Ö×Ó
-		# ²»¹ıÏÖÔÚ²»±äÁ¿»¯¼òÄÇ±ßÒÑ¾­¼ÓÁËÕâÖÖ»¯¼ò¹æÔò
+		# åˆ†å¥‡å¶è®¨è®º
+		# é˜¶æ•°å¯èƒ½æ˜¯åˆ†æ•°
+		# ä¸å˜é‡çš„æ¬¡æ–¹è¿˜æ˜¯ä¸å˜é‡ï¼Œç›´æ¥çœ‹åˆ†å­
+		# ä¸è¿‡ç°åœ¨ä¸å˜é‡åŒ–ç®€é‚£è¾¹å·²ç»åŠ äº†è¿™ç§åŒ–ç®€è§„åˆ™
 		if type(numer(_sol:-orders[pos]),even) then
 			xpos:=[1,-1,0];
 		else
 			xpos:=[1,0];
 		end if;
-		# Éú³É·½³ÌÓÒ¶Ë
+		# ç”Ÿæˆæ–¹ç¨‹å³ç«¯
 		cid:=0;
 		rs:=Array(1..n,x->
 		if evalb(x>pos) then
@@ -111,13 +111,13 @@ Classifyer:=module()
 		else
 			0
 		end if);
-		# Öğ¸ö·½³ÌÇó½â
+		# é€ä¸ªæ–¹ç¨‹æ±‚è§£
 		for x in xpos do
-			# ¶ÔÓÚDelta[pos]=0£¬¹¹½¨ÏÂÒ»¸ö·½³Ì½øĞĞÇó½â
-			# ²»Çó½âÈ«Áã·½³Ì
+			# å¯¹äºDelta[pos]=0ï¼Œæ„å»ºä¸‹ä¸€ä¸ªæ–¹ç¨‹è¿›è¡Œæ±‚è§£
+			# ä¸æ±‚è§£å…¨é›¶æ–¹ç¨‹
 			if evalb(x=0) then
-				# ÕâÀïÊÇÃ¿¸öÈ«Áã·½³Ì¶¼½øĞĞÇó½âµÄÒâË¼
-				# ·ñÔòÖ±½Ónext¾ÍºÃÁË
+				# è¿™é‡Œæ˜¯æ¯ä¸ªå…¨é›¶æ–¹ç¨‹éƒ½è¿›è¡Œæ±‚è§£çš„æ„æ€
+				# å¦åˆ™ç›´æ¥nextå°±å¥½äº†
 				if evalb(pos<>n) then
 					next;
 				else
@@ -138,7 +138,7 @@ Classifyer:=module()
 		return;
 	end proc:
 
-	# Éú³ÉĞÂµÄ´ú±íÔª
+	# ç”Ÿæˆæ–°çš„ä»£è¡¨å…ƒ
 	genInvariants:=proc(_sol::InvSol)
 		local isols,isol,oeq,sol,oieq;
 		oieq:={seq(Delta[i]=0,i=1..numelems(_sol:-Delta))};
@@ -151,14 +151,14 @@ Classifyer:=module()
 		end do;
 	end proc:
 
-	# Éú³ÉĞÂµÄ²»±äÁ¿·½³Ì
-	# ÕâÃ´Ğ´»áµ¼ÖÂºÍ·Ç×ÔÓÉ±äÁ¿ÓĞ¹ØµÄÆ«µ¼¶¼±ä³É0
+	# ç”Ÿæˆæ–°çš„ä¸å˜é‡æ–¹ç¨‹
+	# è¿™ä¹ˆå†™ä¼šå¯¼è‡´å’Œéè‡ªç”±å˜é‡æœ‰å…³çš„åå¯¼éƒ½å˜æˆ0
 	subsOeq:=proc(_sol::InvSol,isol)
 		local oeq,sol,v,vv,vars,Delta;
 		printf("--------------------------------------------------------------\n");
-		printf("Çó½âĞÂµÄ²»±äÁ¿\n");
+		printf("æ±‚è§£æ–°çš„ä¸å˜é‡\n");
 		print(_sol:-oieq);
-		printf("È¡½â\n");
+		printf("å–è§£\n");
 		print(isol);
 		oeq:=_sol:-oeq;
 		vars:=_sol:-vars;
@@ -174,7 +174,7 @@ Classifyer:=module()
 		resolve(sol);
 	end proc:
 
-	# Çó½â²»±äÁ¿·½³Ì×é
+	# æ±‚è§£ä¸å˜é‡æ–¹ç¨‹ç»„
 	solveInvariantsEquations:=proc(_sol::InvSol)
 		local isols,icons,n,vars,sol,i;
 		n:=_sol:-nvars;
@@ -193,7 +193,7 @@ Classifyer:=module()
 		return;
 	end proc:
 
-	# ¶Ô²»±äÁ¿È«Îª0µÄ·½³Ì½øĞĞÇó½â
+	# å¯¹ä¸å˜é‡å…¨ä¸º0çš„æ–¹ç¨‹è¿›è¡Œæ±‚è§£
 	solveAllZero:=proc(_sol)
 		local sol,var,isols,icons,i,n,reps,rep,nsol,nnsol;
 		sol:=Object(_sol);
@@ -213,47 +213,47 @@ Classifyer:=module()
 				nnsol:-stateCode:=4;
 				setRep(nnsol,rep);
 				printf("--------------------------------------------------------------\n");
-				printf("Çó½âÈ«Áã·½³Ì\n");
+				printf("æ±‚è§£å…¨é›¶æ–¹ç¨‹\n");
 				print(getDisplayIeq(nnsol));
-				printf("È¡½â\n");
+				printf("å–è§£\n");
 				print(nnsol:-isol);
-				printf("¾ßÓĞÔ¼ÊøÌõ¼ş\n");
+				printf("å…·æœ‰çº¦æŸæ¡ä»¶\n");
 				print(nnsol:-icon);
-				printf("È¡ÌØ½â\n");
+				printf("å–ç‰¹è§£\n");
 				print(nnsol:-rvec);
-				printf("È¡´ú±íÔª\n");
+				printf("å–ä»£è¡¨å…ƒ\n");
 				print(nnsol:-rep);
 				resolve(nnsol);
 			end do;
 		end do;
 	end proc:
 
-	# È¡´ú±íÔª
+	# å–ä»£è¡¨å…ƒ
 	fetchRep:=proc(_sol::InvSol)
 		local n,_ax;
 		printf("--------------------------------------------------------------\n");
-		printf("¶ÔÓÚ²»±äÁ¿·½³Ì\n");
+		printf("å¯¹äºä¸å˜é‡æ–¹ç¨‹\n");
 		print(getDisplayIeq(_sol));
-		printf("È¡½â\n");
+		printf("å–è§£\n");
 		print(_sol:-isol);
-		printf("¾ßÓĞÔ¼ÊøÌõ¼ş\n");
+		printf("å…·æœ‰çº¦æŸæ¡ä»¶\n");
 		print(_sol:-icon);
 		n:=_sol:-nvars;
 		_ax:=fetchSimpleSolution(_sol);
-		if evalb(_ax=NULL) then# È¡ÌØ½âÊ§°Ü
+		if evalb(_ax=NULL) then# å–ç‰¹è§£å¤±è´¥
 			sols:=sols union {_sol};
 			return;
 		end if;
 		setRep(_sol,_ax);
 		if evalb(_sol:-rep=0) then
-			printf("´ú±íÔªÈ¡0\n");
+			printf("ä»£è¡¨å…ƒå–0\n");
 			return;
 		end if;
 		_ax:=Matrix(_ax);
 		_sol:-stateCode:=4;
-		printf("È¡ÌØ½â\n");
+		printf("å–ç‰¹è§£\n");
 		print(convert(_ax,list));
-		printf("È¡´ú±íÔª\n");
+		printf("å–ä»£è¡¨å…ƒ\n");
 		print(_sol:-rep);
 		resolve(_sol);
 	end proc:
@@ -268,12 +268,12 @@ Classifyer:=module()
 		# a=a_.A
 		_sol:-teq[2],_sol:-tsol[2],_sol:-tcon[2]:=solveTeq(ax,_ax,_sol);
 		if andmap(x->evalb(x=[]),_sol:-tsol) then
-			# ÎŞ½â
-			printf("±ä»»·½³ÌÇó½âÊ§°Ü\n");
+			# æ— è§£
+			printf("å˜æ¢æ–¹ç¨‹æ±‚è§£å¤±è´¥\n");
 			sols:=sols union {_sol};
 		else
-			# ÓĞ½â
-			printf("±ä»»·½³ÌÓĞ½â\n");
+			# æœ‰è§£
+			printf("å˜æ¢æ–¹ç¨‹æœ‰è§£\n");
 			_sol:-stateCode:=5;
 			sols:=sols union {_sol};
 			printTeq(_sol,1);
@@ -284,11 +284,11 @@ Classifyer:=module()
 
 	printTeq:=proc(sol,pos)
 		if evalb(sol:-tsol[pos]=[]) then
-			printf("±ä»»·½³Ì %d ÎŞ½â\n",pos);
+			printf("å˜æ¢æ–¹ç¨‹ %d æ— è§£\n",pos);
 		else
-			printf("±ä»»·½³Ì %d ÓĞ½â\n",pos);
+			printf("å˜æ¢æ–¹ç¨‹ %d æœ‰è§£\n",pos);
 			print(sol:-tsol[pos]);
-			printf("¾ßÓĞÌõ¼ş\n");
+			printf("å…·æœ‰æ¡ä»¶\n");
 			print(sol:-tcon[pos]);
 		end if;
 	end proc:
@@ -301,10 +301,10 @@ Classifyer:=module()
 		var:=[seq(epsilon[i],i=1..sol:-nvars)];
 		tsol:=convert~(RealDomain:-solve(teq,var),radical);
 		if evalb(tsol=[]) then
-			# Çó½âÊ§°Ü£¬³¢ÊÔ¶ş´ÎÇó½â·¨·½·¨
-			# Ê×´ÎÇó½â
+			# æ±‚è§£å¤±è´¥ï¼Œå°è¯•äºŒæ¬¡æ±‚è§£æ³•æ–¹æ³•
+			# é¦–æ¬¡æ±‚è§£
 			eqs:=convert~([RealDomain:-solve(teq)],radical);
-			# ¶ş´ÎÇó½â
+			# äºŒæ¬¡æ±‚è§£
 			tsol:=[];
 			tcon:=[];
 			for eq in eqs do
@@ -317,7 +317,7 @@ Classifyer:=module()
 				tcon:=[tcon[],_con[]];
 			end do;
 		else
-			# Çó½â³É¹¦£¬Ö±½Ó¼ÆËãÔ¼Êø
+			# æ±‚è§£æˆåŠŸï¼Œç›´æ¥è®¡ç®—çº¦æŸ
 			tcon:=map(x->clearConditions(findSolutionDomain(x)),tsol);
 		end if;
 		return teq,tsol,tcon;
@@ -328,7 +328,7 @@ Classifyer:=module()
 	end proc:
 
 
-	# É¾³ıÓëaÎŞ¹ØµÄÔ¼Êø
+	# åˆ é™¤ä¸aæ— å…³çš„çº¦æŸ
 	clearConditions:=proc(con)
 		return select(x->ormap(type,indets(x,name),specindex(a)),con);
 	end proc:
@@ -336,41 +336,41 @@ Classifyer:=module()
 	printSol:=proc(s::InvSol)
 		printf("---------------------------------------------------------\n");
 		if 	evalb(s:-stateCode=1) then
-			printf("ĞÂµÄ²»±äÁ¿Çó½âÊ§°Ü£¬×´Ì¬´úÂë1\n");
+			printf("æ–°çš„ä¸å˜é‡æ±‚è§£å¤±è´¥ï¼ŒçŠ¶æ€ä»£ç 1\n");
 			print(s:-oieq);
-			printf("È¡½â\n");
+			printf("å–è§£\n");
 			print(s:-oisol);
-			printf("Çó½âÊ§°ÜµÄÆ«Î¢·Ö·½³ÌÎª\n");
+			printf("æ±‚è§£å¤±è´¥çš„åå¾®åˆ†æ–¹ç¨‹ä¸º\n");
 			print(s:-oeq);
 		elif	evalb(s:-stateCode=2) then
-			printf("²»±äÁ¿·½³ÌÇó½âÊ§°Ü£¬×´Ì¬´úÂë2\n");
+			printf("ä¸å˜é‡æ–¹ç¨‹æ±‚è§£å¤±è´¥ï¼ŒçŠ¶æ€ä»£ç 2\n");
 			print(getDisplayIeq(s));
 		elif	evalb(s:-stateCode=3) then
-			printf("È¡´ú±íÔªÊ§°Ü£¬×´Ì¬´úÂë3\n");
+			printf("å–ä»£è¡¨å…ƒå¤±è´¥ï¼ŒçŠ¶æ€ä»£ç 3\n");
 			print(getDisplayIeq(s));
-			printf("È¡½â\n");
+			printf("å–è§£\n");
 			printf(s:-isol);
 		elif	evalb(s:-stateCode=4) then
-			printf("±ä»»·½³ÌÇó½âÊ§°Ü£¬×´Ì¬´úÂë4\n");
+			printf("å˜æ¢æ–¹ç¨‹æ±‚è§£å¤±è´¥ï¼ŒçŠ¶æ€ä»£ç 4\n");
 			print(getDisplayIeq(s));
-			printf("È¡½â\n");
+			printf("å–è§£\n");
 			print(s:-isol);
-			printf("¾ßÓĞÔ¼Êø\n");
+			printf("å…·æœ‰çº¦æŸ\n");
 			print(s:-icon);
-			printf("È¡´ú±íÔª\n");
+			printf("å–ä»£è¡¨å…ƒ\n");
 			print(s:-rep);
-			printf("Çó½âÊ§°ÜµÄÁ½¸ö±ä»»·½³ÌÎª\n");
+			printf("æ±‚è§£å¤±è´¥çš„ä¸¤ä¸ªå˜æ¢æ–¹ç¨‹ä¸º\n");
 			print~(s:-teq);
 		elif	evalb(s:-stateCode=5) then
-			printf("±ä»»·½³ÌÇó½â³É¹¦£¬×´Ì¬´úÂë5\n");
+			printf("å˜æ¢æ–¹ç¨‹æ±‚è§£æˆåŠŸï¼ŒçŠ¶æ€ä»£ç 5\n");
 			print(getDisplayIeq(s));
-			printf("È¡½â\n");
+			printf("å–è§£\n");
 			print(s:-isol);
-			printf("¾ßÓĞÔ¼Êø\n");
+			printf("å…·æœ‰çº¦æŸ\n");
 			print(s:-icon);
-			printf("È¡´ú±íÔª\n");
+			printf("å–ä»£è¡¨å…ƒ\n");
 			print(s:-rep);
-			printf("±ä»»·½³ÌÓĞ½â\n");
+			printf("å˜æ¢æ–¹ç¨‹æœ‰è§£\n");
 			printTeq(s,1);
 			printTeq(s,2);
 		end if;
