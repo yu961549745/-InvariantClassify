@@ -7,7 +7,10 @@ RepSol:=module()
     export  rep,        # 代表元
             con:=[],    # 成立条件，包括不变量方程和取到isol和tsol所需的条件，是一个代表元所代表的区域所满足的方程
             isol:=[],   # 代表元的通解
-            tsol:=[];   # 代表元通解和特解的转化
+            tsol:=[],   # 代表元通解和特解的转化
+            scon,       # 最简条件
+            sisol,      
+            stsol;      
 
     # 用于拓展一个代表元对象所能代表的区域
     export  appendSol::static:=proc(r::RepSol,s::InvSol)
