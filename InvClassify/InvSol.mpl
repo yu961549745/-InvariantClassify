@@ -57,13 +57,17 @@ InvSol:=module()
 	export ModulePrint::static:=proc(s)
 		return getDesc(s);
 	end proc:
+	# 重新取代表元
+	# 会自动设置相关变量的值
 	export setRep::static:=proc(s::InvSol,rvec::list)
 		local v;
 		s:-stateCode:=4;
 		s:-rvec:=Matrix(rvec);
 		s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
 	end proc:
+	# 原本各变量因为都是local的，虽然同名，但是不是同一个变量
+	# 需要convert/global才能比较相等
 	export key::static:=proc(s)
-		return expand([s:-stateCode,convert(s:-rvec,list)[]]);
+		return convert([s:-stateCode,s:-rep],`global`);
 	end proc:
 end module:

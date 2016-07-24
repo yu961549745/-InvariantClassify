@@ -41,6 +41,7 @@ InvClassify:=module()
 
 	d:=Basic:-d;
 	getSymbols:=Basic:-getSymbols;
+	setSymbols:=Basic:-setSymbols;
 	getSols:=Classifyer:-getSols;
 	printSol:=Classifyer:-printSol;
 	printSols:=Classifyer:-printSols;

@@ -18,8 +18,9 @@ Basic:=module()
 		  simplifyInvariants,
 		  invOrd,
 		  simpleSimplify,
-		  spAdd,spMul;
-	uses `YJT/Pa`=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;
+		  spAdd,spMul,
+		  pnames:={a,c,d,epsilon,Delta,phi};# 受保护的名字;
+	uses  Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;
 
 	ModuleLoad:=proc()
 		# 加载包时改变微分算子的显示方式
@@ -33,6 +34,9 @@ Basic:=module()
 	*)
 	setSymbols:=proc(s::set(name):=default_syms)
 		description "设置函数的变量名集合";
+		if evalb( s intersect pnames <> {}) then
+			error "变量不能包含%1",pnames;
+		end if; 
 		syms:=s;
 	end proc;
 
@@ -50,16 +54,15 @@ Basic:=module()
 	d:=proc()
 		description "用于生成微分算子表达式";
 		if not {_passed} subset syms then
-			error sprintf("only can use symbols in %a ,"
-			"use setSymbols command to use other symbols",syms);
+			error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",syms,pnames;
 		end if;
-		diff(`YJT/Pa`(syms[]),_passed);
+		return diff(Pa(syms[]),_passed);
 	end proc;
 
 	# 自定义交换子计算符
 	`&*`:=proc(a,b)
 		description "计算两个生成微分算子的交换子";
-		expand(eval(subs(`YJT/Pa`(syms[])=b,a)-subs(`YJT/Pa`(syms[])=a,b)));
+		expand(eval(subs(Pa(syms[])=b,a)-subs(Pa(syms[])=a,b)));
 	end proc:
 	
 	(*
@@ -159,10 +162,14 @@ Basic:=module()
 	*)
 	getTransformMatrixAndPDE:=proc(vv::list)
 		local tbs,stbs,vvv,M,n,sbs,i,j,A,tmpv,MK,AD,ADA,ADT,BA,pPhi,eq,AList,dts,eqs;
+
+		if not (indets(vv,name) subset syms) then
+			error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",syms,pnames;
+		end if; 
 		
 		vvv:=expand(vv):
 		n:=numelems(vvv):
-		sbs:=Vector[row](1..n,i->cat(''v'',``[i])):# 生成元的表示符号
+		sbs:=Vector[row](1..n,i->v[i]):# 生成元的表示符号
 		printf("Input:");
 		print(seq(sbs[i]=vv[i],i=1..n));
 		
