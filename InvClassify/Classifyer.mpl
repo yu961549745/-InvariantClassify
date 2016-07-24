@@ -17,10 +17,8 @@ Classifyer:=module()
 	export	classify,
 			resolve,
 			getSols,
-			printSol,
 			printSols,
-			solveTeq,
-			printTeq;
+			solveTeq;
 
 	classify:=proc(A,As,eqs)
 		local sol;
@@ -282,18 +280,6 @@ Classifyer:=module()
 		return;
 	end proc:
 
-	printTeq:=proc(sol,pos)
-		if evalb(sol:-tsol[pos]=[]) then
-			printf("变换方程 %d 无解\n",pos);
-		else
-			printf("变换方程 %d 有解\n",pos);
-			print(sol:-tsol[pos]);
-			printf("具有条件\n");
-			print(sol:-tcon[pos]);
-		end if;
-	end proc:
-
-
 	solveTeq:=proc(a,b,sol)
 		local var,teq,tsol,tcon,scon,eqs,eq,_eq,_con,_sol;
 		teq:=convert((a-b.sol:-A),list);
@@ -331,51 +317,6 @@ Classifyer:=module()
 	# 删除与a无关的约束
 	clearConditions:=proc(con)
 		return select(x->ormap(type,indets(x,name),specindex(a)),con);
-	end proc:
-
-	printSol:=proc(s::InvSol)
-		printf("---------------------------------------------------------\n");
-		if 	evalb(s:-stateCode=1) then
-			printf("新的不变量求解失败，状态代码1\n");
-			print(s:-oieq);
-			printf("取解\n");
-			print(s:-oisol);
-			printf("求解失败的偏微分方程为\n");
-			print(s:-oeq);
-		elif	evalb(s:-stateCode=2) then
-			printf("不变量方程求解失败，状态代码2\n");
-			print(getDisplayIeq(s));
-		elif	evalb(s:-stateCode=3) then
-			printf("取代表元失败，状态代码3\n");
-			print(getDisplayIeq(s));
-			printf("取解\n");
-			printf(s:-isol);
-		elif	evalb(s:-stateCode=4) then
-			printf("变换方程求解失败，状态代码4\n");
-			print(getDisplayIeq(s));
-			printf("取解\n");
-			print(s:-isol);
-			printf("具有约束\n");
-			print(s:-icon);
-			printf("取代表元\n");
-			print(s:-rep);
-			printf("求解失败的两个变换方程为\n");
-			print~(s:-teq);
-		elif	evalb(s:-stateCode=5) then
-			printf("变换方程求解成功，状态代码5\n");
-			print(getDisplayIeq(s));
-			printf("取解\n");
-			print(s:-isol);
-			printf("具有约束\n");
-			print(s:-icon);
-			printf("取代表元\n");
-			print(s:-rep);
-			printf("变换方程有解\n");
-			printTeq(s,1);
-			printTeq(s,2);
-		end if;
-		printf("---------------------------------------------------------\n");
-		return;
 	end proc:
 
 	printSols:=proc(sols::list(InvSol))

@@ -17,11 +17,9 @@ InvClassify:=module()
 			getSymbols,
 			setSymbols,
 			getSols,
-			printSol,
 			printSols,
 			resolve,
 			solveTeq,
-			printTeq,
 			fetchSimpleSolution;
 
 	$include "Basic.mpl"
@@ -43,11 +41,9 @@ InvClassify:=module()
 	getSymbols:=Basic:-getSymbols;
 	setSymbols:=Basic:-setSymbols;
 	getSols:=Classifyer:-getSols;
-	printSol:=Classifyer:-printSol;
 	printSols:=Classifyer:-printSols;
 	resolve:=Classifyer:-resolve;
 	solveTeq:=Classifyer:-solveTeq;
-	printTeq:=Classifyer:-printTeq;
 
 	doClassify:=proc(vv::list)
 		local As,A,eqs;

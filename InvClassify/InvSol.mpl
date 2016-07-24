@@ -32,6 +32,8 @@ InvSol:=module()
 		tcon:=[[],[]],
 		rep,
 		rvec,
+		csols:=[],# 合并的解
+		ccons:=[],# 合并的条件
 		vars,
 		nvars,
 		As::static,
@@ -65,9 +67,60 @@ InvSol:=module()
 		s:-rvec:=Matrix(rvec);
 		s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
 	end proc:
-	# 原本各变量因为都是local的，虽然同名，但是不是同一个变量
-	# 需要convert/global才能比较相等
-	export key::static:=proc(s)
-		return convert([s:-stateCode,s:-rep],`global`);
+	# 输出解
+	export printSol::static:=proc(s::InvSol)
+		printf("---------------------------------------------------------\n");
+		if 	evalb(s:-stateCode=1) then
+			printf("新的不变量求解失败，状态代码1\n");
+			print(s:-oieq);
+			printf("取解\n");
+			print(s:-oisol);
+			printf("求解失败的偏微分方程为\n");
+			print(s:-oeq);
+		elif	evalb(s:-stateCode=2) then
+			printf("不变量方程求解失败，状态代码2\n");
+			print(getDisplayIeq(s));
+		elif	evalb(s:-stateCode=3) then
+			printf("取代表元失败，状态代码3\n");
+			print(getDisplayIeq(s));
+			printf("取解\n");
+			printf(s:-isol);
+		elif	evalb(s:-stateCode=4) then
+			printf("变换方程求解失败，状态代码4\n");
+			print(getDisplayIeq(s));
+			printf("取解\n");
+			print(s:-isol);
+			printf("具有约束\n");
+			print(s:-icon);
+			printf("取代表元\n");
+			print(s:-rep);
+			printf("求解失败的两个变换方程为\n");
+			print~(s:-teq);
+		elif	evalb(s:-stateCode=5) then
+			printf("变换方程求解成功，状态代码5\n");
+			print(getDisplayIeq(s));
+			printf("取解\n");
+			print(s:-isol);
+			printf("具有约束\n");
+			print(s:-icon);
+			printf("取代表元\n");
+			print(s:-rep);
+			printf("变换方程有解\n");
+			printTeq(s,1);
+			printTeq(s,2);
+		end if;
+		printf("---------------------------------------------------------\n");
+		return;
+	end proc:
+	# 输出变换方程和解
+	export printTeq::static:=proc(sol,pos)
+		if evalb(sol:-tsol[pos]=[]) then
+			printf("变换方程 %d 无解\n",pos);
+		else
+			printf("变换方程 %d 有解\n",pos);
+			print(sol:-tsol[pos]);
+			printf("具有条件\n");
+			print(sol:-tcon[pos]);
+		end if;
 	end proc:
 end module:
