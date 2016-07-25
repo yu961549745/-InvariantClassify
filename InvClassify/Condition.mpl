@@ -1,11 +1,11 @@
 # 求解的成立条件
 Condition:=module()
 	option	package;
-	export	findSolutionDomain;
+	export	findSolutionDomain,
+			classifySolve;
 	local	findDomain,
 			findDomainCondtions,
-			tassign,
-			classifySolve;
+			tassign;
 
 	(*
 	 * 求 解的 定义域

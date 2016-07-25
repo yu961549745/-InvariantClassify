@@ -12,11 +12,12 @@ Combine:=module()
     getReps:=proc(_sols)
         reps:={};
         formReps(_sols);
-        setSimple~(reps);
         return reps;
     end proc:
 
     # 建立代表元变量
+    # 同时将条件按复杂度排序
+    # 现在是按照方程个数排序的
     formReps:=proc(_sols)
         local sols,r,ss;
         sols:=select(x->evalb(x:-stateCode=5),_sols);# 只取求解成功的
@@ -24,13 +25,9 @@ Combine:=module()
         for ss in sols do
             r:=Object(RepSol);
             map[2](RepSol:-appendSol,r,ss);
+            sortCon(r);
             reps:=reps union {r};
         end do;
-        return;
-    end proc:
-
-    # 选择最简条件，以及对应的解
-    setSimple:=proc(_rep)
         return;
     end proc:
 
