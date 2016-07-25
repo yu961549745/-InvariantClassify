@@ -66,6 +66,14 @@ InvSol:=module()
 		s:-stateCode:=4;
 		s:-rvec:=Matrix(rvec);
 		s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
+		return;
+	end proc:
+	# 重新对不变量方程取解
+	export setIsol::static:=proc(s::InvSol,isol)
+		s:-stateCode:=3;
+		s:-isol:=isol;
+		s:-icon:=findSolutionDomain(isol);
+		return;
 	end proc:
 	# 输出解
 	export printSol::static:=proc(s::InvSol)

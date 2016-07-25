@@ -13,16 +13,19 @@ Classifyer:=module()
 			clearConditions,
 			eqOfEpsilon,
 			sols,
+			oldSols,
 			solveAllZero;
 	export	classify,
 			resolve,
 			getSols,
+			getNewSols,
 			printSols,
 			solveTeq;
 
 	classify:=proc(A,As,eqs)
 		local sol;
 		sols:={};
+		oldSols:={};
 		sol:=Object(InvSol):
 		sol:-stateCode:=1:
 		sol:-oeq:=eqs:
@@ -36,7 +39,13 @@ Classifyer:=module()
 
 	# 暂时没做重复代表元的处理
 	getSols:=proc()
+		oldSols:=sols;
 		return sort([sols[]],'key'=(x->x:-ieqCode));
+	end proc:
+
+	# 获取新增的代表元
+	getNewSols:=proc()
+		return sort([ (sols minus oldSols)[] ],'key'=(x->x:-ieqCode));
 	end proc:
 
 	getCname:=proc()

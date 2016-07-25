@@ -8,7 +8,9 @@ RepSol:=module()
             dcon:=[],   # 不变量方程
             acon:=[],   # 附加约束 
             isol:=[],   # 代表元的通解
-            tsol:=[];   # 代表元通解和特解的转化     
+            tsol:=[],   # 代表元通解和特解的转化
+            osol:=[],   # 对应的InvSol对象
+            sid:=1;     # 选择的最简条件     
 
     # 用于拓展一个代表元对象所能代表的区域
     export  appendSol::static:=proc(r::RepSol,s::InvSol)
@@ -28,6 +30,7 @@ RepSol:=module()
             apList(r:-acon,classifySolve({icon[],tcons[i][]}) minus sieq);
             apList(r:-isol,isol);
             apList(r:-tsol,tsols[i]);
+            apList(r:-osol,s);
         end do;
         return;
     end proc:
@@ -52,13 +55,13 @@ RepSol:=module()
     end proc:
     # 输出结果
     # 输出时去除了重复条件，但是实际可能对应不同的isol和tsol
-    export printSol::static:=proc(r::RepSol)
+    export printRep::static:=proc(r::RepSol)
         print(r:-rep);
         print~({getCon(r)[]});
         return ;
     end proc:
     # 输出完整结果
-    export fullPrintSol::static:=proc(r::RepSol)
+    export fullPrintRep::static:=proc(r::RepSol)
         local i,n,con;
         print(r:-rep);
         con:=getCon(r);
@@ -83,5 +86,15 @@ RepSol:=module()
         r:-acon:=r:-acon[ind];
         r:-isol:=r:-isol[ind];
         r:-tsol:=r:-tsol[ind];
+        r:-osol:=r:-osol[ind];
+    end proc:
+    # 选择最简条件
+    export selectCon::static:=proc(r::RepSol,sid)
+        r:-sid:=sid;
+        return;
+    end proc:
+    # 删除条件
+    export rmCon::static:=proc(r::RepSol,id::posint,con::set)
+        r:-acon[id]:=r:-acon[id] minus con;
     end proc:
 end module:
