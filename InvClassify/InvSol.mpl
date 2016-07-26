@@ -7,43 +7,66 @@
  * 	3 取特解失败
  * 	4 变换方程求解失败
  * 	5 变换方程求解成功，特解可能是代表元，是否是代表元留给人工判断
- * 	
- * 一个不变量方程可能有多个解
- * 一个解对应一个特解，对应一个代表元
- * 一个不变量方程可能有多个代表元
- * 一个特解只对应一个代表元
- * 但是这个代表元的条件比较飘渺
 *)
 InvSol:=module()
 	option object;
-	export 
-		stateCode::{1,2,3,4,5},
-		oieq:={},
-		oisol,
-		oeq::set,
-		Delta:=[],
-		orders::list,
-		ieqCode,
-		ieq::list,
-		isol,
-		icon::set,
-		teq:=[[],[]],
-		tsol:=[[],[]],
-		tcon:=[[],[]],
-		rep,
-		rvec,
-		csols:=[],# 合并的解
-		ccons:=[],# 合并的条件
-		vars,
-		nvars,
-		As::static,
-		A::static;
-	# 带参数的初始化太麻烦了，ModuleApply和ModuleCopy不写了
-	export getDisplayIeq::static:=proc(self::InvSol)
+	export
+		# 导出变量 
+		stateCode::{1,2,3,4,5},	# 状态代码
+		oieq:={},				# 导出新偏微分方程的不变量方程（如果存在的话）
+		oisol,					# 导出新偏微分方程的不变量方程的解（如果存在的话）
+		oeq::set,				# 导出不变量的偏微分方程
+		Delta:=[],				# 不变量
+		orders::list,			# 不变量对应的阶数
+		ieqCode,				# 不变量方程的代码
+		ieq::list,				# 不变量方程
+		isol,					# 不变量方程的解（一个InvSol对象只含一个解）
+		icon::set,				# 不变量方程解的条件
+		teq:=[[],[]],			# 变换方程（有两个）
+		tsol:=[[],[]],			# 变换方程的解，每个方程都有可能有多个解
+		tcon:=[[],[]],			# 变换方程的解对于的条件
+		rep,					# 代表元的表达式形式
+		rvec,					# 代表元的系数矩阵形式
+		vars,					# 偏微分方程中的剩余自由变量，初始时为a[1]..a[nvars]
+		nvars,					# 生成元的个数
+		As::static,				# 每个生成元的伴随矩阵
+		A::static,				# 总的伴随变换矩阵
+		# 导出函数
+		## 输出相关
+		getDisplayIeq::static,	# 简化显示的不变量方程，将不变量的实际表达式简写为Delta
+		getDesc::static,		# 获取对象的特征描述
+		ModulePrint::static,	# 打印和显示对象的值
+		printSol::static,		# 详细显示对象信息
+		printTeq::static,		# 显示变换方程的结果
+		## 设置相关
+		setRep::static,			# 重新取代表元
+		setIsol::static;		# 重新对不变量方程取解
+
+	# 重新取代表元
+	setRep:=proc(s::InvSol,rvec::list)
+		local v;
+		s:-stateCode:=4;
+		s:-rvec:=Matrix(rvec);
+		s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
+		return;
+	end proc:
+
+	# 重新对不变量方程取解
+	setIsol:=proc(s::InvSol,isol)
+		s:-stateCode:=3;
+		s:-isol:=isol;
+		s:-icon:=findSolutionDomain(isol);
+		return;
+	end proc:
+
+	# 简化显示的不变量方程，将不变量的实际表达式简写为Delta
+	getDisplayIeq:=proc(self::InvSol)
 		local Delta;
 		return {seq(Delta[i]=rhs(self:-ieq[i]),i=1..numelems(self:-Delta))};
 	end proc:
-	export getDesc::static:=proc(s)
+
+	# 获取对象的特征描述
+	getDesc:=proc(s)
 		if   evalb(s:-stateCode=1) then
 			return s:-oeq;
 		elif evalb(s:-stateCode=2) then
@@ -56,27 +79,14 @@ InvSol:=module()
 			return s:-rep;
 		end if;
 	end proc:
-	export ModulePrint::static:=proc(s)
+
+	# 打印和显示对象的值
+	ModulePrint:=proc(s)
 		return getDesc(s);
 	end proc:
-	# 重新取代表元
-	# 会自动设置相关变量的值
-	export setRep::static:=proc(s::InvSol,rvec::list)
-		local v;
-		s:-stateCode:=4;
-		s:-rvec:=Matrix(rvec);
-		s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
-		return;
-	end proc:
-	# 重新对不变量方程取解
-	export setIsol::static:=proc(s::InvSol,isol)
-		s:-stateCode:=3;
-		s:-isol:=isol;
-		s:-icon:=findSolutionDomain(isol);
-		return;
-	end proc:
+
 	# 输出解
-	export printSol::static:=proc(s::InvSol)
+	printSol:=proc(s::InvSol)
 		printf("---------------------------------------------------------\n");
 		if 	evalb(s:-stateCode=1) then
 			printf("新的不变量求解失败，状态代码1\n");
@@ -120,8 +130,9 @@ InvSol:=module()
 		printf("---------------------------------------------------------\n");
 		return;
 	end proc:
+
 	# 输出变换方程和解
-	export printTeq::static:=proc(sol,pos)
+	printTeq:=proc(sol,pos)
 		if evalb(sol:-tsol[pos]=[]) then
 			printf("变换方程 %d 无解\n",pos);
 		else

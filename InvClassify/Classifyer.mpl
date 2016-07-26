@@ -170,7 +170,7 @@ Classifyer:=module()
 		oeq:=_sol:-oeq;
 		vars:=_sol:-vars;
 		v,vv:=selectremove(x->evalb(lhs(x)<>rhs(x)),isol);
-		vv:=lhs~(vv);
+		vv:=lhs~(vv);# 方程中的剩余自由变量
 		oeq:=PDETools:-dsubs(phi(vars[])=phi(vv[]),oeq);
 		oeq:=eval(subs(v[],oeq)) minus {0};
 		sol:=Object(_sol);
