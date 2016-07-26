@@ -81,15 +81,25 @@
 <Highlighter-style name="Highlighter 5" pen-color="[255,255,0]" pen-height="48.0" pen-width="48.0" pen-opacity="0.8"/>
 </Styles>
 <Startup-Code startupcode=""/>
+<Metadata-table>
+    <Metadata-category name="&lt;default&gt;"/>
+    <Metadata-tag id="0" category="&lt;default&gt;" name="Document Properties">
+        <Metadata-attribute name="\345\205\263\351\224\256\350\257\215" value="&lt;default&gt;"/>
+        <Metadata-attribute name="\351\241\271\345\210\227\350\241\250" value="true"/>
+        <Metadata-attribute name="\344\275\234\350\200\205" value="&lt;default&gt;"/>
+        <Metadata-attribute name="\346\240\207\351\242\230" value="&lt;default&gt;"/>
+        <Metadata-attribute name="\344\270\273\351\242\230" value="&lt;default&gt;"/>
+    </Metadata-tag>
+</Metadata-table>
 <Task-table>
     <Task-category name="&lt;default&gt;"/>
 </Task-table>
 <Task/>
 <Group labelreference="L1" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2I1EhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2V4ZWN1dGFibGVHUSZmYWxzZUYnLyUsbWF0aHZhcmlhbnRHUSdub3JtYWxGJw==">LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYjLUkjbWlHRiQ2I1EhRic=</Equation></Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2JVEhRicvJSdpdGFsaWNHUSV0cnVlRicvJSxtYXRodmFyaWFudEdRJ2l0YWxpY0YnLyUnZmFtaWx5R1EwVGltZXN+TmV3flJvbWFuRicvJStleGVjdXRhYmxlR1EmZmFsc2VGJy9GM1Enbm9ybWFsRic=">JSFH</Equation></Text-field>
 </Input>
-</Group><CodeEditor-ExecGroup view="presentation" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion0" visible="true" pixel-width="510" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true">restart;
+</Group><CodeEditor-ExecGroup view="presentation" labelreference="L2" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion0" visible="true" pixel-width="510" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true">restart;
 with(mklib);
 CodeParser:-readCode(&quot;./InvClassify/InvClassify.mpl&quot;,&quot;UTF8&quot;);
 mkModule(InvClassify);
@@ -98,7 +108,7 @@ LibraryTools:-ShowContents(libFile);</EC-CodeEditor>
 <Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyVJKGxpYkZpbGVHNiJJJ21rRmlsZUdGJEkpbWtNb2R1bGVHRiQ=</Equation></Text-field>
 </Output>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyU3JlEtQ29kZVBhcnNlci5tNiI3KCIlOz8iIigiI0AiIzYiI2EiI1IiJl5KJyIkeSM3JlEuSW52Q2xhc3NpZnkubUYlNyhGJ0YoIiNEIiNBIiNPRjMiJiYpPSciJS02NyZRKG1rbGliLm1GJTcoRidGKCIiJiIjPiIjZiIjYiImKFJxIiR3Ig==</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyU3JlEtQ29kZVBhcnNlci5tNiI3KCIlOz8iIigiI0AiIzYiI2EiI1IiJl5KJyIkeSM3JlEuSW52Q2xhc3NpZnkubUYlNyhGJ0YoIiNFIiM5IiM4RjQiJ2JnNiIlQkA3JlEobWtsaWIubUYlNyhGJ0YoIiImIiM+IiNmIiNiIiYoUnEiJHci</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
 <Group labelreference="L5" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
