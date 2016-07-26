@@ -4,16 +4,34 @@
 *)
 RepSol:=module()
     option object;
-    export  rep,        # 代表元
-            dcon:=[],   # 不变量方程
-            acon:=[],   # 附加约束 
-            isol:=[],   # 代表元的通解
-            tsol:=[],   # 代表元通解和特解的转化
-            osol:=[],   # 对应的InvSol对象
-            sid:=1;     # 选择的最简条件     
+    local  
+            # 局部函数 
+            getDisplayDcon::static, # 合并显示成立条件
+            apList::static,         # 拓展list
+            rmlist::static;         # 去除一层嵌套list
+    export  
+            # 导出变量
+            rep,                    # 代表元
+            dcon:=[],               # 不变量方程
+            acon:=[],               # 附加约束 
+            isol:=[],               # 代表元的通解
+            tsol:=[],               # 代表元通解和特解的转化
+            osol:=[],               # 对应的InvSol对象
+            sid:=1,                 # 选择的最简条件   
+            # 导出函数
+            ## 设置相关
+            appendSol::static,      # 扩充一个RepSol对象成立的条件
+            getCon::static,         # 获取一个RepSol对象成立的条件
+            sortCon::static,        # 对成立条件进行排序
+            selectCon::static,      # 选择最简成立条件
+            rmCon::static,          # 删除某个成立条件的一部分
+            ## 输出相关
+            printRep::static,       # 简要显示代表元和所有可能的成立条件
+            fullPrintRep::static,   # 显示代表元和完整的成立条件以及对应的不变量方程和变换方程的解
+            ModulePrint::static;    # 简要显示代表元
 
     # 用于拓展一个代表元对象所能代表的区域
-    export  appendSol::static:=proc(r::RepSol,s::InvSol)
+    appendSol:=proc(r::RepSol,s::InvSol)
         local ieq,sieq,isol,icon,tsols,tcons,i,n;
         if not assigned(r:-rep) then
             r:-rep:=convert(s:-rep,`global`);
@@ -34,34 +52,62 @@ RepSol:=module()
         end do;
         return;
     end proc:
-    # 获取组合约束
-    export getCon::static:=proc(r::RepSol)
+
+    # 拓展list
+    apList:=proc(lst::evaln)
+        lst:=[eval(lst)[],_rest];
+        return;
+    end proc:
+
+    # 获取一个RepSol对象成立的条件
+    getCon:=proc(r::RepSol)
         return zip((x,y)->[getDisplayDcon(x)[],y[]],r:-dcon,r:-acon);
     end proc:
+
     # 不变量方程的简化显示
-    local getDisplayDcon::static:=proc(dcon)
+    getDisplayDcon:=proc(dcon)
         local n;
         n:=numelems(dcon);
         return [seq(Delta[i]=rhs(dcon[i]),i=1..n)];
     end proc:
+
     # 去掉一层嵌套list
-    local rmlist::static:=proc(x)
+    rmlist:=proc(x)
         return map(y->y[],x);
     end proc:
-    # 拓展list
-    local apList::static:=proc(lst::evaln)
-        lst:=[eval(lst)[],_rest];
+
+    # 对成立条件进行排序
+    sortCon:=proc(r::RepSol)
+        local con,ind;
+        con:=getCon(r);
+        ind:=sort(con,key=(x->numelems(x)),output=permutation);
+        r:-dcon:=r:-dcon[ind];
+        r:-acon:=r:-acon[ind];
+        r:-isol:=r:-isol[ind];
+        r:-tsol:=r:-tsol[ind];
+        r:-osol:=r:-osol[ind];
+    end proc:
+
+    # 选择最简成立条件
+    selectCon:=proc(r::RepSol,sid)
+        r:-sid:=sid;
         return;
     end proc:
-    # 输出结果
-    # 输出时去除了重复条件，但是实际可能对应不同的isol和tsol
-    export printRep::static:=proc(r::RepSol)
+
+    # 删除某个成立条件的一部分
+    rmCon:=proc(r::RepSol,id::posint,con::set)
+        r:-acon[id]:=r:-acon[id] minus con;
+    end proc:
+
+    # 简要显示代表元和所有可能的成立条件
+    printRep:=proc(r::RepSol)
         print(r:-rep);
         print~({getCon(r)[]});
         return ;
     end proc:
-    # 输出完整结果
-    export fullPrintRep::static:=proc(r::RepSol)
+
+    # 显示代表元和完整的成立条件以及对应的不变量方程和变换方程的解
+    fullPrintRep:=proc(r::RepSol)
         local i,n,con;
         print(r:-rep);
         con:=getCon(r);
@@ -73,28 +119,9 @@ RepSol:=module()
             print(r:-tsol[i]);
         end do;
     end proc:
-    # 简单显示
-    export ModulePrint::static:=proc(r::RepSol)
+
+    # 简要显示代表元
+    ModulePrint:=proc(r::RepSol)
         return r:-rep;
-    end proc:
-    # 对条件按复杂度进行排序
-    export sortCon::static:=proc(r::RepSol)
-        local con,ind;
-        con:=getCon(r);
-        ind:=sort(con,key=(x->numelems(x)),output=permutation);
-        r:-dcon:=r:-dcon[ind];
-        r:-acon:=r:-acon[ind];
-        r:-isol:=r:-isol[ind];
-        r:-tsol:=r:-tsol[ind];
-        r:-osol:=r:-osol[ind];
-    end proc:
-    # 选择最简条件
-    export selectCon::static:=proc(r::RepSol,sid)
-        r:-sid:=sid;
-        return;
-    end proc:
-    # 删除条件
-    export rmCon::static:=proc(r::RepSol,id::posint,con::set)
-        r:-acon[id]:=r:-acon[id] minus con;
     end proc:
 end module:
