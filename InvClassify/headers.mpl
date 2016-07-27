@@ -103,7 +103,7 @@ local
         collectObj,                 # 对象按键值分类
         uniqueObj;                  # 对象按键值唯一化
 export
-        summary,                    # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
+        summaryReps,                    # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
         printRepCon,                # 简要输出代表元及其成立条件
         printSols,                  # 输出所有InvSol
         printReps;                  # 输出所有RepSol
@@ -111,7 +111,7 @@ export
 # Interaction.mpl
 export  
         canTransform,               # 检查两个代表元之间能否相互转化
-        resolveSol,                 # 添加新的解进行求解
+        resolveRep,                 # 添加新的解进行求解
         fetchNewRep;                # 获取新的代表元   
 local   
         testTransform;              # 检查两个解之间能否相互转化

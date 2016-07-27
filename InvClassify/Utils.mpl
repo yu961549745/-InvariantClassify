@@ -64,7 +64,7 @@ uniqueObj:=proc(s,key)
 end proc:
 
 # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
-summary:=proc()
+summaryReps:=proc()
     local i,n,r,_reps,id;
     _reps:=getReps();
     n:=numelems(_reps);

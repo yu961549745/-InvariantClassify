@@ -1,6 +1,6 @@
 InvClassify:=module()
 	option	package;
-    $include "heads.mph"
+    $include "headers.mpl"
 
     $include "InvSol.mpl"
     $include "RepSol.mpl"

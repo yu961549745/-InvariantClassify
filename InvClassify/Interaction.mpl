@@ -1,8 +1,8 @@
 # 交互式求解函数
 
 # 添加新的解进行求解
-resolveSol:=proc(rep,solInd,{newIsol:=[],newRep:=[]})
-    local s;
+resolveRep:=proc(rep,solInd,{newIsol:=[],newRep:=[]})
+    local s,nreps;
     if evalb(newIsol=[]) and evalb(newRep=[]) then
         error "至少设置newIsol和newRep之一的值";
     end if;
@@ -14,7 +14,10 @@ resolveSol:=proc(rep,solInd,{newIsol:=[],newRep:=[]})
         setRep(s,newRep);
     end if;
     resolve(s);
-    return addReps(getNewSols());
+    nreps:=addReps(getNewSols());
+    printf("新产生代表元:\n");
+    printReps(nreps);
+    return nreps;
 end proc:
 
 # 获取新的代表元

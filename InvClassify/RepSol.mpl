@@ -102,7 +102,7 @@ RepSol:=module()
     # 简要显示代表元和所有可能的成立条件
     printRep:=proc(r::RepSol)
         print(r:-rep);
-        print~({getCon(r)[]});
+        print~(getCon(r));
         return ;
     end proc:
 

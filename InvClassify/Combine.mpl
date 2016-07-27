@@ -56,4 +56,3 @@ end proc:
 updateRep:=proc(r::RepSol)
     reps[getRep(r:-osol[1])]:=r;
 end proc:
-
