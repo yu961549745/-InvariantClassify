@@ -58,24 +58,28 @@ local
         eqOfEpsilon,                # 检查是否和epsilon有关
 
         sols,                       # 当前所有解
-        oldSols;                    # 上一次getSols的解
-export	
-        classify,                   # 自动分类
-        resolve,                    # 重新分类
-        getSols,                    # 获取所有解
+        oldSols,                    # 上一次getSols的解
+
         getNewSols,                 # 获取新解
-        solveTeq;                   # 指定求解伴随变换方程
+        solveTeq,                   # 指定求解伴随变换方程
+
+        resolve,                    # 重新分类
+        classify;                   # 自动分类
+export	
+        getSols;                    # 获取所有解
+      
+
 
 # Combine.mpl
-export  getReps,                    # 计算代表元
-        addReps,                    # 新增代表元
+export  
         rmRep,                      # 删除代表元
         updateRep,                  # 修改代表元
-        summary;                    # 简要输出结果
+        getReps;                    # 获取排序后的代表元
 local   
         reps:={},                   # 当前代表元映射表
-        formReps,                   # 建立代表元
-        getSortedReps;              # 获取排序后的代表元列表
+        buildReps,                  # 重新计算代表元
+        addReps,                    # 新增代表元
+        formReps;                   # 建立代表元
 
 # Condition.mpl
 local	findSolutionDomain,         # 求解解的定义域
@@ -84,8 +88,8 @@ local	findSolutionDomain,         # 求解解的定义域
         findDomainCondtions;        # 求解表达式约束条件
 
 # Fetch.mpl
-export	fetchSimpleSolution;        # 取特解
-local	fetchIeq;                   # 对于不等式约束取特解
+local	fetchSimpleSolution,        # 取特解
+        fetchIeq;                   # 对于不等式约束取特解
 
 # InvOrder.mpl
 local   findInvariantsOrder,        # 计算不变量阶数
@@ -99,6 +103,28 @@ local
         collectObj,                 # 对象按键值分类
         uniqueObj;                  # 对象按键值唯一化
 export
+        summary,                    # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
+        printRepCon,                # 简要输出代表元及其成立条件
         printSols,                  # 输出所有InvSol
         printReps;                  # 输出所有RepSol
 
+# Interaction.mpl
+export  
+        canTransform,               # 检查两个代表元之间能否相互转化
+        resolveSol,                 # 添加新的解进行求解
+        fetchNewRep;                # 获取新的代表元   
+local   
+        testTransform;              # 检查两个解之间能否相互转化
+
+# Logout.mpl
+(*
+    输出级别：
+        1   输出所有过程
+        2   输出关键结果
+        3   不输出
+*)
+export  setLogLevel;                # 设置输出级别
+local   
+        logLevel:=2,                # 日志输出级别
+        flog,                       # 对应 print
+        flogf;                      # 对应 printf

@@ -36,13 +36,20 @@ end proc:
 
 # 对象按键值分类
 # 推荐对键做convert/global处理，以消除局部变量相等的问题。
-collectObj:=proc(s,key)
-    local t,v;
+collectObj:=proc(s,key,{output:=[val]::{[ind],[val],[ind,val]}})
+    local t,v,res;
     t:=table();
     for v in s do
         tappend(t,key(v),v);
     end do;
-    return [entries(t,nolist)];
+    res:=();
+    if evalb(ind in output) then
+        res:=res,[indices(t,nolist)];
+    end if;
+    if evalb(val in output) then
+        res:=res,[entries(t,nolist)];
+    end if;
+    return res;
 end proc:
 
 # 对象按键值唯一化
@@ -55,3 +62,29 @@ uniqueObj:=proc(s,key)
     end do;
     return [entries(t,nolist)];
 end proc:
+
+# 简要输出代表元及其成立条件以及不变量方程和变换方程的解
+summary:=proc()
+    local i,n,r,_reps,id;
+    _reps:=getReps();
+    n:=numelems(_reps);
+    for i from 1 to n do
+        r:=_reps[i];
+        printf("代表元 [%d]\n",i);
+        print(r:-rep);
+        printf("具有条件:\n");
+        for id in r:-sid do
+            print(getCon(r)[id]);
+            print(r:-isol[id]);
+            print(r:-tsol[id]);
+            printf("-------------------------------------\n");
+        end do;
+    end do;
+    return;
+end proc:
+
+# 简要输出代表元及其成立条件
+printRepCon:=proc()
+    map(x->print([x:-rep,getCon(x)[x:-sid]]),getReps()):
+    return;
+end proc:                

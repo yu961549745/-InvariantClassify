@@ -40,7 +40,8 @@ InvSol:=module()
 		printTeq::static,		# 显示变换方程的结果
 		## 设置相关
 		setRep::static,			# 重新取代表元
-		setIsol::static;		# 重新对不变量方程取解
+		setIsol::static,		# 重新对不变量方程取解
+		getRep::static;			# 获取代表元，转化为global对象便于比较
 
 	# 重新取代表元
 	setRep:=proc(s::InvSol,rvec::list)
@@ -57,6 +58,11 @@ InvSol:=module()
 		s:-isol:=isol;
 		s:-icon:=findSolutionDomain(isol);
 		return;
+	end proc:
+
+	# 获取代表元，转化为global对象便于比较
+	getRep:=proc(s::InvSol)
+		return convert(s:-rep,`global`);
 	end proc:
 
 	# 简化显示的不变量方程，将不变量的实际表达式简写为Delta

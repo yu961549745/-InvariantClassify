@@ -20,8 +20,12 @@ getSols:=proc()
 end proc:
 
 # 获取新增的代表元
+# 新的代表元只能获取一次
 getNewSols:=proc()
-	return sort([ (sols minus oldSols)[] ],'key'=(x->x:-ieqCode));
+	local res;
+	res:=sort([ (sols minus oldSols)[] ],'key'=(x->x:-ieqCode));
+	oldSols:=sols;
+	return res;
 end proc:
 
 getCname:=proc()
@@ -138,11 +142,11 @@ end proc:
 # 这么写会导致和非自由变量有关的偏导都变成0
 subsOeq:=proc(_sol::InvSol,isol)
 	local oeq,sol,v,vv,vars,Delta;
-	printf("--------------------------------------------------------------\n");
-	printf("求解新的不变量\n");
-	print(_sol:-oieq);
-	printf("取解\n");
-	print(isol);
+	flogf[1]("--------------------------------------------------------------\n");
+	flogf[1]("求解新的不变量\n");
+	flog[1](_sol:-oieq);
+	flogf[1]("取解\n");
+	flog[1](isol);
 	oeq:=_sol:-oeq;
 	vars:=_sol:-vars;
 	v,vv:=selectremove(x->evalb(lhs(x)<>rhs(x)),isol);
@@ -195,17 +199,17 @@ solveAllZero:=proc(_sol)
 			nnsol:=Object(nsol);
 			nnsol:-stateCode:=4;
 			setRep(nnsol,rep);
-			printf("--------------------------------------------------------------\n");
-			printf("求解全零方程\n");
-			print(getDisplayIeq(nnsol));
-			printf("取解\n");
-			print(nnsol:-isol);
-			printf("具有约束条件\n");
-			print(nnsol:-icon);
-			printf("取特解\n");
-			print(nnsol:-rvec);
-			printf("取代表元\n");
-			print(nnsol:-rep);
+			flogf[1]("--------------------------------------------------------------\n");
+			flogf[1]("求解全零方程\n");
+			flog[1](getDisplayIeq(nnsol));
+			flogf[1]("取解\n");
+			flog[1](nnsol:-isol);
+			flogf[1]("具有约束条件\n");
+			flog[1](nnsol:-icon);
+			flogf[1]("取特解\n");
+			flog[1](nnsol:-rvec);
+			flogf[1]("取代表元\n");
+			flog[1](nnsol:-rep);
 			resolve(nnsol);
 		end do;
 	end do;
@@ -214,13 +218,13 @@ end proc:
 # 取代表元
 fetchRep:=proc(_sol::InvSol)
 	local n,_ax;
-	printf("--------------------------------------------------------------\n");
-	printf("对于不变量方程\n");
-	print(getDisplayIeq(_sol));
-	printf("取解\n");
-	print(_sol:-isol);
-	printf("具有约束条件\n");
-	print(_sol:-icon);
+	flogf[1]("--------------------------------------------------------------\n");
+	flogf[1]("对于不变量方程\n");
+	flog[1](getDisplayIeq(_sol));
+	flogf[1]("取解\n");
+	flog[1](_sol:-isol);
+	flogf[1]("具有约束条件\n");
+	flog[1](_sol:-icon);
 	n:=_sol:-nvars;
 	_ax:=fetchSimpleSolution(_sol);
 	if evalb(_ax=NULL) then# 取特解失败
@@ -229,15 +233,15 @@ fetchRep:=proc(_sol::InvSol)
 	end if;
 	setRep(_sol,_ax);
 	if evalb(_sol:-rep=0) then
-		printf("代表元取0\n");
+		flogf[1]("代表元取0\n");
 		return;
 	end if;
 	_ax:=Matrix(_ax);
 	_sol:-stateCode:=4;
-	printf("取特解\n");
-	print(convert(_ax,list));
-	printf("取代表元\n");
-	print(_sol:-rep);
+	flogf[1]("取特解\n");
+	flog[1](convert(_ax,list));
+	flogf[1]("取代表元\n");
+	flog[1](_sol:-rep);
 	resolve(_sol);
 end proc:
 
@@ -252,15 +256,15 @@ solveTransformEquation:=proc(_sol::InvSol)
 	_sol:-teq[2],_sol:-tsol[2],_sol:-tcon[2]:=solveTeq(ax,_ax,_sol);
 	if andmap(x->evalb(x=[]),_sol:-tsol) then
 		# 无解
-		printf("变换方程求解失败\n");
+		flogf[1]("变换方程求解失败\n");
 		sols:=sols union {_sol};
 	else
 		# 有解
-		printf("变换方程有解\n");
+		flogf[1]("变换方程有解\n");
 		_sol:-stateCode:=5;
 		sols:=sols union {_sol};
-		printTeq(_sol,1);
-		printTeq(_sol,2);
+		flogTeq(_sol,1);
+		flogTeq(_sol,2);
 	end if;
 	return;
 end proc:

@@ -12,6 +12,8 @@ InvClassify:=module()
 	$include "Fetch.mpl"
 	$include "InvOrder.mpl"
 	$include "Utils.mpl"
+	$include "Interaction.mpl"
+	$include "Logout.mpl"
 
     # 加载包时改变微分算子的显示方式
 	ModuleLoad:=proc()	
@@ -21,9 +23,12 @@ InvClassify:=module()
 
     # 进行分类
     doClassify:=proc(vv::list)
-		local As,A,eqs;
+		local As,A,eqs,sols,reps;
 		As,A,eqs:=getTransformMatrixAndPDE(vv);
 		classify(A,As,eqs);
+		sols:=getSols();
+		reps:=buildReps(sols);
+		return reps;
 	end proc:
 
 end module:

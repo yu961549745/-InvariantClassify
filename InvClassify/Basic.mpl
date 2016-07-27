@@ -139,8 +139,8 @@ getTransformMatrixAndPDE:=proc(vv::list)
 	vvv:=expand(vv):
 	n:=numelems(vvv):
 	sbs:=Vector[row](1..n,i->v[i]):# 生成元的表示符号
-	printf("Input:");
-	print(seq(sbs[i]=vv[i],i=1..n));
+	flogf[2]("Input:");
+	flog[2](seq(sbs[i]=vv[i],i=1..n));
 	
 	# 计算交换子矩阵，这里得到的是关于f的结果，需要进一步用基表示
 	M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &* vvv[j]):
@@ -169,27 +169,27 @@ getTransformMatrixAndPDE:=proc(vv::list)
 			end if;
 		end do;
 	end do;
-	printf("Commutator table:");		
-	print(M);
+	flogf[2]("Commutator table:");		
+	flog[2](M);
 
 	
 	# 伴随矩阵
 	AD:=Array(1..n);
 	ADA:=LinearAlgebra[IdentityMatrix](n);
 	ADT:=Matrix(1..n,1..n);
-	printf("Adjoint transformation matrixes :\n");
+	flogf[2]("Adjoint transformation matrixes :\n");
 	for i from 1 to n do
 		AD[i]:=LinearAlgebra[MatrixExponential](Matrix(convert(MK[i],list)),-epsilon[i]);
 		ADA:=ADA.AD[i];
 		ADT(i,1..n):=subs~(epsilon[i]=epsilon,(AD[i].sbs^%T)^%T);
-		printf("Adjoint transformation matrix of %a",sbs[i]);
-		print(AD[i]);
+		flogf[2]("Adjoint transformation matrix of %a",sbs[i]);
+		flog[2](AD[i]);
 	end do;
-	printf("General adjoint transformation matrix");
-	print(ADA);
+	flogf[2]("General adjoint transformation matrix");
+	flog[2](ADA);
 
-	printf("Adjoint representation table:");
-	print(ADT);
+	flogf[2]("Adjoint representation table:");
+	flog[2](ADT);
 
 	# 计算不变量
 	BA:=Matrix(1..n,1..n,(i,j)->b[i]*a[j]);
@@ -203,19 +203,19 @@ end proc:
 *)
 getInvariants:=proc(eqs)
 	local res;
-	printf("偏微分方程\n");
-	print~(eqs);
+	flogf[1]("偏微分方程\n");
+	flog[1]~(eqs);
 	res:=pdsolve(eqs);
 	res:=res[];
 	res:=[op(op(2,res))];
 	res:=sortByComplexity(res);# 按照复杂度升序输出
-	printf("解得的不变量\n");
-	map(x->print('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
+	flogf[1]("解得的不变量\n");
+	map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
 	res:=simplifyInvariants(res);# 不变量化简
 	res:=simpleSimplify~(res);
 	res:=sortByComplexity(res);# 按照复杂度升序输出
-	printf("化简后的不变量\n");
-	map(x->print('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
+	flogf[1]("化简后的不变量\n");
+	map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
 	return res;
 end proc;
 
