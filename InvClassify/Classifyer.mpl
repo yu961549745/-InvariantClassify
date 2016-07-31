@@ -1,6 +1,7 @@
 classify:=proc(A,As,eqs)
 	local sol;
 	sols:={};
+	usols:=table();
 	oldSols:={};
 	sol:=Object(InvSol):
 	sol:-stateCode:=1:
@@ -39,7 +40,7 @@ getIeqCode:=proc()
 end proc:
 
 resolve:=proc(sol::InvSol)
-	local spos,pos,nDelta;
+	local spos,pos,nDelta,_usols,_usol;
 	
 	if evalb(sol:-stateCode=1) then
 		# 尝试求解偏微分方程组
@@ -52,7 +53,11 @@ resolve:=proc(sol::InvSol)
 		if evalb(indets(nDelta,name) intersect {seq(a[i],i=1..sol:-nvars)} = {}) then
 			# 求解失败不添加解
 			# 不考虑不能求解不变量的情况
-			return;
+			return "新不变量求解失败";
+		end if;
+		# 根据新的不变量是否有约束来决定是否求解上一个全零方程
+		if evalb( `union`(findDomain~(nDelta)[]) <> {} ) and evalb(sol:-Delta<>[]) then
+			solveAllZero( usols[convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`)] );
 		end if;
 		spos:=numelems(sol:-Delta)+1;
 		sol:-Delta:=[sol:-Delta[],nDelta[]]:
@@ -108,7 +113,11 @@ buildInvariantsEquations:=proc(_sol::InvSol,pos::posint)
 			if evalb(pos<>n) then
 				next;
 			else
-				solveAllZero(_sol);
+				# 这里是直接求解
+				# solveAllZero(_sol);
+				
+				# 这里是延后求解
+				usols[convert([seq(Delta[i],i=1..numelems(_sol:-Delta))],`global`)]:=_sol;
 				return;
 			end if;
 
@@ -131,11 +140,11 @@ genInvariants:=proc(_sol::InvSol)
 	oieq:={seq(Delta[i]=0,i=1..numelems(_sol:-Delta))};
 	sol:=Object(_sol);
 	sol:-oieq:=oieq;
-	sol:-ieqCode:=getIeqCode();
 	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)]);
-	for isol in isols do
-		subsOeq(sol,isol);
-	end do;
+	# 全部求解失败，则求解上一个全零方程
+	if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
+		solveAllZero( usols[convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`)] );
+	end if;
 end proc:
 
 # 生成新的不变量方程
@@ -158,7 +167,7 @@ subsOeq:=proc(_sol::InvSol,isol)
 	sol:-stateCode:=1;
 	sol:-oeq:=oeq;
 	sol:-vars:=vv;
-	resolve(sol);
+	return resolve(sol);
 end proc:
 
 # 求解不变量方程组

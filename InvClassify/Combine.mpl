@@ -11,7 +11,7 @@ end proc:
 
 # 获取排序后的reps
 getReps:=proc()
-    return sort([entries(eval(reps),nolist)],key=(x->[x:-osol[1]:-ieqCode,ModulePrint(x)]));
+    return sort([entries(eval(reps),nolist)],key=(x->[x:-osol[1]:-ieqCode,getRep(x:-osol[1])]));
 end proc:
 
 # 增加代表元

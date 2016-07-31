@@ -58,6 +58,7 @@ local
         eqOfEpsilon,                # 检查是否和epsilon有关
 
         sols,                       # 当前所有解
+        usols,             # 上一个全零不变量方程的解
         oldSols,                    # 上一次getSols的解
 
         getNewSols,                 # 获取新解
