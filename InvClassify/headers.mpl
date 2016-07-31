@@ -16,7 +16,7 @@ export
         setSymbols,                     # 设置输入表达式所含变量
         getSymbols;                     # 获取输入表达式所含变量
 local
-        getTransformMatrixAndPDE,       # 获取伴随变换矩阵和偏微分方程
+        getTransMatAndPDE,              # 获取伴随变换矩阵和偏微分方程
         getInvariants,                  # 根据偏微分方程获取不变量
 
         default_syms:={x,y,z,t,u,v,w},      # 默认符号集
@@ -46,19 +46,21 @@ local
         ieqCode:=0,                 # 不变量方程编号
         getIeqCode,                 # 获取不变量方程的编号
         
-        buildInvariantsEquations,   # 构造不变量方程
+        buildInvEqs,                # 构造不变量方程
         genInvariants,              # 产生新的不变量
         subsOeq,                    # 产生新的偏微分方程
-        solveInvariantsEquations,   # 求解不变量方程
+        solveInvEqs,                # 求解不变量方程
         solveAllZero,               # 求解全零不变量方程
         fetchRep,                   # 取特解定代表元
-        solveTransformEquation,     # 求解伴随变换方程
+        solveTransEq,               # 求解伴随变换方程
 
         clearConditions,            # 删去与a无关的约束
         eqOfEpsilon,                # 检查是否和epsilon有关
 
         sols,                       # 当前所有解
-        usols,             # 上一个全零不变量方程的解
+        usols,                      # 上一个全零不变量方程的解
+        getUsolsKey,                # 获取全零方程在usols中的key
+        solveRestAllZeroIeqs,       # 求解剩余全零不变量方程
         oldSols,                    # 上一次getSols的解
 
         getNewSols,                 # 获取新解
@@ -104,7 +106,7 @@ local
         collectObj,                 # 对象按键值分类
         uniqueObj;                  # 对象按键值唯一化
 export
-        summaryReps,                    # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
+        summaryReps,                # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
         printRepCon,                # 简要输出代表元及其成立条件
         printSols,                  # 输出所有InvSol
         printReps;                  # 输出所有RepSol

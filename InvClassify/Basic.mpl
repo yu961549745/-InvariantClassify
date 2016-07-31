@@ -129,7 +129,7 @@ end proc:
 * 	ADA	A[1]*A[2]*...*A[n]
 * 	dts	不变量数组
 *)
-getTransformMatrixAndPDE:=proc(vv::list)
+getTransMatAndPDE:=proc(vv::list)
 	local tbs,stbs,vvv,M,n,sbs,i,j,A,tmpv,MK,AD,ADA,ADT,BA,pPhi,eq,AList,dts,eqs;
 
 	if not (indets(vv,name) subset syms) then

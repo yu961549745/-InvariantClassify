@@ -24,7 +24,7 @@ InvClassify:=module()
     # 进行分类
     doClassify:=proc(vv::list)
 		local As,A,eqs,sols,reps;
-		As,A,eqs:=getTransformMatrixAndPDE(vv);
+		As,A,eqs:=getTransMatAndPDE(vv);
 		classify(A,As,eqs);
 		sols:=getSols();
 		reps:=buildReps(sols);

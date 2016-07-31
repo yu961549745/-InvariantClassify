@@ -57,32 +57,32 @@ resolve:=proc(sol::InvSol)
 		end if;
 		# 根据新的不变量是否有约束来决定是否求解上一个全零方程
 		if evalb( `union`(findDomain~(nDelta)[]) <> {} ) and evalb(sol:-Delta<>[]) then
-			solveAllZero( usols[convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`)] );
+			solveRestAllZeroIeqs(sol);
 		end if;
 		spos:=numelems(sol:-Delta)+1;
 		sol:-Delta:=[sol:-Delta[],nDelta[]]:
 		sol:-orders:=findInvariantsOrder~(sol:-Delta):
 		# 建立和求解不变量方程组
 		for pos from spos to numelems(sol:-Delta) do
-			buildInvariantsEquations(sol,pos);
+			buildInvEqs(sol,pos);
 		end do;
 		# 生成新的不变量
 		genInvariants(sol);
 	elif evalb(sol:-stateCode=2) then
 		# 求解不变量方程组
-		solveInvariantsEquations(sol);
+		solveInvEqs(sol);
 	elif evalb(sol:-stateCode=3) then
 		# 取代表元
 		fetchRep(sol);
 	elif evalb(sol:-stateCode=4) then
 		# 求解变换方程
-		solveTransformEquation(sol);
+		solveTransEq(sol);
 	end if;
 	return;
 end proc:
 
 # 建立不变量的方程组
-buildInvariantsEquations:=proc(_sol::InvSol,pos::posint)
+buildInvEqs:=proc(_sol::InvSol,pos::posint)
 	global sols,cid;
 	local sol,rs,i,n,x,xpos,eqs;
 	n:=numelems(_sol:-Delta);
@@ -117,7 +117,7 @@ buildInvariantsEquations:=proc(_sol::InvSol,pos::posint)
 				# solveAllZero(_sol);
 				
 				# 这里是延后求解
-				usols[convert([seq(Delta[i],i=1..numelems(_sol:-Delta))],`global`)]:=_sol;
+				usols[getUsolsKey(_sol)]:=_sol;
 				return;
 			end if;
 
@@ -143,7 +143,7 @@ genInvariants:=proc(_sol::InvSol)
 	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)]);
 	# 全部求解失败，则求解上一个全零方程
 	if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
-		solveAllZero( usols[convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`)] );
+		solveRestAllZeroIeqs(sol);
 	end if;
 end proc:
 
@@ -171,7 +171,7 @@ subsOeq:=proc(_sol::InvSol,isol)
 end proc:
 
 # 求解不变量方程组
-solveInvariantsEquations:=proc(_sol::InvSol)
+solveInvEqs:=proc(_sol::InvSol)
 	local isols,icons,n,vars,sol,i;
 	n:=_sol:-nvars;
 	vars:=[seq(a[i],i=1..n)];
@@ -254,7 +254,7 @@ fetchRep:=proc(_sol::InvSol)
 	resolve(_sol);
 end proc:
 
-solveTransformEquation:=proc(_sol::InvSol)
+solveTransEq:=proc(_sol::InvSol)
 	local ax,_ax,n,eq,sol,con;
 	n:=_sol:-nvars;
 	ax:=Matrix([seq(a[i],i=1..n)]);
@@ -311,8 +311,17 @@ eqOfEpsilon:=proc(eq)
 	return ormap(x->type(x,specindex(epsilon)),indets(eq,name));
 end proc:
 
-
 # 删除与a无关的约束
 clearConditions:=proc(con)
 	return select(x->ormap(type,indets(x,name),specindex(a)),con);
+end proc:
+
+# 求解剩余全零不变量方程
+solveRestAllZeroIeqs:=proc(sol::InvSol)
+	solveAllZero( usols[getUsolsKey(sol)] );
+end proc:
+
+# 获取全零不变量方程在usols中的key
+getUsolsKey:=proc(sol)
+	return convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`);
 end proc:
