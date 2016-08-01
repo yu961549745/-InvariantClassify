@@ -92,6 +92,7 @@ local	findSolutionDomain,         # 求解解的定义域
 
 # Fetch.mpl
 local	fetchSimpleSolution,        # 取特解
+        checkIeq,                   # 验证是否满足约束
         fetchIeq;                   # 对于不等式约束取特解
 
 # InvOrder.mpl
@@ -128,6 +129,6 @@ local
 *)
 export  setLogLevel;                # 设置输出级别
 local   
-        logLevel:=2,                # 日志输出级别
+        logLevel:=1,                # 日志输出级别
         flog,                       # 对应 print
         flogf;                      # 对应 printf

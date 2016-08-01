@@ -108,7 +108,7 @@ InvSol:=module()
 			printf("取代表元失败，状态代码3\n");
 			print(getDisplayIeq(s));
 			printf("取解\n");
-			printf(s:-isol);
+			print(s:-isol);
 		elif	evalb(s:-stateCode=4) then
 			printf("变换方程求解失败，状态代码4\n");
 			print(getDisplayIeq(s));

@@ -141,6 +141,7 @@ genInvariants:=proc(_sol::InvSol)
 	sol:=Object(_sol);
 	sol:-oieq:=oieq;
 	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)]);
+	isols:=convert~(isols,radical);
 	# 全部求解失败，则求解上一个全零方程
 	if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
 		solveRestAllZeroIeqs(sol);
@@ -197,6 +198,7 @@ solveAllZero:=proc(_sol)
 	sol:-ieqCode:=getIeqCode();
 	var:=[seq(a[i],i=1..sol:-nvars)];
 	isols:=RealDomain:-solve(sol:-Delta,var);
+	isols:=convert~(isols,radical);
 	icons:=findSolutionDomain~(isols);
 	n:=numelems(isols);
 	for i from 1 to n do
@@ -238,6 +240,7 @@ fetchRep:=proc(_sol::InvSol)
 	_ax:=fetchSimpleSolution(_sol);
 	if evalb(_ax=NULL) then# 取特解失败
 		sols:=sols union {_sol};
+		flogf[1]("取特解失败\n");
 		return;
 	end if;
 	setRep(_sol,_ax);
