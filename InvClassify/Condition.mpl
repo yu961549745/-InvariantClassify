@@ -31,15 +31,15 @@ end proc:
 *)
 findDomainCondtions:=proc(e,S::evaln(set))
 	local _e;
-	if type(e,`^`) then
+	if type(e,`^`) and (not type(op(1,e),numeric)) then
 		if evalb(op(2,e)<0) then
-			if type(op(2,e),'fraction') and type(op(2,op(2,e)),'even') then
+			if type(op(2,e),'fraction') then
 				S:=eval(S) union {op(1,e)>0};
 			else
 				S:=eval(S) union {op(1,e)<>0};
 			end if;
 		else
-			if type(op(2,e),'fraction') and type(op(2,op(2,e)),'even') then
+			if type(op(2,e),'fraction') then
 				S:=eval(S) union {op(1,e)>=0};
 			end if;
 		end if;
@@ -47,7 +47,7 @@ findDomainCondtions:=proc(e,S::evaln(set))
 		for _e in e do
 			findDomainCondtions(_e,S);
 		end do;
-	elif evalb(op(0,e)='ln') then
+	elif evalb(op(0,e)='ln') and (not type(op(1,e),numeric)) then
 		S:=eval(S) union {op(e)>0};
 	end if;
 end proc:

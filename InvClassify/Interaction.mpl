@@ -1,12 +1,17 @@
 # 交互式求解函数
 
-# 添加新的解进行求解
+# 添加新的RepSol进行求解
 resolveRep:=proc(rep,solInd,{newIsol:=[],newRep:=[]})
+    return resolveSol(rep:-osol[solInd],_options);
+end proc:
+
+# 添加新的InvSol进行求解
+resolveSol:=proc(sol::InvSol,{newIsol:=[],newRep:=[]})
     local s,nreps;
     if evalb(newIsol=[]) and evalb(newRep=[]) then
         error "至少设置newIsol和newRep之一的值";
     end if;
-    s:=Object(rep:-osol[solInd]);
+    s:=Object(sol);
     if evalb(newIsol<>[]) then
         setIsol(s,newIsol);
     end if;
@@ -22,7 +27,7 @@ end proc:
 
 # 获取新的代表元
 fetchNewRep:=proc(rep,solInd,con)
-    return fetchSimpleSolution(rep:-osol[solInd],addcon=con);
+    return fetchSolRep(rep:-osol[solInd],addcon=con);
 end proc:
 
 # 检查两个代表元之间能否相互转化

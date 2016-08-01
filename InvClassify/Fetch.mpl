@@ -7,7 +7,7 @@
 	* 验证是否满足多变量约束
 	* 满足返回特解，否则返回NULL
 *)
-fetchSimpleSolution:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
+fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
 	local f,C,sc,vc,t,r,rf,_rf,i,n,sols,res,sol,con;
 	sol:=_sol:-isol;
 	con:=_sol:-icon union addcon;

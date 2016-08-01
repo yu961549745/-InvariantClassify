@@ -17,7 +17,7 @@ end proc:
 # 暂时没做重复代表元的处理
 getSols:=proc()
 	oldSols:=sols;
-	return sort([sols[]],'key'=(x->x:-ieqCode));
+	return sort([sols[]],'key'=(x->[x:-ieqCode,getRep(x)]));
 end proc:
 
 # 获取新增的代表元
@@ -140,8 +140,7 @@ genInvariants:=proc(_sol::InvSol)
 	oieq:={seq(Delta[i]=0,i=1..numelems(_sol:-Delta))};
 	sol:=Object(_sol);
 	sol:-oieq:=oieq;
-	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)]);
-	isols:=convert~(isols,radical);
+	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
 	# 全部求解失败，则求解上一个全零方程
 	if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
 		solveRestAllZeroIeqs(sol);
@@ -176,8 +175,7 @@ solveInvEqs:=proc(_sol::InvSol)
 	local isols,icons,n,vars,sol,i;
 	n:=_sol:-nvars;
 	vars:=[seq(a[i],i=1..n)];
-	isols:=RealDomain[solve](_sol:-ieq,vars);
-	isols:=convert~(isols,radical);
+	isols:=RealDomain[solve](_sol:-ieq,vars,explicit);
 	icons:=findSolutionDomain~(isols);
 	n:=numelems(isols);
 	for i from 1 to n do
@@ -197,15 +195,14 @@ solveAllZero:=proc(_sol)
 	sol:-ieq:=[seq(x=0,x in sol:-Delta)];
 	sol:-ieqCode:=getIeqCode();
 	var:=[seq(a[i],i=1..sol:-nvars)];
-	isols:=RealDomain:-solve(sol:-Delta,var);
-	isols:=convert~(isols,radical);
+	isols:=RealDomain:-solve(sol:-Delta,var,explicit);
 	icons:=findSolutionDomain~(isols);
 	n:=numelems(isols);
 	for i from 1 to n do
 		nsol:=Object(sol);
 		nsol:-isol:=isols[i];
 		nsol:-icon:=icons[i];
-		reps:=fetchSimpleSolution(nsol,nonzero);
+		reps:=fetchSolRep(nsol,nonzero);
 		for rep in reps do
 			nnsol:=Object(nsol);
 			nnsol:-stateCode:=4;
@@ -237,7 +234,7 @@ fetchRep:=proc(_sol::InvSol)
 	flogf[1]("具有约束条件\n");
 	flog[1](_sol:-icon);
 	n:=_sol:-nvars;
-	_ax:=fetchSimpleSolution(_sol);
+	_ax:=fetchSolRep(_sol);
 	if evalb(_ax=NULL) then# 取特解失败
 		sols:=sols union {_sol};
 		flogf[1]("取特解失败\n");
@@ -281,15 +278,22 @@ solveTransEq:=proc(_sol::InvSol)
 	return;
 end proc:
 
+(*
+	求解变换方程
+
+	因为变换方程只关心其存在性，而不在乎其完整性，因此不用explicit选项，而采用convert/radical
+*)
 solveTeq:=proc(a,b,sol)
 	local var,teq,tsol,tcon,scon,eqs,eq,_eq,_con,_sol;
 	teq:=convert((a-b.sol:-A),list);
 	teq:=subs(sol:-isol[],teq);
 	var:=[seq(epsilon[i],i=1..sol:-nvars)];
+	# tsol:=RealDomain:-solve(teq,var,explicit);
 	tsol:=convert~(RealDomain:-solve(teq,var),radical);
 	if evalb(tsol=[]) then
 		# 求解失败，尝试二次求解法方法
 		# 首次求解
+		#eqs:=[RealDomain:-solve(teq,explicit)];
 		eqs:=convert~([RealDomain:-solve(teq)],radical);
 		# 二次求解
 		tsol:=[];
@@ -298,7 +302,8 @@ solveTeq:=proc(a,b,sol)
 			_eq:=select(eqOfEpsilon,eq);
 			_con:=remove(eqOfEpsilon,eq);
 			_con:=remove(x->type(x,`=`) and evalb(lhs(x)=rhs(x)),_con);
-			_sol:=convert~(RealDomain:-solve(_eq,var),radical);
+			#_sol:=RealDomain:-solve(_eq,var,explicit);
+			_sol:=convert~(RealDomain:-solve(_eq,var,explicit),radical);
 			_con:=map(x->clearConditions(findSolutionDomain(x)) union _con,_sol);
 			tsol:=[tsol[],_sol[]];
 			tcon:=[tcon[],_con[]];

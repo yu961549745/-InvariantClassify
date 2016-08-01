@@ -91,7 +91,8 @@ local	findSolutionDomain,         # 求解解的定义域
         findDomainCondtions;        # 求解表达式约束条件
 
 # Fetch.mpl
-local	fetchSimpleSolution,        # 取特解
+export  fetchSolRep;                # 取特解
+local	
         checkIeq,                   # 验证是否满足约束
         fetchIeq;                   # 对于不等式约束取特解
 
@@ -115,7 +116,8 @@ export
 # Interaction.mpl
 export  
         canTransform,               # 检查两个代表元之间能否相互转化
-        resolveRep,                 # 添加新的解进行求解
+        resolveRep,                 # 添加新的RepSol进行求解
+        resolveSol,                 # 添加新的InvSol进行求解
         fetchNewRep;                # 获取新的代表元   
 local   
         testTransform;              # 检查两个解之间能否相互转化
