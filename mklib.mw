@@ -97,7 +97,7 @@
 <Task/>
 <Group labelreference="L1" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2JVEhRicvJSdpdGFsaWNHUSV0cnVlRicvJSxtYXRodmFyaWFudEdRJ2l0YWxpY0YnLyUnZmFtaWx5R1EwVGltZXN+TmV3flJvbWFuRicvJStleGVjdXRhYmxlR1EmZmFsc2VGJy9GM1Enbm9ybWFsRic=">LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYjLUkjbWlHRiQ2JVEhRicvJSdpdGFsaWNHUSV0cnVlRicvJSxtYXRodmFyaWFudEdRJ2l0YWxpY0Yn</Equation></Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2I1EhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2V4ZWN1dGFibGVHUSZmYWxzZUYnLyUsbWF0aHZhcmlhbnRHUSdub3JtYWxGJw==">LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYjLUkjbWlHRiQ2I1EhRic=</Equation></Text-field>
 </Input>
 </Group><CodeEditor-ExecGroup view="presentation" labelreference="L2" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion0" visible="true" pixel-width="510" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true">restart;
 with(mklib);
@@ -108,7 +108,7 @@ LibraryTools:-ShowContents(libFile);</EC-CodeEditor>
 <Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyVJKGxpYkZpbGVHNiJJJ21rRmlsZUdGJEkpbWtNb2R1bGVHRiQ=</Equation></Text-field>
 </Output>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyU3JlEtQ29kZVBhcnNlci5tNiI3KCIlOz8iIigiI0AiIzYiI2EiI1IiJnFiJyIkeSM3JlEuSW52Q2xhc3NpZnkubUYlNyhGJyIiKSIiIyIjOiIjRUYpIiZjSCciJTlFNyZRKG1rbGliLm1GJTcoRidGKCIiJiIjPiIjZiIjYiImZkkoIiR3Ig==</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyU3JlEtQ29kZVBhcnNlci5tNiI3KCIlOz8iIigiI0AiIzYiI2EiI1IiJjJrJyIkeSM3JlEuSW52Q2xhc3NpZnkubUYlNyhGJyIiKSIiIyIjPiIjQSIjTyImME8nIiUtRzcmUShta2xpYi5tRiU3KEYnRigiIiZGNCIjZiIjYiImIypHKCIkdyI=</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
 <Group labelreference="L5" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>

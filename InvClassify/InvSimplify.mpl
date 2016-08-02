@@ -108,10 +108,18 @@ rmOrd:=proc(_v)
 		v:=remove(type,v,numeric);
 		ks:=map(getOrd,[op(v)]);
 		k:=myGcd(ks);
+		# 保证偶次不能变奇次
+		if type(k,even) then
+			k:=k/2;
+		end if;
 		v:=map(setOrd,v,k);
 		return v;
 	elif type(v,`^`) then
-		return op(1,v);
+		if type(op(2,v),even) then
+			return op(1,v)^2;
+		else
+			return op(1,v);
+		end if;
 	else 
 		return v;
 	end if;
