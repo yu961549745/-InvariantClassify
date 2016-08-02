@@ -34,6 +34,7 @@ InvSol:=module()
 		# 导出函数
 		## 输出相关
 		getDisplayIeq::static,	# 简化显示的不变量方程，将不变量的实际表达式简写为Delta
+		getDisplayDelta::static,# 输出不变量
 		getDesc::static,		# 获取对象的特征描述
 		ModulePrint::static,	# 打印和显示对象的值
 		printSol::static,		# 详细显示对象信息
@@ -69,6 +70,12 @@ InvSol:=module()
 	getDisplayIeq:=proc(self::InvSol)
 		local Delta;
 		return {seq(Delta[i]=rhs(self:-ieq[i]),i=1..numelems(self:-Delta))};
+	end proc:
+
+	# 输出不变量
+	getDisplayDelta:=proc(self::InvSol)
+		local Delta;
+		return [seq(Delta[i]=self:-Delta[i],i=1..numelems(self:-Delta))];
 	end proc:
 
 	# 获取对象的特征描述

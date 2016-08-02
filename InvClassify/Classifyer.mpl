@@ -136,10 +136,8 @@ end proc:
 
 # 生成新的代表元
 genInvariants:=proc(_sol::InvSol)
-	local isols,isol,oeq,sol,oieq;
-	oieq:={seq(Delta[i]=0,i=1..numelems(_sol:-Delta))};
+	local isols,isol,sol;
 	sol:=Object(_sol);
-	sol:-oieq:=oieq;
 	isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
 	# 全部求解失败，则求解上一个全零方程
 	if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
@@ -153,7 +151,8 @@ subsOeq:=proc(_sol::InvSol,isol)
 	local oeq,sol,v,vv,vars,Delta;
 	flogf[1]("--------------------------------------------------------------\n");
 	flogf[1]("求解新的不变量\n");
-	flog[1](_sol:-oieq);
+	flog[1]({seq(Delta[i]=0,i=1..numelems(_sol:-Delta))});
+	flog[2](getDisplayDelta(_sol));
 	flogf[1]("取解\n");
 	flog[1](isol);
 	oeq:=_sol:-oeq;
@@ -210,6 +209,7 @@ solveAllZero:=proc(_sol)
 			flogf[1]("--------------------------------------------------------------\n");
 			flogf[1]("求解全零方程\n");
 			flog[1](getDisplayIeq(nnsol));
+			flog[1](getDisplayDelta(nnsol));
 			flogf[1]("取解\n");
 			flog[1](nnsol:-isol);
 			flogf[1]("具有约束条件\n");
@@ -229,6 +229,7 @@ fetchRep:=proc(_sol::InvSol)
 	flogf[1]("--------------------------------------------------------------\n");
 	flogf[1]("对于不变量方程\n");
 	flog[1](getDisplayIeq(_sol));
+	flog[1](getDisplayDelta(_sol));
 	flogf[1]("取解\n");
 	flog[1](_sol:-isol);
 	flogf[1]("具有约束条件\n");
@@ -272,8 +273,11 @@ solveTransEq:=proc(_sol::InvSol)
 		flogf[1]("变换方程有解\n");
 		_sol:-stateCode:=5;
 		sols:=sols union {_sol};
-		flogTeq(_sol,1);
-		flogTeq(_sol,2);
+		# 在logLevel为1时输出
+		if evalb(1>=logLevel) then
+			printTeq(_sol,1);
+			printTeq(_sol,2);
+		end if;
 	end if;
 	return;
 end proc:

@@ -32,21 +32,28 @@ end proc:
 
 # 检查两个代表元之间能否相互转化
 canTransform:=proc(r1,i1,r2,i2)
-    local s1,s2;
+    local s1,s2,eqs;
     s1:=r1:-osol[i1];
     s2:=r2:-osol[i2];
-    if testTransform(s1,s2,s1) then
+    eqs:=table();
+    eqs[1]:=testTransform(s1,s2,s1);
+    if evalb(eqs[1]=true) then
         return true;
     end if;
-    if testTransform(s1,s2,s2) then
+    eqs[2]:=testTransform(s1,s2,s2);
+    if evalb(eqs[2]=true) then
         return true;
     end if;
-    if testTransform(s2,s1,s1) then
+    eqs[3]:=testTransform(s2,s1,s1);
+    if evalb(eqs[3]=true) then
         return true;
     end if;
-    if testTransform(s2,s1,s2) then
+    eqs[4]:=testTransform(s2,s1,s2);
+    if evalb(eqs[4]=true) then
         return true;
     end if;
+    printf("无法求解变换方程\n");
+    print~([entries(eqs,nolist)]);
     return false;
 end proc:
 
@@ -64,6 +71,6 @@ testTransform:=proc(s1,s2,base)
         print(s1:-rep);
         return true;
     else
-        return false;
+        return eq;
     end if;
 end proc:
