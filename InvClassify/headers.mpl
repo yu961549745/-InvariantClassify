@@ -94,7 +94,14 @@ local
 # InvSimplify.mpl
 local
         simplifyInvariants,             # 化简不变量
-        simpleSimplify,                 # 消除不变量分母中的倍数
+        simplifyInvs,                   # 单次化简
+        simpleSimplify,                 # 消除不变量的倍数
+        myAlgsubs,                      # 解决algsubs对分式进行替换的问题
+        dealsubs,                       # 预处理替换表达式
+        rmOrd,                          # 简化不变量次数
+        getOrd,                         # 获取连乘项的各项幂次
+        setOrd,                         # 设置连乘项的各项幂次
+        isInv,                          # 检查是否为不变量
         rmK,                            # 删除多项式的倍数
         myGcd,                          # 多个数的gcd
         spAdd,                          # 简化不变量之和

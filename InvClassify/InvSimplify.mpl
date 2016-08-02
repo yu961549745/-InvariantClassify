@@ -4,22 +4,45 @@
 	不改变不变量的顺序。
 *)
 simplifyInvariants:=proc(iinvs)
-	local invs,tmp,i,j,n,vars,vset,vv,v1,v2;
+	local x,nx;
+	x:=iinvs;
+	while true do
+		nx:=simplifyInvs(x);
+		if evalb(x=nx) then
+			break;
+		end if;
+		x:=nx;
+	end do;
+	return x;
+end proc:
+
+# 内部化简函数
+simplifyInvs:=proc(iinvs)
+	local invs,tmp,ttmp,i,j,n,vars,vset,vv,v1,v2;
 	invs:=iinvs;
 	n:=numelems(invs);
 	vars:=[seq(_Delta[i],i=1..n)];
 	vset:={vars[]};
 	# 尝试将不变量进行整体代换并进行化简
 	for i from 1 to n do
+		# 尝试把每个不变量用其它不变量进行表示
 		tmp:=invs[i];
 		for j from 1 to n do
 			if evalb(i<>j) then
-				try tmp:=algsubs(invs[j]=vars[j],tmp);
+				# 替换时用简单替换复杂的，不用复杂的替换简单的。
+				try 
+					ttmp:=myAlgsubs(invs[j]=vars[j],tmp);
+					if evalb( nops(expand(ttmp)) <= nops(expand(tmp)) ) then
+						tmp:=ttmp;
+					end if;
 				catch:
 				end try;
 			end if;
 		end do;
-		invs[i]:=spAdd(spMul(numer(tmp),vset),vset)/spAdd(spMul(denom(tmp),vset),vset);
+		invs[i]:=spAdd(spMul(tmp));
+		if type(invs[i],numeric) then
+			invs[i]:=0;
+		end if:
 	end do;
 	vv:=[seq(vars[i]=invs[i],i=1..n)];
 	# 将不能化简掉的整体代回原表达式
@@ -33,20 +56,82 @@ simplifyInvariants:=proc(iinvs)
 	end do;
 	vv:={vv[]};# 为了按照Delta排序
 	vv:=rhs~([vv[]]);# 返回list才能保持顺序不变
-	vv:=invOrd~(vv);
-	vv:=simplify(vv);
-	return simpleSimplify~(vv);
-end proc;
+	vv:=simpleSimplify~(vv);# 消去整体的倍数
+	vv:=invOrd~(vv);# 调整阶数为正整数
+	vv:=rmOrd~(vv);# 降次
+	vv:=simplify(vv);# 默认化简
+	return vv;
+end proc:
 
-# 如果不变量的阶数是分数的
-# 就调整不变量的阶数
+# 自定义algsubs，解决algsubs对于分式替换的不足
+myAlgsubs:=proc(_s::seq(equation),v)
+	local s;
+	s:=dealsubs~(_s);
+	return algsubs(s,numer(v))/algsubs(s,denom(v));
+end proc:
+
+# 处理替换等式
+dealsubs:=proc(e)
+	local l,r;
+	l:=lhs(e);
+	r:=rhs(e);
+	if type(numer(l),numeric) then
+		return denom(l)=numer(l)/r;
+	elif not type(denom(l),numeric) then
+		return numer(l)=denom(l)*r;
+	else
+		return e;
+	end if;
+end proc:
+
+# 调整不变量的阶数为正整数
 invOrd:=proc(v)
 	local ord;
+	if type(v,numeric) then 
+		return v;
+	end if;
 	ord:=findInvariantsOrder(v);
 	if type(ord,fraction) then
 		return v^denom(ord);
+	elif evalb(ord<0) then
+		return v^(-1);
 	else
 		return v;
+	end if;
+end proc:
+
+# 不变量降次
+rmOrd:=proc(_v)
+	local v,ks,k;
+	v:=expand(_v);
+	if type(v,`*`) then
+		v:=remove(type,v,numeric);
+		ks:=map(getOrd,[op(v)]);
+		k:=myGcd(ks);
+		v:=map(setOrd,v,k);
+		return v;
+	elif type(v,`^`) then
+		return op(1,v);
+	else 
+		return v;
+	end if;
+end proc:
+
+# 获取次数
+getOrd:=proc(e)
+	if type(e,`^`) then
+		return op(2,e);
+	else
+		return 1;
+	end if;
+end proc:
+
+# 设置次数
+setOrd:=proc(e,k)
+	if type(e,`^`) then
+		return subsop(2=op(2,e)/k,e);
+	else
+		return e^(1/k);
 	end if;
 end proc:
 
@@ -56,20 +141,19 @@ end proc:
 	* 则化简为
 	* 	D[i]=g(a[1],...,a[m])
 *)
-spAdd:=proc(ee,vars)
-	local e,_e,s;
+spAdd:=proc(ee)
+	local e,r;
 	e:=expand(ee);
-	if not type(e,`+`) then
+	if type(e,`+`) then
+		r:=remove(isInv,e);
+		if evalb(r=NULL) then
+			r:=0;
+		end if;
+		return r;
+	else
 		return e;
 	end if;
-	s:=0;
-	for _e in e do
-		if not indets(_e,'name') subset vars then
-			s:=s+_e;
-		end if;
-	end do;
-	return s;
-end proc;
+end proc:
 
 (*
 	* 若不变量
@@ -77,20 +161,25 @@ end proc;
 	* 则化简为
 	* 	D[i]=g(a[1],...,a[m])
 *)
-spMul:=proc(ee,vars)
-	local e,_e,p;
+spMul:=proc(ee)
+	local e,r;
 	e:=factor(ee);
-	if not type(e,`*`) then
+	if type(e,`*`) then
+		r:=remove(isInv,e);
+		if evalb(r=NULL) then
+			r:=0;
+		end if;
+		return r;
+	elif type(e,`^`) then
+		r:=remove(isInv,op(1,e));
+		if evalb(r=NULL) then
+			r:=0;
+		end if;
+		return r^op(2,e);
+	else
 		return e;
 	end if;
-	p:=1;
-	for _e in e do
-		if not indets(_e,'name') subset vars then
-			p:=p*_e;
-		end if;
-	end do;
-	return p;
-end proc;
+end proc:
 
 (*
 	* 不变量的简单化简
@@ -100,17 +189,28 @@ simpleSimplify:=proc(ee)
 	local n,d;
 	n:=rmK(numer(ee));
 	d:=rmK(denom(ee));
+	if type(d,numeric) then
+		d:=1;
+	end if;
 	return simplify(expand(n/d));
 end proc:
 
 # 删除多项式的倍数
 rmK:=proc(_e)
 	local e,r;
+	if evalb(_e=0) then
+		return 0;
+	end if:
 	e:=expand(_e);
 	if type(e,`+`) then
+		# 消除多项式中各项系数的倍数
 		r:=e/myGcd(map(x->select(type,x,numeric),[op(e)]));
-	else
+	elif type(e,`*`) then
+		# 消除单项多项式的系数
 		r:=remove(type,e,numeric);
+	else
+		# 不处理无系数单项多项式
+		r:=e;
 	end if;
 	if evalb(r=NULL) then
 		r:=1;
@@ -121,10 +221,18 @@ end proc:
 # 多个数的gcd
 myGcd:=proc(ks)
 	local k,i,n;
+	if evalb(ks=[]) then
+		return 1;
+	end if;
 	k:=ks[1];
 	n:=numelems(ks);
 	for i from 2 to n do
 		k:=gcd(k,ks[i]);
 	end do;
 	return k;
+end proc:
+
+# 是否是不变量
+isInv:=proc(e)
+	return andmap(type,indets(e,name),specindex(_Delta));
 end proc:
