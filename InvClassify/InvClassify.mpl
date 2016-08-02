@@ -13,6 +13,7 @@ InvClassify:=module()
 	$include "InvOrder.mpl"
 	$include "Utils.mpl"
 	$include "Interaction.mpl"
+	$include "InvSimplify.mpl"
 	$include "Logout.mpl"
 
     # 加载包时改变微分算子的显示方式

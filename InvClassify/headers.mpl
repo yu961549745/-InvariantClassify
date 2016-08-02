@@ -28,13 +28,8 @@ local
         getPmVec,                       # 获取表达式关于给定非线性项集的系数向量
         ans2v,                          # 求解表达式关于基的线性表出
 
-        getPDE,                         # 获取生成不变量的偏微分方程
+        getPDE;                         # 获取生成不变量的偏微分方程
 
-        simplifyInvariants,             # 化简不变量
-        simpleSimplify,                 # 消除不变量分母中的倍数
-        spAdd,                          # 简化不变量之和
-        spMul,                          # 简化不变量之积
-        invOrd;                         # 化简分数次数的不变量
 uses    
         Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;# 微分算子所作用的函数
 
@@ -96,6 +91,16 @@ local
         checkIeq,                   # 验证是否满足约束
         fetchIeq;                   # 对于不等式约束取特解
 
+# InvSimplify.mpl
+local
+        simplifyInvariants,             # 化简不变量
+        simpleSimplify,                 # 消除不变量分母中的倍数
+        rmK,                            # 删除多项式的倍数
+        myGcd,                          # 多个数的gcd
+        spAdd,                          # 简化不变量之和
+        spMul,                          # 简化不变量之积
+        invOrd;                         # 化简分数次数的不变量
+
 # InvOrder.mpl
 local   findInvariantsOrder,        # 计算不变量阶数
         findOrder,                  # 计算表达式阶数（不含分母）
@@ -106,6 +111,7 @@ local
         sortByComplexity,           # 表达式按照复杂度进行排序
         tappend,                    # 按照集合拓展table键值 
         collectObj,                 # 对象按键值分类
+        printDeltas,                # 输出Delta
         uniqueObj;                  # 对象按键值唯一化
 export
         summaryReps,                # 简要输出代表元及其成立条件以及不变量方程和变换方程的解

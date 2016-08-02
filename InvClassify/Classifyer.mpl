@@ -17,7 +17,7 @@ end proc:
 # 暂时没做重复代表元的处理
 getSols:=proc()
 	oldSols:=sols;
-	return sort([sols[]],'key'=(x->[x:-ieqCode,getRep(x)]));
+	return sort([sols[]],'key'=(x->[x:-ieqCode,convert(getDesc(x),`global`)]));
 end proc:
 
 # 获取新增的代表元
@@ -40,7 +40,7 @@ getIeqCode:=proc()
 end proc:
 
 resolve:=proc(sol::InvSol)
-	local spos,pos,nDelta,_usols,_usol;
+	local spos,pos,nDelta,_usols,_usol,oldDeltas,oldSol;
 	
 	if evalb(sol:-stateCode=1) then
 		# 尝试求解偏微分方程组
@@ -55,13 +55,31 @@ resolve:=proc(sol::InvSol)
 			# 不考虑不能求解不变量的情况
 			return "新不变量求解失败";
 		end if;
-		# 根据新的不变量是否有约束来决定是否求解上一个全零方程
-		if evalb( `union`(findDomain~(nDelta)[]) <> {} ) and evalb(sol:-Delta<>[]) then
-			solveRestAllZeroIeqs(sol);
-		end if;
+		# 设置新的不变量
 		spos:=numelems(sol:-Delta)+1;
-		sol:-Delta:=[sol:-Delta[],nDelta[]]:
-		sol:-orders:=findInvariantsOrder~(sol:-Delta):
+		oldDeltas:={sol:-Delta[]};
+		oldSol:=Object(sol);
+		if evalb(sol:-Delta<>[]) then
+			sol:-Delta:=[sol:-Delta[],nDelta[]]:
+			# 整体化简不变量
+			if evalb(1>=logLevel) then
+				flogf[1]("-----------------------------------------------\n");
+				flogf[1]("对新增不变量按照原不变量进行化简\n");
+				flogf[1]("化简前\n");
+				printDeltas(sol:-Delta);
+				sol:-Delta:=simplifyInvariants(sol:-Delta);
+				flogf[1]("化简后\n");
+				printDeltas(sol:-Delta);
+			end if;
+		else
+			sol:-Delta:=[sol:-Delta[],nDelta[]]:
+		end if;
+		sol:-orders:=findInvariantsOrder~(sol:-Delta):# 计算不变量阶数
+		# 根据新的不变量是否有约束来决定是否求解上一个全零方程
+		nDelta:=remove(x->evalb(x in oldDeltas),sol:-Delta);
+		if evalb( `union`(findDomain~(nDelta)[]) <> {} ) and evalb(sol:-Delta<>[]) then
+			solveRestAllZeroIeqs(oldSol);
+		end if;
 		# 建立和求解不变量方程组
 		for pos from spos to numelems(sol:-Delta) do
 			buildInvEqs(sol,pos);

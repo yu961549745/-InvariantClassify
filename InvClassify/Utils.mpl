@@ -87,4 +87,9 @@ end proc:
 printRepCon:=proc()
     map(x->print([x:-rep,getCon(x)[x:-sid]]),getReps()):
     return;
-end proc:                
+end proc:
+
+# 输出Delta
+printDeltas:=proc(ds)
+    map(i->print(Delta[i]=ds[i]),[seq(x,x=1..numelems(ds))]);
+end proc:
