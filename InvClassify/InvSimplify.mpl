@@ -1,8 +1,4 @@
-(*
-	化简不变量
-	对于一个不变量的分子和分母，分别尝试用乘法和加法的规则进行化简
-	不改变不变量的顺序。
-*)
+# 化简不变量,不改变不变量的顺序。
 simplifyInvariants:=proc(iinvs)
 	local x,nx;
 	x:=iinvs;
@@ -197,9 +193,6 @@ simpleSimplify:=proc(ee)
 	local n,d;
 	n:=rmK(numer(ee));
 	d:=rmK(denom(ee));
-	if type(d,numeric) then
-		d:=1;
-	end if;
 	return simplify(expand(n/d));
 end proc:
 
@@ -220,7 +213,7 @@ rmK:=proc(_e)
 		# 不处理无系数单项多项式
 		r:=e;
 	end if;
-	if evalb(r=NULL) then
+	if evalb(r=NULL) or type(r,numeric) then
 		r:=1;
 	end if;	
 	return r;

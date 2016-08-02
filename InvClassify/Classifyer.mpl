@@ -334,6 +334,9 @@ solveTeq:=proc(a,b,sol)
 		# 求解成功，直接计算约束
 		tcon:=map(x->clearConditions(findSolutionDomain(x)),tsol);
 	end if;
+	# 清理矛盾解
+	tsol:=zip((s,c)->if evalb(undefined in rhs~(c)) then NULL else s end if,tsol,tcon);
+	tcon:=remove(c->evalb(undefined in rhs~(c)),tcon);
 	return teq,tsol,tcon;
 end proc:
 

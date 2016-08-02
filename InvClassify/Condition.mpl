@@ -33,13 +33,13 @@ findDomainCondtions:=proc(e,S::evaln(set))
 	local _e;
 	if type(e,`^`) and (not type(op(1,e),numeric)) then
 		if evalb(op(2,e)<0) then
-			if type(op(2,e),'fraction') then
+			if type(op(2,e),fraction) and type(denom(op(2,e)),even) then
 				S:=eval(S) union {op(1,e)>0};
 			else
 				S:=eval(S) union {op(1,e)<>0};
 			end if;
 		else
-			if type(op(2,e),'fraction') then
+			if type(op(2,e),fraction) and type(denom(op(2,e)),even) then
 				S:=eval(S) union {op(1,e)>=0};
 			end if;
 		end if;
@@ -56,7 +56,7 @@ end proc:
 # 合并单变量约束
 # 保留多变量约束
 classifySolve:=proc(con::set)
-	local t,sd,ns,c,ind,x;
+	local t,sd,ns,c,ind,x,sol;
 	t:=table();
 	ns,sd:=selectremove(x->evalb(numelems(indets(x,name))=1),con);
 	for c in ns do
@@ -64,7 +64,12 @@ classifySolve:=proc(con::set)
 	end do;
 	ind:=[indices(t,nolist)];
 	for x in ind do
-		t[x]:=RealDomain:-solve(t[x],{x});
+		sol:=RealDomain:-solve(t[x],{x});
+		if evalb(sol=NULL) then
+			t[x]:={x=undefined};
+		else
+			t[x]:=sol;
+		end if;
 	end do;
 	ns:=`union`(entries(t,nolist));
 	return sd union ns;
