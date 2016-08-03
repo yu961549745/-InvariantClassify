@@ -11,7 +11,7 @@ export
         RepSol;                         # 代表元对象
 
 # Basic.mpl
-export	
+export    
         d,                              # 导出微分算子，用于生成输入表达式
         setSymbols,                     # 设置输入表达式所含变量
         getSymbols;                     # 获取输入表达式所含变量
@@ -34,7 +34,7 @@ uses
         Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;# 微分算子所作用的函数
 
 # Classifyer.mpl
-local	
+local    
         cid:=0,                     # 当前不变量方程中的常数项下标
         getCname,                   # 获取不变量方程中常数项c[k]的名字
 
@@ -63,7 +63,7 @@ local
 
         resolve,                    # 重新分类
         classify;                   # 自动分类
-export	
+export    
         getSols;                    # 获取所有解
       
 
@@ -80,14 +80,15 @@ local
         formReps;                   # 建立代表元
 
 # Condition.mpl
-local	findSolutionDomain,         # 求解解的定义域
+local   
+        findSolutionDomain,         # 求解解的定义域
         classifySolve,              # 分类求解约束
-    	findDomain,                 # 求解表达式定义域
+        findDomain,                 # 求解表达式定义域
         findDomainCondtions;        # 求解表达式约束条件
 
 # Fetch.mpl
 export  fetchSolRep;                # 取特解
-local	
+local    
         checkIeq,                   # 验证是否满足约束
         fetchIeq;                   # 对于不等式约束取特解
 
