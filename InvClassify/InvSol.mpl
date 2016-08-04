@@ -148,8 +148,13 @@ InvSol:=module()
     printTeq:=proc(sol,pos)
         if evalb(sol:-tsol[pos]=[]) then
             printf("变换方程 %d 无解\n",pos);
+            printf("方程为\n");
+            print(sol:-teq[pos]);
         else
             printf("变换方程 %d 有解\n",pos);
+            printf("方程为\n");
+            print(sol:-teq[pos]);
+            printf("有解\n");
             print(sol:-tsol[pos]);
             printf("具有条件\n");
             print(sol:-tcon[pos]);
