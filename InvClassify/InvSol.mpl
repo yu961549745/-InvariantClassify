@@ -45,8 +45,15 @@ InvSol:=module()
         getRep::static;             # 获取代表元，转化为global对象便于比较
 
     # 重新取代表元
-    setRep:=proc(s::InvSol,rvec::list)
-        local v;
+    setRep:=proc(s::InvSol,rvec::list,{nocheck::boolean:=false})
+        local v,r;
+        if not nocheck then
+            # 解的检验
+            r:=eval(subs(seq(a[i]=rvec[i],i=1..numelems(rvec)),s:-ieq));
+            if not andmap(evalb,r) then
+                error "不是不变量方程的解，代入结果为%1",r;
+            end if;
+        end if;
         s:-stateCode:=4;
         s:-rvec:=Matrix(rvec);
         s:-rep:=add(rvec[i]*v[i],i=1..numelems(rvec));
@@ -54,7 +61,15 @@ InvSol:=module()
     end proc:
 
     # 重新对不变量方程取解
-    setIsol:=proc(s::InvSol,isol)
+    setIsol:=proc(s::InvSol,isol,{nocheck::boolean:=false})
+        local r;
+        if not nocheck then
+            # 解的检验
+            r:=RealDomain:-simplify(subs(isol[],s:-ieq));
+            if not andmap(evalb,r) then
+                error "不是不变量方程的解，代入结果为%1",r;
+            end if;
+        end if;
         s:-stateCode:=3;
         s:-isol:=isol;
         s:-icon:=findSolutionDomain(isol);

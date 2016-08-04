@@ -17,7 +17,7 @@ InvClassify:=module()
     $include "Utils.mpl"
 
     # 加载包时改变微分算子的显示方式
-    ModuleLoad:=proc()    
+    ModuleLoad:=proc()   
         PDETools:-declare('quiet'):
     end proc;
     ModuleLoad();

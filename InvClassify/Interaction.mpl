@@ -1,22 +1,22 @@
 # 交互式求解函数
 
 # 添加新的RepSol进行求解
-resolveRep:=proc(rep,solInd,{newIsol:=[],newRep:=[]})
+resolveRep:=proc(rep,solInd,{newIsol:=[],newRep:=[],nocheck::boolean:=false})
     return resolveSol(rep:-osol[solInd],_options);
 end proc:
 
 # 添加新的InvSol进行求解
-resolveSol:=proc(sol::InvSol,{newIsol:=[],newRep:=[]})
+resolveSol:=proc(sol::InvSol,{newIsol:=[],newRep:=[],nocheck::boolean:=false})
     local s,nreps;
     if evalb(newIsol=[]) and evalb(newRep=[]) then
         error "至少设置newIsol和newRep之一的值";
     end if;
     s:=Object(sol);
     if evalb(newIsol<>[]) then
-        setIsol(s,newIsol);
+        setIsol(s,newIsol,_options['nocheck']);
     end if;
     if evalb(newRep<>[]) then
-        setRep(s,newRep);
+        setRep(s,newRep,_options['nocheck']);
     end if;
     resolve(s);
     nreps:=addReps(getNewSols());

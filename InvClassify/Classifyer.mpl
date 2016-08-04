@@ -156,7 +156,7 @@ end proc:
 genInvariants:=proc(_sol::InvSol)
     local isols,isol,sol;
     sol:=Object(_sol);
-    isols:=RealDomain[solve](sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
+    isols:=RealDomain:-solve(sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
     # 全部求解失败，则求解上一个全零方程
     if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
         solveRestAllZeroIeqs(sol);
@@ -192,7 +192,7 @@ solveInvEqs:=proc(_sol::InvSol)
     local isols,icons,n,vars,sol,i;
     n:=_sol:-nvars;
     vars:=[seq(a[i],i=1..n)];
-    isols:=RealDomain[solve](_sol:-ieq,vars,explicit);
+    isols:=RealDomain:-solve(_sol:-ieq,vars,explicit);
     icons:=findSolutionDomain~(isols);
     n:=numelems(isols);
     for i from 1 to n do
@@ -310,12 +310,10 @@ solveTeq:=proc(a,b,sol)
     teq:=convert((a-b.sol:-A),list);
     teq:=subs(sol:-isol[],teq);
     var:=[seq(epsilon[i],i=1..sol:-nvars)];
-    # tsol:=RealDomain:-solve(teq,var,explicit);
     tsol:=convert~(RealDomain:-solve(teq,var),radical);
     if evalb(tsol=[]) then
         # 求解失败，尝试二次求解法方法
         # 首次求解
-        #eqs:=[RealDomain:-solve(teq,explicit)];
         eqs:=convert~([RealDomain:-solve(teq)],radical);
         # 二次求解
         tsol:=[];
@@ -324,7 +322,6 @@ solveTeq:=proc(a,b,sol)
             _eq:=select(eqOfEpsilon,eq);
             _con:=remove(eqOfEpsilon,eq);
             _con:=remove(x->type(x,`=`) and evalb(lhs(x)=rhs(x)),_con);
-            #_sol:=RealDomain:-solve(_eq,var,explicit);
             _sol:=convert~(RealDomain:-solve(_eq,var,explicit),radical);
             _con:=map(x->clearConditions(findSolutionDomain(x)) union _con,_sol);
             tsol:=[tsol[],_sol[]];
