@@ -95,15 +95,15 @@ InvSol:=module()
 
     # 获取对象的特征描述
     getDesc:=proc(s)
-        if   evalb(s:-stateCode=1) then
+        if   (s:-stateCode=1) then
             return s:-oeq;
-        elif evalb(s:-stateCode=2) then
+        elif (s:-stateCode=2) then
             return getDisplayIeq(s);
-        elif evalb(s:-stateCode=3) then
+        elif (s:-stateCode=3) then
             return s:-isol;
-        elif evalb(s:-stateCode=4) then
+        elif (s:-stateCode=4) then
             return s:-rep;
-        elif evalb(s:-stateCode=5) then
+        elif (s:-stateCode=5) then
             return s:-rep;
         end if;
     end proc:
@@ -116,22 +116,22 @@ InvSol:=module()
     # 输出解
     printSol:=proc(s::InvSol)
         printf("---------------------------------------------------------\n");
-        if     evalb(s:-stateCode=1) then
+        if     (s:-stateCode=1) then
             printf("新的不变量求解失败，状态代码1\n");
             print(s:-oieq);
             printf("取解\n");
             print(s:-oisol);
             printf("求解失败的偏微分方程为\n");
             print(s:-oeq);
-        elif    evalb(s:-stateCode=2) then
+        elif    (s:-stateCode=2) then
             printf("不变量方程求解失败，状态代码2\n");
             print(getDisplayIeq(s));
-        elif    evalb(s:-stateCode=3) then
+        elif    (s:-stateCode=3) then
             printf("取代表元失败，状态代码3\n");
             print(getDisplayIeq(s));
             printf("取解\n");
             print(s:-isol);
-        elif    evalb(s:-stateCode=4) then
+        elif    (s:-stateCode=4) then
             printf("变换方程求解失败，状态代码4\n");
             print(getDisplayIeq(s));
             printf("取解\n");
@@ -142,7 +142,7 @@ InvSol:=module()
             print(s:-rep);
             printf("求解失败的两个变换方程为\n");
             print~(s:-teq);
-        elif    evalb(s:-stateCode=5) then
+        elif    (s:-stateCode=5) then
             printf("变换方程求解成功，状态代码5\n");
             print(getDisplayIeq(s));
             printf("取解\n");
@@ -161,7 +161,7 @@ InvSol:=module()
 
     # 输出变换方程和解
     printTeq:=proc(sol,pos)
-        if evalb(sol:-tsol[pos]=[]) then
+        if (sol:-tsol[pos]=[]) then
             printf("变换方程 %d 无解\n",pos);
             printf("方程为\n");
             print(sol:-teq[pos]);

@@ -21,7 +21,7 @@ findOrder:=proc(ee)
         e:=op(1,e);
     end if;
     e:=remove(type,e,'numeric');
-    if evalb(e=NULL) then
+    if (e=NULL) then
         return 0;
     end if:
     return findItemOrder(e);

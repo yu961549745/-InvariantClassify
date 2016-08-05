@@ -26,7 +26,7 @@ end proc:
 # 现在是按照方程个数排序的
 formReps:=proc(_sols)
     local sols,r,ss,rep,inds;
-    sols:=select(x->evalb(x:-stateCode=5),_sols);# 只取求解成功的
+    sols:=select(x->(x:-stateCode=5),_sols);# 只取求解成功的
     inds,sols:=collectObj(sols,x->getRep(x),output=[ind,val]);# 按代表元分类
     for ss in sols do
         rep:=getRep(ss[1]);

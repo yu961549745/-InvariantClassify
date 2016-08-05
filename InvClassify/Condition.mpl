@@ -9,7 +9,7 @@
 findSolutionDomain:=proc(s)
     local con;
     con:=`union`(findDomain~(rhs~({s[]}))[]);
-    return remove(x->type(x,`=`) and evalb(lhs(x)=rhs(x)),classifySolve(con)) 
+    return remove(x->type(x,`=`) and (lhs(x)=rhs(x)),classifySolve(con)) 
         union select(x->type(rhs(x),numeric),{s[]});
 end proc:
 
@@ -31,7 +31,7 @@ end proc:
 findDomainCondtions:=proc(e,S::evaln(set))
     local _e;
     if type(e,`^`) and (not type(op(1,e),numeric)) then
-        if evalb(op(2,e)<0) then
+        if (op(2,e)<0) then
             if type(op(2,e),fraction) and type(denom(op(2,e)),even) then
                 S:=eval(S) union {op(1,e)>0};
             else
@@ -46,7 +46,7 @@ findDomainCondtions:=proc(e,S::evaln(set))
         for _e in e do
             findDomainCondtions(_e,S);
         end do;
-    elif evalb(op(0,e)='ln') and (not type(op(1,e),numeric)) then
+    elif (op(0,e)='ln') and (not type(op(1,e),numeric)) then
         S:=eval(S) union {op(e)>0};
     end if;
 end proc:
@@ -57,14 +57,14 @@ end proc:
 classifySolve:=proc(con::set)
     local t,sd,ns,c,ind,x,sol;
     t:=table();
-    ns,sd:=selectremove(x->evalb(numelems(indets(x,name))=1),con);
+    ns,sd:=selectremove(x->(numelems(indets(x,name))=1),con);
     for c in ns do
         tappend(t,indets(c,name)[],c);
     end do;
     ind:=[indices(t,nolist)];
     for x in ind do
         sol:=RealDomain:-solve(t[x],{x});
-        if evalb(sol=NULL) then
+        if (sol=NULL) then
             t[x]:={x=undefined};
         else
             t[x]:=sol;

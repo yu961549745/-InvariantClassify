@@ -11,9 +11,9 @@ fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
     local f,C,sc,vc,t,r,rf,_rf,i,n,sols,res,sol,con;
     sol:=_sol:-isol;
     con:=_sol:-icon union addcon;
-    f:=select(x->evalb(lhs(x)=rhs(x)),sol);# 解中的自由变量
+    f:=select(x->(lhs(x)=rhs(x)),sol);# 解中的自由变量
     C,t:=selectremove(x->type(x,`=`) and type(rhs(x),numeric),con);# C是等式约束
-    sc,vc:=selectremove(x->evalb(numelems(indets(x,name))=1),t);# sc，vc分别为单变量约束和多变量约束
+    sc,vc:=selectremove(x->(numelems(indets(x,name))=1),t);# sc，vc分别为单变量约束和多变量约束
     f:=indets(f,name) minus indets(sc,name);# 删去具有单变量约束的自由变量
 
     r:=fetchIeq~(sc) union C;
@@ -43,7 +43,7 @@ end proc:
 
 # 验证是否满足约束
 checkIeq:=proc(ieq)
-    return evalb(ieq) or evalb( evalb(ieq)=ieq ); 
+    return (ieq) or ( (ieq)=ieq ); 
 end proc:
 
 # 对于 <> < <= 的约束条件取特解

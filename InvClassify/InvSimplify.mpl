@@ -4,7 +4,7 @@ simplifyInvariants:=proc(iinvs)
     x:=iinvs;
     while true do
         nx:=simplifyInvs(x);
-        if evalb(x=nx) then
+        if (x=nx) then
             break;
         end if;
         x:=nx;
@@ -24,11 +24,11 @@ simplifyInvs:=proc(iinvs)
         # 尝试把每个不变量用其它不变量进行表示
         tmp:=invs[i];
         for j from 1 to n do
-            if evalb(i<>j) then
+            if (i<>j) then
                 # 替换时用简单替换复杂的，不用复杂的替换简单的。
                 try 
                     ttmp:=myAlgsubs(invs[j]=vars[j],tmp);
-                    if evalb( nops(expand(ttmp)) <= nops(expand(tmp)) ) then
+                    if ( nops(expand(ttmp)) <= nops(expand(tmp)) ) then
                         tmp:=ttmp;
                     end if;
                 catch:
@@ -43,8 +43,8 @@ simplifyInvs:=proc(iinvs)
     vv:=[seq(vars[i]=invs[i],i=1..n)];
     # 将不能化简掉的整体代回原表达式
     while true do
-        (v1,v2):=selectremove(e->evalb(indets(rhs(e),'name') intersect vset <> {}),vv);
-        if evalb(v1=[]) then
+        (v1,v2):=selectremove(e->(indets(rhs(e),'name') intersect vset <> {}),vv);
+        if (v1=[]) then
             break;
         end if;
         v1:=subs(v2[],v1);
@@ -89,7 +89,7 @@ invOrd:=proc(v)
     ord:=findInvariantsOrder(v);
     if type(ord,fraction) then
         return v^denom(ord);
-    elif evalb(ord<0) then
+    elif (ord<0) then
         return v^(-1);
     else
         return v;
@@ -150,7 +150,7 @@ spAdd:=proc(ee)
     e:=expand(ee);
     if type(e,`+`) then
         r:=remove(isInv,e);
-        if evalb(r=NULL) then
+        if (r=NULL) then
             r:=0;
         end if;
         return r;
@@ -170,13 +170,13 @@ spMul:=proc(ee)
     e:=factor(ee);
     if type(e,`*`) then
         r:=remove(isInv,e);
-        if evalb(r=NULL) then
+        if (r=NULL) then
             r:=0;
         end if;
         return r;
     elif type(e,`^`) then
         r:=remove(isInv,op(1,e));
-        if evalb(r=NULL) then
+        if (r=NULL) then
             r:=0;
         end if;
         return r^op(2,e);
@@ -199,7 +199,7 @@ end proc:
 # 删除多项式的倍数
 rmK:=proc(_e)
     local e,r;
-    if evalb(_e=0) then
+    if (_e=0) then
         return 0;
     end if:
     e:=expand(_e);
@@ -213,7 +213,7 @@ rmK:=proc(_e)
         # 不处理无系数单项多项式
         r:=e;
     end if;
-    if evalb(r=NULL) or type(r,numeric) then
+    if (r=NULL) or type(r,numeric) then
         r:=1;
     end if;    
     return r;
@@ -222,7 +222,7 @@ end proc:
 # 多个数的gcd
 myGcd:=proc(ks)
     local k,i,n;
-    if evalb(ks=[]) then
+    if (ks=[]) then
         return 1;
     end if;
     k:=ks[1];

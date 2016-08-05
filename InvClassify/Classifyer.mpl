@@ -42,15 +42,15 @@ end proc:
 resolve:=proc(sol::InvSol)
     local spos,pos,nDelta,_usols,_usol,oldDeltas,oldSol;
     
-    if evalb(sol:-stateCode=1) then
+    if (sol:-stateCode=1) then
         # 尝试求解偏微分方程组
         # 如果所有方程组为空，则停止求解
-        if evalb(sol:-oeq={}) then
+        if (sol:-oeq={}) then
             return;
         end if;
         nDelta:=getInvariants(sol:-oeq);
         # 求解失败
-        if evalb(indets(nDelta,name) intersect {seq(a[i],i=1..sol:-nvars)} = {}) then
+        if (indets(nDelta,name) intersect {seq(a[i],i=1..sol:-nvars)} = {}) then
             # 求解失败不添加解
             # 不考虑不能求解不变量的情况
             return "新不变量求解失败";
@@ -59,10 +59,10 @@ resolve:=proc(sol::InvSol)
         spos:=numelems(sol:-Delta)+1;
         oldDeltas:={sol:-Delta[]};
         oldSol:=Object(sol);
-        if evalb(sol:-Delta<>[]) then
+        if (sol:-Delta<>[]) then
             sol:-Delta:=[sol:-Delta[],nDelta[]]:
             # 整体化简不变量
-            if evalb(1>=logLevel) then
+            if (1>=logLevel) then
                 flogf[1]("-----------------------------------------------\n");
                 flogf[1]("对新增不变量按照原不变量进行化简\n");
                 flogf[1]("化简前\n");
@@ -76,8 +76,8 @@ resolve:=proc(sol::InvSol)
         end if;
         sol:-orders:=findInvariantsOrder~(sol:-Delta):# 计算不变量阶数
         # 根据新的不变量是否有约束来决定是否求解上一个全零方程
-        nDelta:=remove(x->evalb(x in oldDeltas),sol:-Delta);
-        if evalb( `union`(findDomain~(nDelta)[]) <> {} ) and evalb(sol:-Delta<>[]) then
+        nDelta:=remove(x->(x in oldDeltas),sol:-Delta);
+        if ( `union`(findDomain~(nDelta)[]) <> {} ) and (sol:-Delta<>[]) then
             solveRestAllZeroIeqs(oldSol);
         end if;
         # 建立和求解不变量方程组
@@ -86,13 +86,13 @@ resolve:=proc(sol::InvSol)
         end do;
         # 生成新的不变量
         genInvariants(sol);
-    elif evalb(sol:-stateCode=2) then
+    elif (sol:-stateCode=2) then
         # 求解不变量方程组
         solveInvEqs(sol);
-    elif evalb(sol:-stateCode=3) then
+    elif (sol:-stateCode=3) then
         # 取代表元
         fetchRep(sol);
-    elif evalb(sol:-stateCode=4) then
+    elif (sol:-stateCode=4) then
         # 求解变换方程
         solveTransEq(sol);
     end if;
@@ -116,7 +116,7 @@ buildInvEqs:=proc(_sol::InvSol,pos::posint)
     # 生成方程右端
     cid:=0;
     rs:=Array(1..n,x->
-    if evalb(x>pos) then
+    if (x>pos) then
         getCname()
     else
         0
@@ -125,10 +125,10 @@ buildInvEqs:=proc(_sol::InvSol,pos::posint)
     for x in xpos do
         # 对于Delta[pos]=0，构建下一个方程进行求解
         # 不求解全零方程
-        if evalb(x=0) then
+        if (x=0) then
             # 这里是每个全零方程都进行求解的意思
             # 否则直接next就好了
-            if evalb(pos<>n) then
+            if (pos<>n) then
                 next;
             else
                 # 这里是直接求解
@@ -158,7 +158,7 @@ genInvariants:=proc(_sol::InvSol)
     sol:=Object(_sol);
     isols:=RealDomain:-solve(sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
     # 全部求解失败，则求解上一个全零方程
-    if andmap(isol->evalb(subsOeq(sol,isol)="新不变量求解失败"),isols) then
+    if andmap(isol->(subsOeq(sol,isol)="新不变量求解失败"),isols) then
         solveRestAllZeroIeqs(sol);
     end if;
 end proc:
@@ -175,7 +175,7 @@ subsOeq:=proc(_sol::InvSol,isol)
     flog[1](isol);
     oeq:=_sol:-oeq;
     vars:=_sol:-vars;
-    v,vv:=selectremove(x->evalb(lhs(x)<>rhs(x)),isol);
+    v,vv:=selectremove(x->(lhs(x)<>rhs(x)),isol);
     vv:=lhs~(vv);# 方程中的剩余自由变量
     oeq:=PDETools:-dsubs(phi(vars[])=phi(vv[]),oeq);
     oeq:=eval(subs(v[],oeq)) minus {0};
@@ -254,13 +254,13 @@ fetchRep:=proc(_sol::InvSol)
     flog[1](_sol:-icon);
     n:=_sol:-nvars;
     _ax:=fetchSolRep(_sol);
-    if evalb(_ax=NULL) then# 取特解失败
+    if (_ax=NULL) then# 取特解失败
         sols:=sols union {_sol};
         flogf[1]("取特解失败\n");
         return;
     end if;
     setRep(_sol,_ax);
-    if evalb(_sol:-rep=0) then
+    if (_sol:-rep=0) then
         flogf[1]("代表元取0\n");
         return;
     end if;
@@ -282,7 +282,7 @@ solveTransEq:=proc(_sol::InvSol)
     _sol:-teq[1],_sol:-tsol[1],_sol:-tcon[1]:=solveTeq(_ax,ax,_sol);
     # a=a_.A
     _sol:-teq[2],_sol:-tsol[2],_sol:-tcon[2]:=solveTeq(ax,_ax,_sol);
-    if andmap(x->evalb(x=[]),_sol:-tsol) then
+    if andmap(x->(x=[]),_sol:-tsol) then
         # 无解
         flogf[1]("变换方程求解失败\n");
         sols:=sols union {_sol};
@@ -292,7 +292,7 @@ solveTransEq:=proc(_sol::InvSol)
         _sol:-stateCode:=5;
         sols:=sols union {_sol};
         # 在logLevel为1时输出
-        if evalb(1>=logLevel) then
+        if (1>=logLevel) then
             printTeq(_sol,1);
             printTeq(_sol,2);
         end if;
@@ -311,7 +311,7 @@ solveTeq:=proc(a,b,sol)
     teq:=subs(sol:-isol[],teq);
     var:=[seq(epsilon[i],i=1..sol:-nvars)];
     tsol:=convert~(RealDomain:-solve(teq,var),radical);
-    if evalb(tsol=[]) then
+    if (tsol=[]) then
         # 求解失败，尝试二次求解法方法
         # 首次求解
         eqs:=convert~([RealDomain:-solve(teq)],radical);
@@ -321,7 +321,7 @@ solveTeq:=proc(a,b,sol)
         for eq in eqs do
             _eq:=select(eqOfEpsilon,eq);
             _con:=remove(eqOfEpsilon,eq);
-            _con:=remove(x->type(x,`=`) and evalb(lhs(x)=rhs(x)),_con);
+            _con:=remove(x->type(x,`=`) and (lhs(x)=rhs(x)),_con);
             _sol:=convert~(RealDomain:-solve(_eq,var,explicit),radical);
             _con:=map(x->clearConditions(findSolutionDomain(x)) union _con,_sol);
             tsol:=[tsol[],_sol[]];
@@ -332,8 +332,8 @@ solveTeq:=proc(a,b,sol)
         tcon:=map(x->clearConditions(findSolutionDomain(x)),tsol);
     end if;
     # 清理矛盾解
-    tsol:=zip((s,c)->if evalb(undefined in rhs~(c)) then NULL else s end if,tsol,tcon);
-    tcon:=remove(c->evalb(undefined in rhs~(c)),tcon);
+    tsol:=zip((s,c)->if (undefined in rhs~(c)) then NULL else s end if,tsol,tcon);
+    tcon:=remove(c->(undefined in rhs~(c)),tcon);
     return teq,tsol,tcon;
 end proc:
 

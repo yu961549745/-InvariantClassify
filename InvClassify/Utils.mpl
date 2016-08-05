@@ -43,10 +43,10 @@ collectObj:=proc(s,key,{output:=[val]::{[ind],[val],[ind,val]}})
         tappend(t,key(v),v);
     end do;
     res:=();
-    if evalb(ind in output) then
+    if (ind in output) then
         res:=res,[indices(t,nolist)];
     end if;
-    if evalb(val in output) then
+    if (val in output) then
         res:=res,[entries(t,nolist)];
     end if;
     return res;

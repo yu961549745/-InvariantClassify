@@ -1,7 +1,7 @@
 # 修改微分算子的符号集合
 setSymbols:=proc(s::set(name):=default_syms)
     description "设置函数的变量名集合";
-    if evalb( s intersect pnames <> {}) then
+    if ( s intersect pnames <> {}) then
         error "变量不能包含%1",pnames;
     end if; 
     syms:=s;
@@ -149,8 +149,8 @@ getTransMatAndPDE:=proc(vv::list)
     # 计算每个交换子关于生成元的系数
     for i from 1 to n do
         for j from 1 to n do
-            if evalb(M(i,j)<>0) then
-                if evalb(i<=j) then
+            if (M(i,j)<>0) then
+                if (i<=j) then
                     tmpv:=ans2v(M(i,j),A,stbs);
                     M(i,j):=sbs.tmpv;
                     MK(i,j):=convert(tmpv,list);

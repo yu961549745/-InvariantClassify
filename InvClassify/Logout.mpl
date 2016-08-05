@@ -10,7 +10,7 @@ flog:=proc()
     else
         v:=1;
     end if;
-    if evalb(v>=logLevel) then
+    if (v>=logLevel) then
         print(_passed);
     end if;
     return;
@@ -23,7 +23,7 @@ flogf:=proc()
     else
         v:=1;
     end if;
-    if evalb(v>=logLevel) then
+    if (v>=logLevel) then
         printf(_passed);
     end if;
     return;
