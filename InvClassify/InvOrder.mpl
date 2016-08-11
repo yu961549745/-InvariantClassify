@@ -4,7 +4,7 @@
     * 计算不变量的次数
 *)
 findInvariantsOrder:=proc(ee)
-    if not type(denom(ee),'numeric') then
+    if not type(denom(ee),numeric) then
         return findOrder(numer(ee))-findOrder(denom(ee));
     else
         return findOrder(ee);
@@ -20,7 +20,7 @@ findOrder:=proc(ee)
     if type(e,`+`) then
         e:=op(1,e);
     end if;
-    e:=remove(type,e,'numeric');
+    e:=remove(type,e,numeric);
     if (e=NULL) then
         return 0;
     end if:

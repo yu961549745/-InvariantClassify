@@ -57,7 +57,7 @@ getKd:=proc(f)
         v:=1;
         for i from 1 to nops(f) do
             x:=op(i,f);
-            if type(x,'extended_numeric') then
+            if type(x,extended_numeric) then
                 p:=p*x;
             else
                 v:=v*x;
@@ -142,7 +142,7 @@ getTransMatAndPDE:=proc(vv::list)
     
     # 将原交换子表用基表出
     tbs:=getKd~(vvv):# 非线性项及其系数映射表
-    stbs:={map(indices,tbs,'nolist')[]}:# 非线性项集
+    stbs:={map(indices,tbs,nolist)[]}:# 非线性项集
     # 生成元关于非线性项集的系数矩阵
     A:=Matrix(1..numelems(stbs),1..numelems(tbs),
     (i,j)->`if`(assigned(tbs[j][stbs[i]]),tbs[j][stbs[i]],0)):

@@ -1,5 +1,6 @@
 InvClassify:=module()
     option    package;
+
     $include "headers.mpl"
 
     $include "InvSol.mpl"
@@ -18,7 +19,7 @@ InvClassify:=module()
 
     # 加载包时改变微分算子的显示方式
     ModuleLoad:=proc()   
-        PDETools:-declare('quiet'):
+        PDETools:-declare(quiet):
     end proc;
     ModuleLoad();
 

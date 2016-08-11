@@ -43,7 +43,7 @@ simplifyInvs:=proc(iinvs)
     vv:=[seq(vars[i]=invs[i],i=1..n)];
     # 将不能化简掉的整体代回原表达式
     while true do
-        (v1,v2):=selectremove(e->(indets(rhs(e),'name') intersect vset <> {}),vv);
+        (v1,v2):=selectremove(e->(indets(rhs(e),name) intersect vset <> {}),vv);
         if (v1=[]) then
             break;
         end if;
