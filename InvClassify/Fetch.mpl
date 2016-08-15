@@ -43,7 +43,12 @@ end proc:
 
 # 验证是否满足约束
 checkIeq:=proc(ieq)
-    return (ieq) or ( (ieq)=ieq ); 
+    local res;
+    res:=evalb(ieq);
+    if not type(res,truefalse) then
+        res:=true;
+    end if;
+    return res;
 end proc:
 
 # 对于 <> < <= 的约束条件取特解
