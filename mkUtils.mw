@@ -94,58 +94,27 @@
 <Task-table>
     <Task-category name="&lt;default&gt;"/>
 </Task-table>
-<Task/>
-<Group labelreference="L1" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal">restart;</Text-field>
-</Input>
-</Group>
-<Group labelreference="L3" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># define package</Text-field>
-</Input>
-</Group><CodeEditor-ExecGroup view="presentation" labelreference="L2" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion0" visible="true" pixel-width="1000" pixel-height="555" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true">CodeParser:=module()
-	description &quot;Support read text file contains non-ASCII characters,&quot;
-	            &quot;and keep these characters after saving to library&quot;;
-	option package;
-	export readCode;
-	local ModuleLoad,codeParser;
-	
-	ModuleLoad:=proc()
-		codeParser:=define_external('parseCode',
-		JAVA,CLASSPATH=&quot;./CodeParser.jar&quot;,
-		CLASS=&quot;org.yjt.maple.CodeParser&quot;,
-		'fin'::string,
-		'fout'::string,
-		'inputEncode'::string,
-		'outputEncode'::string);
-	end proc:
-
-	readCode:=proc(fname::string,inEncode:=&quot;GBK&quot;,outEncode:=&quot;GBK&quot;)
-		description &quot;similar to `read`&quot;;
-		local tmpFile;
-		tmpFile:=cat(fname,&quot;.tmp.mpl&quot;);
-		codeParser(fname,tmpFile,inEncode,outEncode);
-		read(tmpFile);
-		FileTools[Remove](tmpFile);
-	end proc:
-end module:</EC-CodeEditor></CodeEditor-ExecGroup>
-<Group labelreference="L14" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"># save to library</Text-field>
-</Input>
-</Group><CodeEditor-ExecGroup view="presentation" labelreference="L4" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion1" visible="true" pixel-width="500" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true">with(mklib);
-mkModule(CodeParser);
-</EC-CodeEditor>
+<Task/><CodeEditor-ExecGroup view="presentation" labelreference="L3" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion0" visible="true" pixel-width="500" pixel-height="213" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true"># \344\277\235\345\255\230utils.mla
+restart;
+fName:=&quot;utils.mla&quot;;
+read(&quot;./utils/LibMaker.mpl&quot;);
+read(&quot;./utils/JavaCodeReader.mpl&quot;);
+read(&quot;./utils/MapleCodeReader.mpl&quot;);
+with(LibMaker);
+MakeLib(LibMaker,fName);
+MakeLib(JavaCodeReader,fName);
+MakeLib(MapleCodeReader,fName);
+LibraryTools:-ShowContents(fName);</EC-CodeEditor>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyVJKGxpYkZpbGVHNiJJJ21rRmlsZUdGJEkpbWtNb2R1bGVHRiQ=</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYpLUkjbWlHRiQ2JVEmZk5hbWVGJy8lJ2l0YWxpY0dRJXRydWVGJy8lLG1hdGh2YXJpYW50R1EnaXRhbGljRictSSNtb0dGJDYtUSM6PUYnL0YzUSdub3JtYWxGJy8lJmZlbmNlR1EmZmFsc2VGJy8lKnNlcGFyYXRvckdGPS8lKXN0cmV0Y2h5R0Y9LyUqc3ltbWV0cmljR0Y9LyUobGFyZ2VvcEdGPS8lLm1vdmFibGVsaW1pdHNHRj0vJSdhY2NlbnRHRj0vJSdsc3BhY2VHUSwwLjI3Nzc3NzhlbUYnLyUncnNwYWNlR0ZMLUkjbXNHRiQ2I1EqdXRpbHMubWxhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2ZvcmVncm91bmRHUShbMCwwLDBdRicvJSlyZWFkb25seUdGPUY5">USp1dGlscy5tbGE2Ig==</Equation></Text-field>
+</Output>
+<Output>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyNJKE1ha2VMaWJHNiI=</Equation></Text-field>
+</Output>
+<Output>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyU3JlExSmF2YUNvZGVSZWFkZXIubTYiNygiJTs/IiIpIiM6IiM8IiM2IiNEIiZuKFsiJFEiNyZRK0xpYk1ha2VyLm1GJUYmIiYnUVsiJC0iNyZRMk1hcGxlQ29kZVJlYWRlci5tRiVGJiImKlxcIiQ2Ig==</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
-<Group labelreference="L17" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
-<Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
-</Input>
-</Group>
-<Group labelreference="L22" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Group labelreference="L25" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2I1EhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2V4ZWN1dGFibGVHUSZmYWxzZUYnLyUsbWF0aHZhcmlhbnRHUSdub3JtYWxGJw==">JSFH</Equation></Text-field>
 </Input>
