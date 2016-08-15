@@ -28,5 +28,6 @@ JavaCodeReader:=module()
 		ParseCode(fname,tmpFile,inEncode,outEncode);
 		read(tmpFile);
 		FileTools[Remove](tmpFile);
+		return;
 	end proc:
 end module:

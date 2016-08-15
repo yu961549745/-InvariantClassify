@@ -18,5 +18,6 @@ MapleCodeReader:=module()
         currentdir(p);
         read(f);
         currentdir(cd);
+        return;
     end proc:
 end module:
