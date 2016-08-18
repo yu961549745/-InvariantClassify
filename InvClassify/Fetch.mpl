@@ -55,6 +55,9 @@ fetchByCons:=proc(vars,vf,eq,ca,nonzero)
     sca:=[RealDomain:-solve(ca)];
     res:=map[4](fetchBySingleCons,vars,vf,eq,sca,nonzero);
     if nonzero then
+        # 在满足非零要求时，目的是给出所有可能的基
+        # 而求解a的约束产生的每个解是不相交的
+        # 所以需要合并各个解的基
         return `union`(res[]);
     else
         return sortByComplexity(res)[1];

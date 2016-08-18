@@ -1,6 +1,7 @@
 (*
     以代表元为核心的对象
     主要以con划分对象，isol和tsol仅做参考作用
+    保证RepSol对象的所有属性的相关变量都是global的。
 *)
 RepSol:=module()
     option object;
@@ -35,7 +36,7 @@ RepSol:=module()
     appendSol:=proc(r::RepSol,s::InvSol)
         local ieq,sieq,isol,icon,tsols,tcons,i,n;
         if not assigned(r:-rep) then
-            r:-rep:=convert(s:-rep,`global`);
+            r:-rep:=getRep(s);
         end if;
         ieq:=s:-ieq;
         sieq:={ieq[]};
@@ -125,7 +126,7 @@ RepSol:=module()
     # 删去重复条件
     uniqueRep:=proc(r::RepSol)
         local id,con,fun,ind;
-        fun:=(x,y,z)->convert([x,y,z],`global`);
+        fun:=(x,y,z)->[x,y,z];
         con:=getCon(r);
         id:=fun~(con,r:-isol,r:-tsol);
         ind:=uniqueObj(id,key=(x->x),'index');

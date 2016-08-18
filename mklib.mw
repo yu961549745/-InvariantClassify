@@ -100,9 +100,9 @@ JavaCodeReader:-ReadCode(&quot;./InvClassify/InvClassify.mpl&quot;);
 LibMaker:-MakeLib(InvClassify,&quot;InvClassify.mla&quot;);
 LibraryTools:-ShowContents(&quot;InvClassify.mla&quot;);</EC-CodeEditor>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiM9IiM8IiM/IiM+IiYlKT4lIiVTRw==</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiM9IiM9IiM1IiNMIiZXZCkiJVlI</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
-<Group labelreference="L26" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Group labelreference="L28" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
 <Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
