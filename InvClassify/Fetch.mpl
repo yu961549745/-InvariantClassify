@@ -8,9 +8,15 @@
 * 满足返回特解，否则返回NULL
 *)
 fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
-    local f,C,sc,vc,t,r,rf,_rf,i,n,sols,res,sol,con;
+    local sol,con;
     sol:=_sol:-isol;
     con:=_sol:-icon union addcon;
+    return fetchForSolCon(sol,con,_options['nonzero']);
+end proc:
+
+# 根据方程的解和条件取特解
+fetchForSolCon:=proc(sol::list,con::set,{nonzero::boolean:=false})
+    local f,C,sc,vc,t,r,rf,_rf,i,n,sols,res;
     f:=select(x->(lhs(x)=rhs(x)),sol);# 解中的自由变量
     C,t:=selectremove(x->type(x,`=`) and type(rhs(x),numeric),con);# C是等式约束
     sc,vc:=selectremove(x->(numelems(indets(x,name))=1),t);# sc，vc分别为单变量约束和多变量约束
@@ -45,6 +51,7 @@ end proc:
 checkIeq:=proc(ieq)
     local res;
     res:=evalb(ieq);
+    # 对于无法判断的不等式，则认为成立
     if not type(res,truefalse) then
         res:=true;
     end if;
@@ -71,3 +78,4 @@ fetchIeq:=proc(x)
         end if;
     end if;
 end proc:
+

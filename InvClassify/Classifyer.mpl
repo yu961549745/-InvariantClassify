@@ -341,9 +341,9 @@ eqOfEpsilon:=proc(eq)
     return ormap(x->type(x,specindex(epsilon)),indets(eq,name));
 end proc:
 
-# 删除与a无关的约束
+# 保留和a,c有关的约束
 clearConditions:=proc(con)
-    return select(x->ormap(type,indets(x,name),specindex(a)),con);
+    return select(has,con,{a,c});
 end proc:
 
 # 求解剩余全零不变量方程

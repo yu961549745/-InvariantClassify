@@ -90,6 +90,7 @@ local
 export  fetchSolRep;                # 取特解
 local    
         checkIeq,                   # 验证是否满足约束
+        fetchForSolCon,               # 根据方程的解和条件取特解
         fetchIeq;                   # 对于不等式约束取特解
 
 # InvSimplify.mpl
