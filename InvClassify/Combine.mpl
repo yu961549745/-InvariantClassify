@@ -37,7 +37,7 @@ formReps:=proc(_sols)
             reps[rep]:=r;
         end if ;
         map[2](RepSol:-appendSol,r,ss);
-        sortCon(r);
+        uniqueRep(r);
     end do;
     return inds;
 end proc:

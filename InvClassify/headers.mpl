@@ -89,9 +89,15 @@ local
 # Fetch.mpl
 export  fetchSolRep;                # 取特解
 local    
-        checkIeq,                   # 验证是否满足约束
-        fetchForSolCon,               # 根据方程的解和条件取特解
-        fetchIeq;                   # 对于不等式约束取特解
+        fetchSpecSol,               # 根据方程和约束取特解
+        rebuildAndFetch,            # 转化关于c的不等式约束之后，再对约束进行分类
+        fetchByCons,                # 求解关于a的约束之后，转化为单边约束，再逐解取特解
+        fetchBySingleCons,          # 对于和a有关的约束，采用逐步替换的方法取特解
+        isSingleCon,                # 是否是单变量约束
+        filtCon,                    # 筛选：自由变量，确定性约束，和c无关的不等式约束，和c有关的不等式约束
+        transIeq,                   # 将不等式约束转化为等式约束
+        fetchIeq;                   # 最邻近整数方法取特解
+
 
 # InvSimplify.mpl
 local
@@ -118,7 +124,8 @@ local   findInvariantsOrder,        # 计算不变量阶数
 # Utils.mpl
 local   
         sortByComplexity,           # 表达式按照复杂度进行排序
-        tappend,                    # 按照集合拓展table键值 
+        tappend,                    # 按照集合拓展table键值
+        tpop,                       # 提取并删除值
         collectObj,                 # 对象按键值分类
         printDeltas,                # 输出Delta
         uniqueObj;                  # 对象按键值唯一化

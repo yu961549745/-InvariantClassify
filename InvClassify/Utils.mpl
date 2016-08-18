@@ -1,6 +1,25 @@
+tpop:=proc(t,k)
+	local r;
+	r:=t[k][1];
+	t[k]:=t[k] minus {r};
+	return r;
+end proc:
+
 # 表达式按照复杂度升序排序
-sortByComplexity:=proc(s::list)
-    return ListTools[Reverse](SolveTools[SortByComplexity](s));
+sortByComplexity:=proc(_s::list,{index::boolean:=false})
+    local s,t,i,n;
+    if index then
+        s:=_s;
+        t:=table();
+        n:=numelems(s);
+        for i from 1 to n do
+            tappend(t,s[i],i);
+        end do;
+        s:=ListTools[Reverse](SolveTools[SortByComplexity](s));
+        return map[2](tpop,t,s);
+    else
+        return ListTools[Reverse](SolveTools[SortByComplexity](_s));
+    end if;
 end proc:
 
 # 输出所有InvSol对象
@@ -54,11 +73,12 @@ end proc:
 
 # 对象按键值唯一化
 # 推荐对键做convert/global处理，以消除局部变量相等的问题
-uniqueObj:=proc(s,key)
-    local t,v;
+uniqueObj:=proc(s,key,{index::boolean:=false})
+    local t,i,n;
     t:=table();
-    for v in s do
-        t[key(v)]:=v;
+    n:=numelems(s);
+    for i from 1 to n do
+        t[key(s[i])]:=`if`(index,i,s[i]);
     end do;
     return [entries(t,nolist)];
 end proc:

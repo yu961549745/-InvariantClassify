@@ -28,7 +28,8 @@ RepSol:=module()
             ## 输出相关
             printRep::static,       # 简要显示代表元和所有可能的成立条件
             fullPrintRep::static,   # 显示代表元和完整的成立条件以及对应的不变量方程和变换方程的解
-            ModulePrint::static;    # 简要显示代表元
+            ModulePrint::static,    # 简要显示代表元
+            uniqueRep::static;      # 删去重复条件
 
     # 用于拓展一个代表元对象所能代表的区域
     appendSol:=proc(r::RepSol,s::InvSol)
@@ -80,7 +81,7 @@ RepSol:=module()
     sortCon:=proc(r::RepSol)
         local con,ind;
         con:=getCon(r);
-        ind:=sort(con,key=(x->numelems(x)),output=permutation);
+        ind:=sortByComplexity(con,index);
         r:-dcon:=r:-dcon[ind];
         r:-acon:=r:-acon[ind];
         r:-isol:=r:-isol[ind];
@@ -118,6 +119,23 @@ RepSol:=module()
             print(r:-isol[i]);
             print(r:-tsol[i]);
         end do;
+        return;
+    end proc:
+
+    # 删去重复条件
+    uniqueRep:=proc(r::RepSol)
+        local id,con,fun,ind;
+        fun:=(x,y,z)->convert([x,y,z],`global`);
+        con:=getCon(r);
+        id:=fun~(con,r:-isol,r:-tsol);
+        ind:=uniqueObj(id,key=(x->x),'index');
+        r:-dcon:=r:-dcon[ind];
+        r:-acon:=r:-acon[ind];
+        r:-isol:=r:-isol[ind];
+        r:-tsol:=r:-tsol[ind];
+        r:-osol:=r:-osol[ind];
+        sortCon(r);
+        return r;
     end proc:
 
     # 简要显示代表元
