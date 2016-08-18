@@ -97,10 +97,14 @@
 <Task/><CodeEditor-ExecGroup view="presentation" labelreference="L27" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion1" visible="true" pixel-width="500" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true"># \344\277\235\345\255\230InvClassify.mla
 restart;
 JavaCodeReader:-ReadCode(&quot;./InvClassify/InvClassify.mpl&quot;);
-LibMaker:-MakeLib(InvClassify,&quot;InvClassify.mla&quot;);</EC-CodeEditor></CodeEditor-ExecGroup>
+LibMaker:-MakeLib(InvClassify,&quot;InvClassify.mla&quot;);
+LibraryTools:-ShowContents(&quot;InvClassify.mla&quot;);</EC-CodeEditor>
+<Output>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiM9IiM8IiM/IiM+IiYlKT4lIiVTRw==</Equation></Text-field>
+</Output></CodeEditor-ExecGroup>
 <Group labelreference="L26" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2I1EhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2V4ZWN1dGFibGVHUSZmYWxzZUYnLyUsbWF0aHZhcmlhbnRHUSdub3JtYWxGJw==">JSFH</Equation></Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
 </Group>
 </Worksheet>
