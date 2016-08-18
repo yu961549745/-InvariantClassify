@@ -61,6 +61,9 @@ local
         getNewSols,                 # 获取新解
         solveTeq,                   # 指定求解伴随变换方程
 
+        ieqsolve,                   # 自定义求解不变量方程
+        teqsolve,                   # 自定义求解变换方程
+
         resolve,                    # 重新分类
         classify;                   # 自动分类
 export    

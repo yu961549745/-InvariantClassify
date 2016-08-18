@@ -156,7 +156,7 @@ end proc:
 genInvariants:=proc(_sol::InvSol)
     local isols,isol,sol;
     sol:=Object(_sol);
-    isols:=RealDomain:-solve(sol:-Delta,[seq(a[i],i=1..sol:-nvars)],explicit);
+    isols:=ieqsolve(sol:-Delta,[seq(a[i],i=1..sol:-nvars)]);
     # 全部求解失败，则求解上一个全零方程
     if andmap(isol->(subsOeq(sol,isol)="新不变量求解失败"),isols) then
         solveRestAllZeroIeqs(sol);
@@ -192,7 +192,7 @@ solveInvEqs:=proc(_sol::InvSol)
     local isols,icons,n,vars,sol,i;
     n:=_sol:-nvars;
     vars:=[seq(a[i],i=1..n)];
-    isols:=RealDomain:-solve(_sol:-ieq,vars,explicit);
+    isols:=ieqsolve(_sol:-ieq,vars);
     icons:=findSolutionDomain~(isols);
     n:=numelems(isols);
     for i from 1 to n do
@@ -212,7 +212,7 @@ solveAllZero:=proc(_sol)
     sol:-ieq:=[seq(x=0,x in sol:-Delta)];
     sol:-ieqCode:=getIeqCode();
     var:=[seq(a[i],i=1..sol:-nvars)];
-    isols:=RealDomain:-solve(sol:-Delta,var,explicit);
+    isols:=ieqsolve(sol:-Delta,var);
     icons:=findSolutionDomain~(isols);
     n:=numelems(isols);
     for i from 1 to n do
@@ -303,18 +303,24 @@ end proc:
 (*
     求解变换方程
 
-    因为变换方程只关心其存在性，而不在乎其完整性，因此不用explicit选项，而采用convert/radical
+    ？ 因为变换方程只关心其存在性，而不在乎其完整性，因此不用explicit选项，而采用convert/radical
+
+    是否选择explicit选项也是有待衡量的，example3出现了不用explicit选项则有复杂约束不能简单消去的情况。
+    但是选择explicit选项之后，会面临解过多的问题
+    两害取其轻，还是取吧
+
+    先保留了
 *)
 solveTeq:=proc(a,b,sol)
     local var,teq,tsol,tcon,scon,eqs,eq,_eq,_con,_sol;
     teq:=convert((a-b.sol:-A),list);
     teq:=subs(sol:-isol[],teq);
     var:=[seq(epsilon[i],i=1..sol:-nvars)];
-    tsol:=convert~(RealDomain:-solve(teq,var),radical);
+    tsol:=teqsolve(teq,var);
     if (tsol=[]) then
         # 求解失败，尝试二次求解法方法
         # 首次求解
-        eqs:=convert~([RealDomain:-solve(teq)],radical);
+        eqs:=teqsolve(teq);
         # 二次求解
         tsol:=[];
         tcon:=[];
@@ -322,7 +328,7 @@ solveTeq:=proc(a,b,sol)
             _eq:=select(eqOfEpsilon,eq);
             _con:=remove(eqOfEpsilon,eq);
             _con:=remove(x->type(x,`=`) and (lhs(x)=rhs(x)),_con);
-            _sol:=convert~(RealDomain:-solve(_eq,var,explicit),radical);
+            _sol:=teqsolve(_eq,var,_explicit);
             _con:=map(x->clearConditions(findSolutionDomain(x)) union _con,_sol);
             tsol:=[tsol[],_sol[]];
             tcon:=[tcon[],_con[]];
@@ -354,4 +360,41 @@ end proc:
 # 获取全零不变量方程在usols中的key
 getUsolsKey:=proc(sol)
     return convert([seq(Delta[i],i=1..numelems(sol:-Delta))],`global`);
+end proc:
+
+# 自定义不变量方程求解函数
+# 
+# 采用set的方式指定变量相比于list方式指定变量，解可能更简洁。
+# 以为list方式指定变量会优先用后面的变量表示前面的变量，有时这是不好的。
+#
+# 采用set求解时，example3出现了没有导出a[4]=0的解的情况，例子并不完整。
+# 采用list求解时，example包含了a[3]a[4]的约束，也没求解完整。
+#
+# 可能可以通过自定义补全解的算法来解决这个问题。
+# 不过目前只能想到处理不等于0的约束，至于大于0小于0的约束则还没想法。
+# 不等于0的约束，可以直接取为0之后再进行求解
+ieqsolve:=proc(eq,vars)
+    # return convert~([RealDomain:-solve(eq,convert(vars,set),explicit)],list);
+    return RealDomain:-solve(eq,vars,explicit);
+end proc:
+
+# 自定义变换方程求解函数
+teqsolve:=proc({_explicit::boolean:=false})
+    if _explicit then
+        if _nrest=1 then
+            return [RealDomain:-solve(_rest,explicit)];
+        elif _nrest=2 then
+            return RealDomain:-solve(_rest,explicit);
+        else
+            error "未知调用方式";
+        end if;
+    else
+        if _nrest=1 then
+            return convert~([RealDomain:-solve(_rest)],radical);
+        elif _nrest=2 then
+            return convert~(RealDomain:-solve(_rest),radical);
+        else
+            error "未知调用方式";
+        end if;
+    end if;
 end proc:
