@@ -1,4 +1,4 @@
 /test.mw
 *.bak
 /.vscode/*
-ep?.mw
+*.mw
