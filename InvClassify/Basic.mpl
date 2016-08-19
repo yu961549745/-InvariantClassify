@@ -137,8 +137,8 @@ getTransMatAndPDE:=proc(vv::list)
     flog[2](seq(sbs[i]=vv[i],i=1..n));
     
     # 计算交换子矩阵，这里得到的是关于f的结果，需要进一步用基表示
-    M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &* vvv[j]):
-    MK:=Matrix(1..n,1..n);
+    M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &* vvv[j]):# 交换子的表达式形式
+    MK:=Matrix(1..n,1..n);# 交换子关于生成元的系数向量矩阵
     
     # 将原交换子表用基表出
     tbs:=getKd~(vvv):# 非线性项及其系数映射表
@@ -147,6 +147,7 @@ getTransMatAndPDE:=proc(vv::list)
     A:=Matrix(1..numelems(stbs),1..numelems(tbs),
     (i,j)->`if`(assigned(tbs[j][stbs[i]]),tbs[j][stbs[i]],0)):
     # 计算每个交换子关于生成元的系数
+    # 这里将交换子的表达式转化成了生成元的线性表出
     for i from 1 to n do
         for j from 1 to n do
             if (M(i,j)<>0) then
@@ -213,18 +214,14 @@ end proc;
 (*
 * 生成不变量的偏微分方程组
 * 输入：
-*     p        [w,v],w=sum(b[j]*v[j]),v=sum(a[i]*v[i])
-*     sbs        生成元符号集
+*     p        p=[w,v],w=sum(b[j]*v[j]),v=sum(a[i]*v[i])
+*     sbs      生成元符号集 v[1],...,v[n]
 * 输出：
 *     偏微分方程组
 *)
 getPDE:=proc(p,sbs)
-    local n:=numelems(sbs),syms:=[seq(a[i],i=1..n)],i,eq,eqs,
-        bList:=[seq(b[i],i=1..n)];
-    uses phi=phi(syms[]);
-    eq:=add(seq(Phi[i]*diff(phi,syms[i]),i=1..n));
-    for i from 1 to n do
-        eq:=subs(Phi[i]=coeff(p,sbs[i]),eq);
-    end do;
-    eqs:={seq(coeff(eq,bList[i]),i=1..n)} minus {0};
+    local n:=numelems(sbs),i,eq,eqs;
+    uses phi=phi(seq(a[i],i=1..n));
+    eq:=add(coeff(p,sbs[i])*diff(phi,a[i]),i=1..n);
+    eqs:={seq(coeff(eq,b[i]),i=1..n)} minus {0};
 end proc:
