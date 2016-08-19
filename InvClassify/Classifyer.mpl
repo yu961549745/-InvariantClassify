@@ -309,7 +309,8 @@ end proc:
     但是选择explicit选项之后，会面临解过多的问题
     两害取其轻，还是取吧
 
-    先保留了
+    该二次求解算法的求解能力值得肯定，测试是否可以转化也依赖于该算法，最好不要修改。
+    当然也出现过解的的解不满足方程的情况，至于是否要加以验证，还有待考虑。
 *)
 solveTeq:=proc(a,b,sol)
     local var,teq,tsol,tcon,scon,eqs,eq,_eq,_con,_sol;
