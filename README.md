@@ -16,21 +16,21 @@
 
 ## 基本计算：Basic.mpl
 交换子表计算：
-1. 计算交换子的表达式形式。
-1. 将交换子用生成元进行线性表出。
-1. 计算伴随变换矩阵。
-1. 生成偏微分方程组，并求解不变量。
++ 计算交换子的表达式形式。
++ 将交换子用生成元进行线性表出。
++ 计算伴随变换矩阵。
++ 生成偏微分方程组，并求解不变量。
 
 ## 不变量化简：InvSimplify.mpl
 不变量化简的算法如下：
-1.	对于每个不变量，
++	对于每个不变量，
     + 尝试使用其它不变量来进行表示，为了防止循环替代，以及出于化简的目的，只允许表示之后项数变少的替换。
     + 先尝试按照乘法规则进行化简，因式分解之后，删去能够成为不变量的因子。
     + 再尝试按照加法规则进行化简，展开之后，删去能够成为不变量的项。
-1.	将无法化简的不变量整体替换回其表达式形式。
-1.	消除不变量的系数。
-1.	调整不变量的阶数为正整数。
-1.	对于能够调整次数的不变量，调整其次数，例如把a[1]^3变成a[1]，把a[1]^4变成a[1]^2。
++	将无法化简的不变量整体替换回其表达式形式。
++	消除不变量的系数。
++	调整不变量的阶数为正整数。
++	对于能够调整次数的不变量，调整其次数，例如把a[1]^3变成a[1]，把a[1]^4变成a[1]^2。
 重复执行上述算法，直到不能再化简为止。
 
 ## 取特解：Fetch.mpl
@@ -51,5 +51,5 @@
 
 
 ## 参考文献
-+ Hu X, Li Y, Chen Y. A direct algorithm of one-dimensional optimal system for the group invariant solutions[J]. Journal of Mathematical Physics, 2015, 56(1.: 053504 .
++ Hu X, Li Y, Chen Y. A direct algorithm of one-dimensional optimal system for the group invariant solutions[J]. Journal of Mathematical Physics, 2015, 56(5): 053504.
 
