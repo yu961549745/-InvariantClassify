@@ -5,12 +5,6 @@
 $ifndef _HEADERS_
 $define _HEADERS_
 
-# InvClassify.mpl
-export
-        doClassify,                     # 进行分类
-        InvSol,                         # 解对象
-        RepSol;                         # 代表元对象
-
 # Basic.mpl
 export    
         d,                              # 导出微分算子，用于生成输入表达式
