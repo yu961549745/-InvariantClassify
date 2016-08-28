@@ -96,11 +96,11 @@
 </Task-table>
 <Task/><CodeEditor-ExecGroup view="presentation" labelreference="L27" applyint="true" applyrational="true" display="code"><EC-CodeEditor id="CodeEditRegion1" visible="true" pixel-width="500" pixel-height="200" code-language="text/maple" autoexpand="true" wrapping="false" show-border="true" code-line-numbers="true"># \344\277\235\345\255\230InvClassify.mla
 restart;
-JavaCodeReader:-ReadCode(&quot;./InvClassify/InvClassify.mpl&quot;);
+MapleCodeReader:-ReadCode(&quot;./InvClassify/InvClassify.mpl&quot;);
 LibMaker:-MakeLib(InvClassify,&quot;InvClassify.mla&quot;);
 LibraryTools:-ShowContents(&quot;InvClassify.mla&quot;);</EC-CodeEditor>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiM/IiM/IiNIIiNCIiYiKnAmIiUsSQ==</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiNHIiNAIiM1IiIhIiZZcykiJUJI</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
 <Group labelreference="L28" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>

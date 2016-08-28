@@ -3,6 +3,7 @@
 # 	1. 可以去除预处理器必须在行首的限制。
 # 	2. include默认使用相对路径。
 #	3. 可以指定文件编码。
+#	4. 默认每个文件只会include一遍。
 # 缺点在于：
 # 	1. jar文件的位置比较难搞，简单的做法放在项目的根目录下，
 #		jar的相对目录和当前工作目录对应，
@@ -11,15 +12,20 @@
 JavaCodeReader:=module()
 	option package;
 	export ReadCode,ParseCode;
+	local  parseCode;
 	
-	ParseCode:=define_external(
+	parseCode:=define_external(
 		'parseCode',
 		JAVA,CLASSPATH="./CodeParser.jar",
-		CLASS="org.yjt.maple.CodeParser",
+		CLASS="org.yjt.maple.ParseCodeUtil",
 		'fin'::string,
 		'fout'::string,
 		'inputEncode'::string,
 		'outputEncode'::string);
+
+	ParseCode:=proc(fin::string,fout::string,inEncode:="UTF8",outEncode:="UTF8")
+		parseCode(fin,fout,inEncode,outEncode);
+	end proc:
 
 	ReadCode:=proc(fname::string,inEncode:="UTF8",outEncode:="UTF8")
 		description "similar to `read`";

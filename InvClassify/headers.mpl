@@ -2,6 +2,9 @@
     所有文件的变量和函数声明
 *)
 
+$ifndef _HEADERS_
+$define _HEADERS_
+
 # InvClassify.mpl
 export
         doClassify,                     # 进行分类
@@ -24,6 +27,7 @@ local
         ans2v,                          # 求解表达式关于基的线性表出
 
         getPDE;                         # 获取生成不变量的偏微分方程
+uses    Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;
 
 # Classifyer.mpl
 local   
@@ -147,3 +151,5 @@ local
         LogLevelHolder,             # 保留logLevel状态
         flog,                       # 对应 print
         flogf;                      # 对应 printf
+
+$endif

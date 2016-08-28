@@ -8,6 +8,11 @@
 $ifndef _BASIC_
 $define _BASIC_
 
+
+$ifndef _HEADERS_
+macro(Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`);# 偏导符号作为函数名
+$endif
+
 $include "Logout.mpl"
 $include "InvSimplify.mpl"
 
@@ -19,8 +24,6 @@ SymsHolder:=module()
             syms:=default_syms,                 # 当前符号集
             pnames:={a,c,d,epsilon,Delta,phi};  # 受保护的名字
 end module:
-
-macro(Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`);# 偏导符号作为函数名
 
 # 修改微分算子的符号集合
 setSymbols:=proc(s::set(name):=SymsHolder:-default_syms)
