@@ -4,24 +4,35 @@
 # 	2. include默认使用相对路径。
 #	3. 可以指定文件编码。
 #	4. 默认每个文件只会include一遍。
-# 缺点在于：
-# 	1. jar文件的位置比较难搞，简单的做法放在项目的根目录下，
-#		jar的相对目录和当前工作目录对应，
-#		mla文件的相对目录也和当前工作目录对应，
-#		所以不能简单的jar文件跟着mla走，代码中的位置需要调整。
+# 注：会自动在 libname 包含的目录下寻找jar文件。
 JavaCodeReader:=module()
-	option package;
-	export ReadCode,ParseCode;
-	local  parseCode;
-	
-	parseCode:=define_external(
-		'parseCode',
-		JAVA,CLASSPATH="./CodeParser.jar",
-		CLASS="org.yjt.maple.ParseCodeUtil",
-		'fin'::string,
-		'fout'::string,
-		'inputEncode'::string,
-		'outputEncode'::string);
+	option  package;
+	export 	ReadCode,ParseCode;
+	local  	parseCode,
+			ModuleLoad;
+
+	ModuleLoad:=proc()
+		local jarName,jarPath,path,isFinded:=false;
+		jarName:="CodeParser.jar";
+		for path in :-libname do
+			jarPath:=FileTools:-JoinPath([path,jarName]);
+			if FileTools:-Exists(jarPath) then
+				isFinded:=true;
+				break;
+			end if;
+		end do;
+		if not isFinded then
+			error "找不到 %1 ，请确保 %2 下存在该文件。",jarName,[libname];
+		end if;
+		parseCode:=define_external(
+			'parseCode',
+			JAVA,CLASSPATH=jarPath,
+			CLASS="org.yjt.maple.ParseCodeUtil",
+			'fin'::string,
+			'fout'::string,
+			'inputEncode'::string,
+			'outputEncode'::string);
+	end proc:
 
 	ParseCode:=proc(fin::string,fout::string,inEncode:="UTF8",outEncode:="UTF8")
 		parseCode(fin,fout,inEncode,outEncode);

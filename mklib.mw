@@ -100,16 +100,17 @@ MapleCodeReader:-ReadCode(&quot;./InvClassify/InvClassify.mpl&quot;);
 LibMaker:-MakeLib(InvClassify,&quot;InvClassify.mla&quot;);
 LibraryTools:-ShowContents(&quot;InvClassify.mla&quot;);</EC-CodeEditor>
 <Output>
-<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiNHIiNAIiNOIiNeIiYlPWYiJWFI</Equation></Text-field>
+<Text-field style="2D Output" layout="Maple Output"><Equation executable="false" style="2D Output">NyM3JlEuSW52Q2xhc3NpZnkubTYiNygiJTs/IiIpIiNHIiNBIiNSIiM5IiYlKT4lIiVdRw==</Equation></Text-field>
 </Output></CodeEditor-ExecGroup>
 <Group labelreference="L28" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal">restart;</Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal">restart;
+</Text-field>
 </Input>
 </Group>
 <Group labelreference="L29" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
 <Input>
-<Text-field prompt="&gt; " style="Maple Input" layout="Normal"><Equation executable="true" style="2D Input" input-equation="" display="LUklbXJvd0c2Iy9JK21vZHVsZW5hbWVHNiJJLFR5cGVzZXR0aW5nR0koX3N5c2xpYkdGJzYmLUkjbWlHRiQ2I1EhRicvJSdmYW1pbHlHUTBUaW1lc35OZXd+Um9tYW5GJy8lK2V4ZWN1dGFibGVHUSZmYWxzZUYnLyUsbWF0aHZhcmlhbnRHUSdub3JtYWxGJw==">JSFH</Equation></Text-field>
+<Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
 </Group>
 </Worksheet>

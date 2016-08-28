@@ -24,6 +24,7 @@ $include "Utils.mpl"
     ModuleLoad:=proc()
         PDETools:-declare(quiet):
     end proc:
+    ModuleLoad();
 
     # 进行分类
     doClassify:=proc(vv::list)
