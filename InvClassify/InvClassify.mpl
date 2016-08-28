@@ -17,12 +17,6 @@ $include "InvSimplify.mpl"
 $include "Logout.mpl"
 $include "Utils.mpl"
 
-    # 加载包时改变微分算子的显示方式
-    ModuleLoad:=proc()   
-        PDETools:-declare(quiet):
-    end proc;
-    ModuleLoad();
-
     # 进行分类
     doClassify:=proc(vv::list)
         local As,A,eqs,sols,reps;

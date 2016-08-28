@@ -12,6 +12,11 @@
     重复执行上述算法，直到不能再化简为止。
 *)
 
+$ifndef _INVSIMPLIFY_
+$define _INVSIMPLIFY_
+
+$include "InvOrder.mpl"
+
 # 化简不变量,不改变不变量的顺序。
 simplifyInvariants:=proc(iinvs)
     local x,nx;
@@ -251,3 +256,5 @@ end proc:
 isInv:=proc(e)
     return andmap(type,indets(e,name),specindex(_Delta));
 end proc:
+
+$endif

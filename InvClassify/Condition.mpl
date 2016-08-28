@@ -1,5 +1,10 @@
 # 求解的成立条件
 
+$ifndef _CONDITION_
+$define _CONDITION_
+
+$include "Utils.mpl"
+
 (*
 * 求 解的 定义域
 * 返回的条件中求解了单变量约束
@@ -73,3 +78,5 @@ classifySolve:=proc(con::set)
     ns:=`union`(entries(t,nolist));
     return sd union ns;
 end proc:
+
+$endif

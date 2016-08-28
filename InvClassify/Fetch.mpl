@@ -15,6 +15,12 @@
     + 多变量约束，可以在取定其它变量的值之后，转化单变量约束进行处理。
 *)
 
+$ifndef _FETCH_
+$define _FETCH_
+
+$include "Condition.mpl"
+$include "Utils.mpl"
+
 # 取特解
 fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
     local sol,con;
@@ -153,3 +159,5 @@ fetchIeq:=proc(x)
         end if;
     end if;
 end proc:
+
+$endif

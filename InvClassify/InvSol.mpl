@@ -8,6 +8,9 @@
  *     4 变换方程求解失败
  *     5 变换方程求解成功，特解可能是代表元，是否是代表元留给人工判断
 *)
+$ifndef _INVSOL_
+$define _INVSOL_
+
 InvSol:=module()
     option object;
     export
@@ -176,3 +179,5 @@ InvSol:=module()
         end if;
     end proc:
 end module:
+
+$endif

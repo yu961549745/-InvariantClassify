@@ -5,35 +5,51 @@
     + 计算伴随变换矩阵。
     + 生成偏微分方程组，并求解不变量。
 *)
+$ifndef _BASIC_
+$define _BASIC_
+
+$include "Logout.mpl"
+$include "InvSimplify.mpl"
+
+PDETools:-declare(quiet):
+
+SymsHolder:=module()
+    option object;
+    export  default_syms:={x,y,z,t,u,v,w},      # 默认符号集
+            syms:=default_syms,                 # 当前符号集
+            pnames:={a,c,d,epsilon,Delta,phi};  # 受保护的名字
+end module:
+
+macro(Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`);# 偏导符号作为函数名
 
 # 修改微分算子的符号集合
-setSymbols:=proc(s::set(name):=default_syms)
+setSymbols:=proc(s::set(name):=SymsHolder:-default_syms)
     description "设置函数的变量名集合";
-    if ( s intersect pnames <> {}) then
-        error "变量不能包含%1",pnames;
+    if ( s intersect SymsHolder:-pnames <> {}) then
+        error "变量不能包含%1",SymsHolder:-pnames;
     end if; 
-    syms:=s;
+    SymsHolder:-syms:=s;
 end proc;
 
 # 获取变量名集合
 getSymbols:=proc()
     description "获取变量名集合";
-    syms;
+    SymsHolder:-syms;
 end proc;
 
 # 自定义微分算子操作，作用到函数f上
 d:=proc()
     description "用于生成微分算子表达式";
-    if not {_passed} subset syms then
-        error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",syms,pnames;
+    if not {_passed} subset SymsHolder:-syms then
+        error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",SymsHolder:-syms,SymsHolder:-pnames;
     end if;
-    return diff(Pa(syms[]),_passed);
+    return diff(Pa(SymsHolder:-syms[]),_passed);
 end proc;
 
 # 自定义交换子计算符
-`&*`:=proc(a,b)
+`&c`:=proc(a,b)
     description "计算两个生成微分算子的交换子";
-    expand(eval(subs(Pa(syms[])=b,a)-subs(Pa(syms[])=a,b)));
+    expand(eval(subs(Pa(SymsHolder:-syms[])=b,a)-subs(Pa(SymsHolder:-syms[])=a,b)));
 end proc:
 
 (*
@@ -134,8 +150,9 @@ end proc:
 getTransMatAndPDE:=proc(vv::list)
     local tbs,stbs,vvv,M,n,sbs,i,j,A,tmpv,MK,AD,ADA,ADT,BA,pPhi,eq,AList,dts,eqs;
 
-    if not (indets(vv,name) subset syms) then
-        error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",syms,pnames;
+    if not (indets(vv,name) subset SymsHolder:-syms) then
+        error "表达式只能包含以下变量 %1, 可以使用 setSymbols 设置变量集合，但是不能包含 %2",
+            SymsHolder:-syms,SymsHolder:-pnames;
     end if; 
     
     vvv:=expand(vv):
@@ -145,7 +162,7 @@ getTransMatAndPDE:=proc(vv::list)
     flog[2](seq(sbs[i]=vv[i],i=1..n));
     
     # 计算交换子矩阵，这里得到的是关于f的结果，需要进一步用基表示
-    M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &* vvv[j]):# 交换子的表达式形式
+    M:=Matrix(1..n, 1..n, (i, j)->vvv[i] &c vvv[j]):# 交换子的表达式形式
     MK:=Matrix(1..n,1..n);# 交换子关于生成元的系数向量矩阵
     
     # 将原交换子表用基表出
@@ -233,3 +250,5 @@ getPDE:=proc(p,sbs)
     eq:=add(coeff(p,sbs[i])*diff(phi,a[i]),i=1..n);
     eqs:={seq(coeff(eq,b[i]),i=1..n)} minus {0};
 end proc:
+
+$endif

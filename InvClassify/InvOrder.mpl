@@ -1,4 +1,6 @@
 # 计算不变量阶数
+$ifndef _INVORDER_
+$define _INVORDER_
 
 (*
     * 计算不变量的次数
@@ -41,3 +43,5 @@ findItemOrder:=proc(ee)
         end if;
     end do;
 end proc:
+
+$endif

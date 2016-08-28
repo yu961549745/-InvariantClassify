@@ -1,8 +1,62 @@
+$ifndef _CLASSIFYER_
+$define _CLASSIFYER_
+
+$include "Basic.mpl"
+$include "Condition.mpl"
+$include "Fetch.mpl"
+$include "InvOrder.mpl"
+$include "InvSimplify.mpl"
+$include "InvSol.mpl"
+$include "Logout.mpl"
+$include "Utils.mpl"
+
+ClassifyHolder:=module()
+    option object;
+    export 
+        cid,        # 当前不变量方程中的常数项下标
+        ieqCode,    # 不变量方程编号
+        sols,       # 当前所有解
+        usols,      # 上一个全零不变量方程的解
+        oldSols;    # 上一次getSols的解
+end module:
+
+# 状态重置
+reset:=proc()
+    ClassifyHolder:-cid:=0;
+    ClassifyHolder:-ieqCode:=0;
+    ClassifyHolder:-sols:={};
+    ClassifyHolder:-usols:=table();
+    ClassifyHolder:-oldSols:={};
+end proc:
+
+# 新增解
+addSol:=proc(sol)
+    ClassifyHolder:-sols:=ClassifyHolder:-sols union {sol};
+    return;
+end proc:
+
+# 获取新增的代表元
+# 新的代表元只能获取一次
+getNewSols:=proc()
+    local res;
+    res:=sort([ (ClassifyHolder:-sols minus ClassifyHolder:-oldSols)[] ],'key'=(x->x:-ieqCode));
+    ClassifyHolder:-oldSols:=ClassifyHolder:-sols;
+    return res;
+end proc:
+
+getCname:=proc()
+    ClassifyHolder:-cid:=ClassifyHolder:-cid+1;
+    return c[ClassifyHolder:-cid];
+end proc:
+
+getIeqCode:=proc()
+    ClassifyHolder:-ieqCode:=ClassifyHolder:-ieqCode+1;
+    return ClassifyHolder:-ieqCode;
+end proc:
+
 classify:=proc(A,As,eqs)
     local sol;
-    sols:={};
-    usols:=table();
-    oldSols:={};
+    reset();
     sol:=Object(InvSol):
     sol:-stateCode:=1:
     sol:-oeq:=eqs:
@@ -16,27 +70,8 @@ end proc:
 
 # 暂时没做重复代表元的处理
 getSols:=proc()
-    oldSols:=sols;
-    return sort([sols[]],'key'=(x->[x:-ieqCode,convert(getDesc(x),`global`)]));
-end proc:
-
-# 获取新增的代表元
-# 新的代表元只能获取一次
-getNewSols:=proc()
-    local res;
-    res:=sort([ (sols minus oldSols)[] ],'key'=(x->x:-ieqCode));
-    oldSols:=sols;
-    return res;
-end proc:
-
-getCname:=proc()
-    cid:=cid+1;
-    return c[cid];
-end proc:
-
-getIeqCode:=proc()
-    ieqCode:=ieqCode+1;
-    return ieqCode;
+    ClassifyHolder:-oldSols:=ClassifyHolder:-sols;
+    return sort([ClassifyHolder:-sols[]],'key'=(x->[x:-ieqCode,convert(getDesc(x),`global`)]));
 end proc:
 
 resolve:=proc(sol::InvSol)
@@ -62,7 +97,7 @@ resolve:=proc(sol::InvSol)
         if (sol:-Delta<>[]) then
             sol:-Delta:=[sol:-Delta[],nDelta[]]:
             # 整体化简不变量
-            if (1>=logLevel) then
+            if (1>=LogLevelHolder:-logLevel) then
                 flogf[1]("-----------------------------------------------\n");
                 flogf[1]("对新增不变量按照原不变量进行化简\n");
                 flogf[1]("化简前\n");
@@ -135,7 +170,7 @@ buildInvEqs:=proc(_sol::InvSol,pos::posint)
                 # solveAllZero(_sol);
                 
                 # 这里是延后求解
-                usols[getUsolsKey(_sol)]:=_sol;
+                ClassifyHolder:-usols[getUsolsKey(_sol)]:=_sol;
                 return;
             end if;
 
@@ -255,7 +290,7 @@ fetchRep:=proc(_sol::InvSol)
     n:=_sol:-nvars;
     _ax:=fetchSolRep(_sol);
     if (_ax=NULL) then# 取特解失败
-        sols:=sols union {_sol};
+        addSol(_sol);
         flogf[1]("取特解失败\n");
         return;
     end if;
@@ -285,14 +320,14 @@ solveTransEq:=proc(_sol::InvSol)
     if andmap(x->(x=[]),_sol:-tsol) then
         # 无解
         flogf[1]("变换方程求解失败\n");
-        sols:=sols union {_sol};
+        addSol(_sol);
     else
         # 有解
         flogf[1]("变换方程有解\n");
         _sol:-stateCode:=5;
-        sols:=sols union {_sol};
+        addSol(_sol);
         # 在logLevel为1时输出
-        if (1>=logLevel) then
+        if (1>=LogLevelHolder:-logLevel) then
             printTeq(_sol,1);
             printTeq(_sol,2);
         end if;
@@ -355,7 +390,7 @@ end proc:
 
 # 求解剩余全零不变量方程
 solveRestAllZeroIeqs:=proc(sol::InvSol)
-    solveAllZero( usols[getUsolsKey(sol)] );
+    solveAllZero( ClassifyHolder:-usols[getUsolsKey(sol)] );
 end proc:
 
 # 获取全零不变量方程在usols中的key
@@ -399,3 +434,10 @@ teqsolve:=proc({_explicit::boolean:=false})
         end if;
     end if;
 end proc:
+
+# 输出Delta
+printDeltas:=proc(ds)
+    map(i->print(Delta[i]=ds[i]),[seq(x,x=1..numelems(ds))]);
+end proc:
+
+$endif

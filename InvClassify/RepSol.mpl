@@ -3,6 +3,9 @@
     主要以con划分对象，isol和tsol仅做参考作用
     保证RepSol对象的所有属性的相关变量都是global的。
 *)
+$ifndef _REPSOL_
+$define _REPSOL_
+
 RepSol:=module()
     option object;
     local  
@@ -144,3 +147,5 @@ RepSol:=module()
         return r:-rep;
     end proc:
 end module:
+
+$endif

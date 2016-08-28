@@ -3,8 +3,6 @@
 *)
 
 # InvClassify.mpl
-local
-        ModuleLoad;                     # 加载包时改变微分显示形式
 export
         doClassify,                     # 进行分类
         InvSol,                         # 解对象
@@ -16,30 +14,26 @@ export
         setSymbols,                     # 设置输入表达式所含变量
         getSymbols;                     # 获取输入表达式所含变量
 local
+        SymsHolder,                     # 保留符号信息
         getTransMatAndPDE,              # 获取伴随变换矩阵和偏微分方程
         getInvariants,                  # 根据偏微分方程获取不变量
 
-        default_syms:={x,y,z,t,u,v,w},      # 默认符号集
-        syms:=default_syms,                 # 当前符号集
-        pnames:={a,c,d,epsilon,Delta,phi},  # 受保护的名字
-
-        `&*`,                           # 交换子运算符
+        `&c`,                           # 交换子运算符
         getKd,                          # 将表达式分解为非线性项并提取系数
         getPmVec,                       # 获取表达式关于给定非线性项集的系数向量
         ans2v,                          # 求解表达式关于基的线性表出
 
         getPDE;                         # 获取生成不变量的偏微分方程
 
-uses    
-        Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`;# 微分算子所作用的函数
-
 # Classifyer.mpl
-local    
-        cid:=0,                     # 当前不变量方程中的常数项下标
+local   
+        ClassifyHolder,             # 状态保存器 
         getCname,                   # 获取不变量方程中常数项c[k]的名字
-
-        ieqCode:=0,                 # 不变量方程编号
         getIeqCode,                 # 获取不变量方程的编号
+        getUsolsKey,                # 获取全零方程在usols中的key
+        getNewSols,                 # 获取新解
+        addSol,                     # 新增解
+        reset,                      # 状态重置
         
         buildInvEqs,                # 构造不变量方程
         genInvariants,              # 产生新的不变量
@@ -48,19 +42,13 @@ local
         solveAllZero,               # 求解全零不变量方程
         fetchRep,                   # 取特解定代表元
         solveTransEq,               # 求解伴随变换方程
+        solveRestAllZeroIeqs,       # 求解剩余全零不变量方程       
+        solveTeq,                   # 指定求解伴随变换方程
 
         clearConditions,            # 删去与a无关的约束
         eqOfEpsilon,                # 检查是否和epsilon有关
-
-        sols,                       # 当前所有解
-        usols,                      # 上一个全零不变量方程的解
-        getUsolsKey,                # 获取全零方程在usols中的key
-        solveRestAllZeroIeqs,       # 求解剩余全零不变量方程
-        oldSols,                    # 上一次getSols的解
-
-        getNewSols,                 # 获取新解
-        solveTeq,                   # 指定求解伴随变换方程
-
+        printDeltas,                # 输出Delta
+        
         ieqsolve,                   # 自定义求解不变量方程
         teqsolve,                   # 自定义求解变换方程
 
@@ -77,7 +65,7 @@ export
         updateRep,                  # 修改代表元
         getReps;                    # 获取排序后的代表元
 local   
-        reps:={},                   # 当前代表元映射表
+        RepsHolder,                 # 保存reps
         buildReps,                  # 重新计算代表元
         addReps,                    # 新增代表元
         formReps;                   # 建立代表元
@@ -130,20 +118,20 @@ local
         tappend,                    # 按照集合拓展table键值
         tpop,                       # 提取并删除值
         collectObj,                 # 对象按键值分类
-        printDeltas,                # 输出Delta
         uniqueObj;                  # 对象按键值唯一化
-export
+
+# Interaction.mpl
+export  
+
+        canTransform,               # 检查两个代表元之间能否相互转化
+        resolveRep,                 # 添加新的RepSol进行求解
+        resolveSol,                 # 添加新的InvSol进行求解
+        fetchNewRep,                # 获取新的代表元   
+
         summaryReps,                # 简要输出代表元及其成立条件以及不变量方程和变换方程的解
         printRepCon,                # 简要输出代表元及其成立条件
         printSols,                  # 输出所有InvSol
         printReps;                  # 输出所有RepSol
-
-# Interaction.mpl
-export  
-        canTransform,               # 检查两个代表元之间能否相互转化
-        resolveRep,                 # 添加新的RepSol进行求解
-        resolveSol,                 # 添加新的InvSol进行求解
-        fetchNewRep;                # 获取新的代表元   
 local   
         testTransform;              # 检查两个解之间能否相互转化
 
@@ -156,6 +144,6 @@ local
 *)
 export  setLogLevel;                # 设置输出级别
 local   
-        logLevel:=1,                # 日志输出级别
+        LogLevelHolder,             # 保留logLevel状态
         flog,                       # 对应 print
         flogf;                      # 对应 printf

@@ -1,5 +1,8 @@
 # 交互式求解函数
 
+$ifndef _INTERACTION_
+$define _INTERACTION_
+
 # 添加新的RepSol进行求解
 resolveRep:=proc(rep,solInd,{newIsol:=[],newRep:=[],nocheck::boolean:=false})
     return resolveSol(rep:-osol[solInd],_options);
@@ -74,3 +77,53 @@ testTransform:=proc(s1,s2,base)
         return eq;
     end if;
 end proc:
+
+# 输出所有InvSol对象
+printSols:=proc(sols)
+    local n,i;
+    n:=numelems(sols);
+    for i from 1 to n do
+        printf("---------------------------------------------------------\n");
+        printf("sols[%d]\n",i);
+        printSol(sols[i]);
+    end do;
+    return sols;
+end proc:
+
+# 输出所有RepSol对象
+printReps:=proc(reps)
+    local i,n;
+    n:=numelems(reps);
+    for i from 1 to n do
+        printf("代表元 [%d]---------------------------\n",i);
+        printRep(reps[i]);
+    end do;
+end proc:
+
+# 简要输出代表元及其成立条件
+printRepCon:=proc()
+    map(x->print([x:-rep,getCon(x)[x:-sid]]),getReps()):
+    return;
+end proc:
+
+# 简要输出代表元及其成立条件以及不变量方程和变换方程的解
+summaryReps:=proc()
+    local i,n,r,_reps,id;
+    _reps:=getReps();
+    n:=numelems(_reps);
+    for i from 1 to n do
+        r:=_reps[i];
+        printf("代表元 [%d]\n",i);
+        print(r:-rep);
+        printf("具有条件:\n");
+        for id in r:-sid do
+            print(getCon(r)[id]);
+            print(r:-isol[id]);
+            print(r:-tsol[id]);
+            printf("-------------------------------------\n");
+        end do;
+    end do;
+    return;
+end proc:
+
+$endif

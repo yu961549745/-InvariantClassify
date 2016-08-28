@@ -1,3 +1,6 @@
+$ifndef _UTILS_
+$define _UTILS_
+
 tpop:=proc(t,k)
 	local r;
 	r:=t[k][1];
@@ -20,28 +23,6 @@ sortByComplexity:=proc(_s::list,{index::boolean:=false})
     else
         return ListTools[Reverse](SolveTools[SortByComplexity](_s));
     end if;
-end proc:
-
-# 输出所有InvSol对象
-printSols:=proc(sols::list(InvSol))
-    local n,i;
-    n:=numelems(sols);
-    for i from 1 to n do
-        printf("---------------------------------------------------------\n");
-        printf("sols[%d]\n",i);
-        printSol(sols[i]);
-    end do;
-    return sols;
-end proc:
-
-# 输出所有RepSol对象
-printReps:=proc(reps)
-    local i,n;
-    n:=numelems(reps);
-    for i from 1 to n do
-        printf("代表元 [%d]---------------------------\n",i);
-        printRep(reps[i]);
-    end do;
 end proc:
 
 # 按照集合拓展table键值 
@@ -83,33 +64,5 @@ uniqueObj:=proc(s,key,{index::boolean:=false})
     return [entries(t,nolist)];
 end proc:
 
-# 简要输出代表元及其成立条件以及不变量方程和变换方程的解
-summaryReps:=proc()
-    local i,n,r,_reps,id;
-    _reps:=getReps();
-    n:=numelems(_reps);
-    for i from 1 to n do
-        r:=_reps[i];
-        printf("代表元 [%d]\n",i);
-        print(r:-rep);
-        printf("具有条件:\n");
-        for id in r:-sid do
-            print(getCon(r)[id]);
-            print(r:-isol[id]);
-            print(r:-tsol[id]);
-            printf("-------------------------------------\n");
-        end do;
-    end do;
-    return;
-end proc:
 
-# 简要输出代表元及其成立条件
-printRepCon:=proc()
-    map(x->print([x:-rep,getCon(x)[x:-sid]]),getReps()):
-    return;
-end proc:
-
-# 输出Delta
-printDeltas:=proc(ds)
-    map(i->print(Delta[i]=ds[i]),[seq(x,x=1..numelems(ds))]);
-end proc:
+$endif
