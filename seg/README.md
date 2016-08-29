@@ -98,4 +98,7 @@ AndProp(OrProp(RealRange(3, 4), RealRange(Open(0), Open(1)), RealRange(Open(1), 
 ( 2^(1/2) , 2 ] ⋃ {3}
 ( 2^(1/2) , 2 ] ⋃ [ 3 , 4 ]
 ```
-忽略形式上的差异，最大的区别在于`RealRange`的展开不够彻底。
+
+此外，还解决了这些`RealRange`的不足：
++ `Non`操作的表示，事实`上Non(2)`不会表示为`OrProp(RealRange(-infinity,Open(2)),RealRange(Open(2),infinity))`。
++ 对于`infinity`的相关处理以及对空集的判定。例如`RealRange(Open(infinity),infinity)`应当判定为空集。

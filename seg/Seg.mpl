@@ -231,8 +231,6 @@ Seg:=module()
         if r[1]="<" then
             r:=r[3..-3];
         end if;
-        # r:=StringTools[SubstituteAll](r,"<","(");
-        # r:=StringTools[SubstituteAll](r,">",")");
         return r;
     end proc:
 
