@@ -16,33 +16,28 @@ $define _SEG_
 Seg:=module()
     option object;
     export
-            `+`::static,
-            `-`::static,
-            `*`::static,
-            `^`::static,
-            `ln`::static,
-            `and`::static,
-            `or`::static,
-            `not`::static,
-            simplify::static,
-            bound;
+            `and`::static,          # 区间交集
+            `intersect`::static,    # 区间交集
+            `or`::static,           # 区间并集
+            `union`::static,        # 区间并集
+            `not`::static,          # 区间补集
+            `minus`::static,        # 区间差集
+            `subset`::static,       # 区间属于
+            bound;                  # 对应的 RealRange 对象
     local   
-            ModulePrint::static,
-            ModuleApply::static,
-            con2range::static,
-            range2str::static,
-            conBuild::static,
-            expandRange::static,
-            rangeBuild::static,
-            rangeNot::static,
-            sortOps::static,
-            leftBound::static,
-            `&+`::static,
-            `&-`::static,
-            rangeMax::static,
-            rangeMin::static,
-            `&plus`::static,
-            calableRange::static;
+            # 初始化
+            ModuleApply::static,    # 初始化
+            conBuild::static,       # 使用约束集合初始化
+            rangeBuild::static,     # 使用 RealRange 初始化
+            con2range::static,      # 约束转化为 RealRange 对象
+            # 输出
+            ModulePrint::static,    # 输出
+            range2str::static,      # RealRange 对象转化为字符串
+            sortOps::static,        # 输出时按左值排序
+            leftBound::static,      # 获取 RealRange 左端值,用于排序
+            # 计算
+            expandRange::static,    # 化简 RealRange 对象
+            rangeNot::static;       # RealRange 对象取补集
 
     ModuleApply:=proc(x)
         if type(x,set({`=`,`<`,`<=`,`<>`})) then
@@ -53,20 +48,17 @@ Seg:=module()
     end proc:
 
     conBuild:=proc(cons::set({`=`,`<`,`<=`,`<>`}))
-        local this,c;
         if numelems(indets(cons,name))<>1 
         or ormap(x->numelems(indets(cons,name))<>1,cons) then
             error "每个不等式（等式）都只能使用同一个变量";
         end if;
-        this:=Object(Seg);
-        this:-bound:=AndProp(con2range~(cons)[]);
-        return this;
+        return rangeBuild(AndProp(con2range~(cons)[]));
     end proc:
 
     rangeBuild:=proc(r)
         local this;
         this:=Object(Seg);
-        this:-bound:=expandRange(r);
+        this:-bound:=expandRange(subs(Non=rangeNot,r));
         return this;
     end proc:
 
@@ -89,36 +81,62 @@ Seg:=module()
         return rangeBuild(AndProp(map(x->x:-bound,[_passed])[]));
     end proc:
 
+    `intersect`:=`and`;
+
     `or`:=proc()
         option overload;
         return rangeBuild(OrProp(map(x->x:-bound,[_passed])[]));
     end proc:
+
+    `union`:=`or`;
 
     `not`:=proc(x::Seg,$)
         option overload;
         return rangeBuild(rangeNot(x:-bound));
     end proc:
 
+    `minus`:=proc(x::Seg,y::Seg,$)
+        return x and (not y);
+    end proc:
+
+    `subset`:=proc(x::Seg,y::Seg,$)
+        local z;
+        z:=x and y;
+        return evalb(z:-bound=x:-bound);
+    end proc:
+
     rangeNot:=proc(b)
-        local lv,rv;
+        local lv,rv,lb,rb;
         if b=BottomProp then
             return RealRange(-infinity,infinity);
-        elif type(b,extended_numeric) then
+        elif type(b,infinity) then
+            return real;
+        elif type(evalf(b),numeric) then
             return OrProp(RealRange(-infinity,Open(b)),RealRange(Open(b),infinity));
         elif b=real then
             return BottomProp;
         elif op(0,b)=RealRange then
             if op([1,0],b)=Open then
-                lv:=op(1,b);
+                lv:=op([1,1],b);
             else
                 lv:=Open(op(1,b));
             end if;
             if op([2,0],b)=Open then
-                rv:=op(2,b);
+                rv:=op([2,1],b);
             else
                 rv:=Open(op(2,b));
             end if;
-            return OrProp(RealRange(-infinity,lv),RealRange(rv,infinity));
+            if has(lv,infinity) then
+                lb:=NULL;
+            else
+                lb:=RealRange(-infinity,lv);
+            end if;
+            if has(rv,infinity) then
+                rb:=NULL;
+            else
+                rb:=RealRange(rv,infinity);
+            end if;
+            return OrProp(lb,rb);
         elif op(0,b)=AndProp then
             return OrProp(thisproc~([op(b)])[]);
         elif op(0,b)=OrProp then
@@ -146,7 +164,7 @@ Seg:=module()
         local lc,lv,rc,rv,bs,r;
         if b=BottomProp then
             return "∅";
-        elif type(b,extended_numeric) then
+        elif type(evalf(b),extended_numeric) then
             return sprintf("{%a}",b);
         elif b=real then
             return "( -∞ , +∞ )";
@@ -195,9 +213,9 @@ Seg:=module()
 
     leftBound:=proc(b)
         if b=BottomProp then
-            return -infinity;
-        elif type(b,extended_numeric) then
-            return b;
+            return evalf(-infinity);
+        elif type(evalf(b),extended_numeric) then
+            return evalf(b);
         else
             return thisproc(op(1,b));
         end if;
@@ -213,85 +231,6 @@ Seg:=module()
         return r;
     end proc:
 
-    rangeMin:=proc(b)
-        if type(b,extended_numeric) then
-            return b;
-        elif op(0,b)=RealRange then
-            return op(1,b);
-        else
-            error "未知调用方式";
-        end if;
-    end proc:
-
-    rangeMax:=proc(b)
-        if type(b,extended_numeric) then
-            return b;
-        elif op(0,b)=RealRange then
-            return op(2,b);
-        else
-            error "未知调用方式";
-        end if;
-    end proc:
-
-    `&plus`:=proc(x,y)
-        if op(0,x)=Open or op(0,y)=Open then
-            return Open(x+y);
-        else
-            return x+y;
-        end if;
-    end proc:
-
-    calableRange:=proc(b)
-        return type(b,extended_numeric) or op(0,b)=RealRange;
-    end proc:
-
-    `&+`:=proc(x,y)
-        local z;
-        if op(0,x)=OrProp then
-            z:=OrProp(map[1](thisproc,[op(x)],y)[]);
-        elif op(0,y)=OrProp then
-            z:=OrProp(map[2](thisproc,x,[op(y)])[]);
-        elif calableRange(x) and calableRange(y) then
-            z:=RealRange(rangeMin(x) &plus rangeMin(y),rangeMax(x) &plus rangeMax(y));
-        else
-            error "未知调用方式";
-        end if;
-        if _rest=NULL then
-            return z;
-        else
-            return thisproc(z,_rest);
-        end if;
-    end proc:
-    
-    `+`:=proc(x::Seg,y::Seg)
-        option overload;
-        local z;
-        z:=rangeBuild(x:-bound &+ y:-bound);
-        if _rest=NULL then
-            return z;
-        else
-            return thisproc(z,_rest);
-        end if;
-    end proc:
-
-    `&-`:=proc(x,$)
-        if op(0,x)=OrProp then
-            return OrProp(map(thisproc,[op(x)])[]);
-        elif type(x,extended_numeric) then
-            return -x;
-        elif op(0,x)=Open then
-            return Open(-op(x));
-        elif op(0,x)=RealRange then
-            return RealRange(&- op(2,x),&- op(1,x));
-        else
-            error "未知调用方式";
-        end if;
-    end proc:
-
-    `-`:=proc(x::Seg,$)
-        option overload;
-        return rangeBuild(&- x:-bound);
-    end proc:
 end module:
 
 $endif
