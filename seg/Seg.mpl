@@ -23,6 +23,7 @@ Seg:=module()
             `not`::static,          # 区间补集
             `minus`::static,        # 区间差集
             `subset`::static,       # 区间属于
+            formatRange::static,    # 将RealRange转化为区间表示形式
             bound;                  # 对应的 RealRange 对象
     local   
             # 初始化
@@ -32,7 +33,7 @@ Seg:=module()
             con2range::static,      # 约束转化为 RealRange 对象
             # 输出
             ModulePrint::static,    # 输出
-            range2str::static,      # RealRange 对象转化为字符串
+             range2str::static,      # RealRange 对象转化为字符串
             sortOps::static,        # 输出时按左值排序
             leftBound::static,      # 获取 RealRange 左端值,用于排序
             # 计算
@@ -222,12 +223,16 @@ Seg:=module()
     end proc:
 
     ModulePrint:=proc(x::Seg)
-        local r:=range2str(x:-bound);
+        return formatRange(x:-bound);
+    end proc:
+
+    formatRange:=proc(x)
+        local r:=range2str(x);
         if r[1]="<" then
             r:=r[3..-3];
         end if;
-        r:=StringTools[SubstituteAll](r,"<","(");
-        r:=StringTools[SubstituteAll](r,">",")");
+        # r:=StringTools[SubstituteAll](r,"<","(");
+        # r:=StringTools[SubstituteAll](r,">",")");
         return r;
     end proc:
 
