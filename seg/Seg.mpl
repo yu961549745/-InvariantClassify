@@ -16,15 +16,26 @@ $define _SEG_
 Seg:=module()
     option object;
     export
-            `and`::static,          # 区间交集
-            `intersect`::static,    # 区间交集
-            `or`::static,           # 区间并集
-            `union`::static,        # 区间并集
+            # 运算符，优先级从高到低
+            ## 逻辑版本
             `not`::static,          # 区间补集
+            `and`::static,          # 区间交集
+            `or`::static,           # 区间并集
+            `xor`::static,          # 区间差集
+            `implies`::static,      # 区间子集
+            ## 集合版本
+            `&C`::static,           # 区间补集
+            `intersect`::static,    # 区间交集
+            `union`::static,        # 区间并集
             `minus`::static,        # 区间差集
             `subset`::static,       # 区间属于
+
+            # 属性
+            bound,                  # 对应的 RealRange 对象
+
+            # 导出工具函数
             formatRange::static,    # 将RealRange转化为区间表示形式
-            bound;                  # 对应的 RealRange 对象
+            evalRange::static;      # RealRange彻底求值
     local   
             # 初始化
             ModuleApply::static,    # 初始化
@@ -40,6 +51,7 @@ Seg:=module()
             leftBound::static,      # 获取 RealRange 左端值,用于排序
             # 计算
             expandRange::static,    # 化简 RealRange 对象
+            subsSet::static,        # 替换Range表达式中的集合对象
             rangeNot::static;       # RealRange 对象取补集
 
     ModuleApply:=proc(x)
@@ -47,8 +59,6 @@ Seg:=module()
             return conBuild(x);
         elif type(x,string) then
             return strBuild(x);
-        elif type(x,set) then
-            return rangeBuild(OrProp(x[]));
         else
             return rangeBuild(x);
         end if;
@@ -65,7 +75,7 @@ Seg:=module()
     rangeBuild:=proc(r)
         local this;
         this:=Object(Seg);
-        this:-bound:=expandRange(subs(Non=rangeNot,r));
+        this:-bound:=evalRange(subs(Non=rangeNot,r));
         return this;
     end proc:
 
@@ -102,15 +112,21 @@ Seg:=module()
         return rangeBuild(rangeNot(x:-bound));
     end proc:
 
-    `minus`:=proc(x::Seg,y::Seg,$)
+    `&C`:=`not`;
+
+    `xor`:=proc(x::Seg,y::Seg,$)
         return x and (not y);
     end proc:
+
+    `minus`:=`xor`;
 
     `subset`:=proc(x::Seg,y::Seg,$)
         local z;
         z:=x and y;
         return evalb(z:-bound=x:-bound);
     end proc:
+
+    `implies`:=`subset`;
 
     rangeNot:=proc(b)
         local lv,rv,lb,rb;
@@ -151,17 +167,47 @@ Seg:=module()
         end if;
     end proc:
 
+    evalRange:=proc(x)
+        return expandRange(subsSet(x));
+    end proc:
+
+    # 把 property 表达式中的集合都替换为 OrProp
+    subsSet:=proc(x)
+        if type(x,set) then
+            return OrProp(op(x));
+        elif op(0,x)=AndProp or op(0,x)=OrProp then
+            return op(0,x)(thisproc~([op(x)])[]);
+        else
+            return x;
+        end if;
+    end proc:
+
     expandRange:=proc(x)
         local orv,nxt,rst,tmp;
-        if op(0,x)=AndProp and has([op(x)],OrProp) then
-            orv:=op(1,x);
-            nxt:=op(2,x);
-            rst:=op(3..-1,x);
-            tmp:=OrProp(map(x->AndProp(x,nxt),[op(orv)])[]);
-            tmp:=AndProp(tmp,rst);
+        if op(0,x)=AndProp then
+            # 所有的交集操作的返回结果都不应该表示为交集的形式
+            if has([op(x)],OrProp) then
+                # A⋂(B⋃C)=(A⋂B)⋃(A⋂C)
+                orv:=op(1,x);
+                nxt:=op(2,x);
+                rst:=op(3..-1,x);
+                tmp:=OrProp(map(x->AndProp(x,nxt),[op(orv)])[]);
+                tmp:=AndProp(tmp,rst);
+            elif type(op(1,x),extended_numeric) then
+                # 计算 AndProp(x,property)
+                # 因为集合已经被事先展开，所以这里只可能有一个数值对象
+                # 而且经测试，顺序为：数值对象 < OrProp < RealRange
+                if is(op(1,x),op(2,x)) then
+                    tmp:=op(1,x);
+                else
+                    tmp:=BottomProp;
+                end if;
+            else
+                tmp:=x;
+            end if;
             return thisproc(tmp);
         elif op(0,x)=OrProp and has([op(x)],AndProp) then
-        	  return thisproc(OrProp(thisproc~([op(x)])[]));
+        	return thisproc(OrProp(thisproc~([op(x)])[]));
         else
             return x;
         end if;
@@ -247,6 +293,12 @@ Seg:=module()
         s:=StringTools:-SubstituteAll(s,"\x26\x69\x6E\x66\x69\x6E\x3B","infinity");
         s:=StringTools:-SubstituteAll(s,"\x26\x62\x69\x67\x63\x61\x70\x3B","and");
         s:=StringTools:-SubstituteAll(s,"\x26\x62\x69\x67\x63\x75\x70\x3B","or");
+        # 内部默认使用逻辑版本的运算符
+        s:=StringTools:-SubstituteAll(s,"&C","not");
+        s:=StringTools:-SubstituteAll(s,"intersect","and");
+        s:=StringTools:-SubstituteAll(s,"union","or");
+        s:=StringTools:-SubstituteAll(s,"minus","xor");
+        s:=StringTools:-SubstituteAll(s,"subset","implies");
         # 解析字符串
         r:=StringTools:-StringBuffer();
         n:=length(s);

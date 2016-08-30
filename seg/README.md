@@ -1,10 +1,14 @@
 # 区间操作对象
 基于Maple的`RealRange`实现了`Seg`对象，能够进行实数区间的若干操作：
-+ 交集：`and` 或 `intersect`。
-+ 并集：`or`  或 `union`。
-+ 补集：`not`
-+ 差集：`minus`
-+ 子集：`subset`
++ 交集：`and` 		或 `intersect`。
++ 并集：`or`  		或 `union`。
++ 补集：`not` 		或 `&C`。
++ 差集：`xor` 		或 `minus`。
++ 子集：`implies` 	或 `subset`。
++ 运算符优先级同maple，`&C > intersect > union = minus > subset > not > and > or > xor > implies`。因此，为了能够保证优先级符合直觉，应当统一使用两套操作符中的一套。才能满足 `补集 > 交集 > 并集 >= 差集 > 子集`
+	+ 使用 `and or not xor implies`，并集 > 差集 。
+	+ 使用 `intersect union &C minus subset`， 并集 = 差集。
+	+ 为了运算顺序更加清晰，推荐添加括号。
 
 相比于`RealRange`具有以下优点：
 + 显示更加直观。`Seg`对象采用习惯上的区间表示方法来显示区间。
@@ -31,8 +35,14 @@ Seg({x>0,x<=2,x<>1});
 ```
 
 ### 利用RealRange进行初始化
-`RealRange`包含`RealRange(a,b)`,`real`,`1`,`Non(1)`等多种形式，详情参考Maple帮助文档。
-只要是满足`type(x,property)`的`x`都能进行`Seg`的初始化。
+更准确的说，是利用Maple的`property`进行初始化，包含：
++ RealRange
++ Non
++ AndProp
++ OrProp
++ real
++ set
++ extended_numeric
 输入：
 ```
 Seg(RealRange(Open(sqrt(2)),infinity));
@@ -128,3 +138,5 @@ AndProp(OrProp(RealRange(3, 4), RealRange(Open(0), Open(1)), RealRange(Open(1), 
 此外，还解决了这些`RealRange`的不足：
 + `Non`操作的表示，事实`上Non(2)`不会表示为`OrProp(RealRange(-infinity,Open(2)),RealRange(Open(2),infinity))`。
 + 对于`infinity`的相关处理以及对空集的判定。例如`RealRange(Open(infinity),infinity)`应当判定为空集。
++ `AndProp(1,RealRange(1,2))`这种不彻底的计算情况。
++ `OrProp({1,2},{2,3})`这种情况，通过展开集合实现彻底计算。
