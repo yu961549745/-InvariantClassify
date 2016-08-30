@@ -51,7 +51,7 @@ Seg:=module()
             leftBound::static,      # 获取 RealRange 左端值,用于排序
             # 计算
             expandRange::static,    # 化简 RealRange 对象
-            subsSet::static,        # 替换Range表达式中的集合对象
+            subsRange::static,      # 替换Range表达式中的集合对象和Non表达式
             rangeNot::static;       # RealRange 对象取补集
 
     ModuleApply:=proc(x)
@@ -75,7 +75,7 @@ Seg:=module()
     rangeBuild:=proc(r)
         local this;
         this:=Object(Seg);
-        this:-bound:=evalRange(subs(Non=rangeNot,r));
+        this:-bound:=evalRange(r);
         return this;
     end proc:
 
@@ -168,13 +168,16 @@ Seg:=module()
     end proc:
 
     evalRange:=proc(x)
-        return expandRange(subsSet(x));
+        return expandRange(subsRange(x));
     end proc:
 
     # 把 property 表达式中的集合都替换为 OrProp
-    subsSet:=proc(x)
+    # 把 Non 展开
+    subsRange:=proc(x)
         if type(x,set) then
             return OrProp(op(x));
+        elif op(0,x)=Non then
+            return rangeNot(op(x));
         elif op(0,x)=AndProp or op(0,x)=OrProp then
             return op(0,x)(thisproc~([op(x)])[]);
         else
@@ -196,7 +199,7 @@ Seg:=module()
             elif type(op(1,x),extended_numeric) then
                 # 计算 AndProp(x,property)
                 # 因为集合已经被事先展开，所以这里只可能有一个数值对象
-                # 而且经测试，顺序为：数值对象 < OrProp < RealRange
+                # 而且经测试，顺序为：numeric < OrProp < RealRange
                 if is(op(1,x),op(2,x)) then
                     tmp:=op(1,x);
                 else

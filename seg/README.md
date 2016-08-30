@@ -35,14 +35,18 @@ Seg({x>0,x<=2,x<>1});
 ```
 
 ### 利用RealRange进行初始化
-更准确的说，是利用Maple的`property`进行初始化，包含：
+更准确的说，是利用Maple的`property`进行初始化，已经考虑到的类型包含：
 + RealRange
 + Non
 + AndProp
 + OrProp
 + real
++ BottomProp
 + set
-+ extended_numeric
++ numeric
+
+Maple的`property`类型还包含更多类型，例如`posint`等等，并没有考虑在内。
+
 输入：
 ```
 Seg(RealRange(Open(sqrt(2)),infinity));
@@ -51,6 +55,10 @@ Seg(RealRange(Open(sqrt(2)),infinity));
 ```
 ( 2^(1/2) , +∞ )
 ```
+
+此外，还提供了两个操作`RealRange`对象的函数：
++ `Seg:-formatRange`，支持将`RealRange`对象表示为区间的形式，但不支持初始化所支持的所有元素，只支持`RealRange AndProp OrProp real BottomProp numeric`这些类型的元素构成的表达式，并且不会对表达式进行求值。事实上，Maple参数传递自带一次求值，所以所谓的不求值只是保留了Maple原生的处理结果，如果要抑制传参的时候进行求值，需使用`''`。
++ `Seg:-evalRange`，支持初始化所支持的所有元素。
 
 ### 利用字符串进行初始化
 上面两种初始化方法都不够方便，直接使用字符串进行直观的初始化更佳。
