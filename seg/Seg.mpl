@@ -47,6 +47,8 @@ Seg:=module()
             return conBuild(x);
         elif type(x,string) then
             return strBuild(x);
+        elif type(x,set) then
+            return rangeBuild(OrProp(x[]));
         else
             return rangeBuild(x);
         end if;
@@ -298,7 +300,7 @@ Seg:=module()
         s:=r:-value();
         r:-clear();
         # 处理单点区间
-        s:=StringTools:-RegSubs("{(.*)}"="Seg(\\1)",s);
+        s:=StringTools:-RegSubs("{(.*)}"="Seg({\\1})",s);
         # 处理括号
         s:=StringTools:-SubstituteAll(s,"<","(");
         s:=StringTools:-SubstituteAll(s,">",")");
