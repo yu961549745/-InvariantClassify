@@ -48,4 +48,6 @@ ParseCode:=proc(fin::string,fout::string,inEncode:="UTF8",outEncode:="UTF8")
 + 面向对象的实现，Maple的面向对象存在一些奇怪的问题：
     + 没有对象的比较方法，无法对其进行唯一化操作。
     + 继承：对象使用`module option object`实现的，但是继承使用`Record`对象实现的，两者是不相关的，你这不是在逗我。
++ 没有`switch`语法。
++ 正则表达式简直智障。好吧这个应该自己实现了，其实委托java实现一个还是挺简单的。
 + 还可以添加一些其它高级语言特性。

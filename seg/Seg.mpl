@@ -31,9 +31,11 @@ Seg:=module()
             conBuild::static,       # 使用约束集合初始化
             rangeBuild::static,     # 使用 RealRange 初始化
             con2range::static,      # 约束转化为 RealRange 对象
+            strBuild::static,       # 使用字符串初始化
+            exprOutput::static,     # 字符串解析辅助函数
             # 输出
             ModulePrint::static,    # 输出
-             range2str::static,      # RealRange 对象转化为字符串
+            range2str::static,      # RealRange 对象转化为字符串
             sortOps::static,        # 输出时按左值排序
             leftBound::static,      # 获取 RealRange 左端值,用于排序
             # 计算
@@ -43,6 +45,8 @@ Seg:=module()
     ModuleApply:=proc(x)
         if type(x,set({`=`,`<`,`<=`,`<>`})) then
             return conBuild(x);
+        elif type(x,string) then
+            return strBuild(x);
         else
             return rangeBuild(x);
         end if;
@@ -232,6 +236,88 @@ Seg:=module()
             r:=r[3..-3];
         end if;
         return r;
+    end proc:
+
+    strBuild:=proc(_s::string)
+        local r,s,cb,cx,cz,i,n,os,st,md,ed;
+        s:=_s;
+        # 处理无穷和交并符号
+        s:=StringTools:-SubstituteAll(s,"\x26\x69\x6E\x66\x69\x6E\x3B","infinity");
+        s:=StringTools:-SubstituteAll(s,"\x26\x62\x69\x67\x63\x61\x70\x3B","and");
+        s:=StringTools:-SubstituteAll(s,"\x26\x62\x69\x67\x63\x75\x70\x3B","or");
+        # 解析字符串
+        r:=StringTools:-StringBuffer();
+        n:=length(s);
+        cb:=0;# 区间括号标记
+        cx:=0;# 小括号标记
+        cz:=0;# 中括号标记
+        os:=1;# 未处理的字符串的开始下标
+        st:=0;# 区间开始下标
+        md:=0;# 区间分隔符下标
+        ed:=0;# 区间结束下标
+        for i from 1 to n do
+            if   s[i]="(" then
+                if cx=0 and cb=0 then
+                    cb:=1;
+                    st:=i;
+                else
+                    cx:=cx+1;
+                end if;
+            elif s[i]="[" then
+                if cz=0 and cb=0 then
+                    cb:=1;
+                    st:=i;
+                else
+                    cz:=cz+1;
+                end if;
+            elif s[i]="," and cb=1 then
+                md:=i;
+            elif s[i]=")" then
+                if cx=0 and cb=1 then
+                    ed:=i;
+                    cb:=0;
+                    r:-append(exprOutput(s,os,st,md,ed));
+                    os:=i+1;
+                else
+                    cx:=cx-1;
+                end if;
+            elif s[i]="]" then
+                if cz=0 and cb=1 then
+                    ed:=i;
+                    cb:=0;
+                    r:-append(exprOutput(s,os,st,md,ed));
+                    os:=i+1;
+                else
+                    cz:=cz-1;
+                end if;
+            end if;
+        end do;
+        r:-append(s[os..-1]);
+        s:=r:-value();
+        r:-clear();
+        # 处理单点区间
+        s:=StringTools:-RegSubs("{(.*)}"="Seg(\\1)",s);
+        # 处理括号
+        s:=StringTools:-SubstituteAll(s,"<","(");
+        s:=StringTools:-SubstituteAll(s,">",")");
+        # 返回结果
+        return eval(subs(Open(infinity)=infinity,Open(-infinity)=-infinity,parse(s)));
+    end proc:
+
+    exprOutput:=proc(s,os,st,md,ed)
+        local lv,rv,res;
+        if s[st]="(" then
+            lv:=sprintf("Open(%s)",s[(st+1)..(md-1)]);
+        else
+            lv:=s[(st+1)..(md-1)];
+        end if;
+        if s[ed]=")" then
+            rv:=sprintf("Open(%s)",s[(md+1)..(ed-1)]);
+        else
+            rv:=s[(md+1)..(ed-1)];
+        end if;
+        res:=sprintf("%sSeg(RealRange(%s,%s))",s[os..(st-1)],lv,rv);
+        return res;
     end proc:
 
 end module:
