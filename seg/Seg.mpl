@@ -1,13 +1,16 @@
 (*
 
 区间对象
-实现：
-+ 基本操作
-    + 利用不等式初始化
+实现运算：
     + 交集
     + 并集
     + 补集
-+ 计算值域：实现 + - * ^ ln 的值域计算
+    + 子集
+实现了三种初始化方法：
+    + 不等式集合
+    + RealRange表达式
+    + 区间的字符串表达形式
+导出了辅助RealRange计算的两个函数
 
 *)
 $ifndef _SEG_
@@ -54,6 +57,7 @@ Seg:=module()
             subsRange::static,      # 替换Range表达式中的集合对象和Non表达式
             rangeNot::static;       # RealRange 对象取补集
 
+    # 初始化
     ModuleApply:=proc(x)
         if type(x,set({`=`,`<`,`<=`,`<>`})) then
             return conBuild(x);
@@ -64,6 +68,7 @@ Seg:=module()
         end if;
     end proc:
 
+    # 使用约束集合初始化
     conBuild:=proc(cons::set({`=`,`<`,`<=`,`<>`}))
         if numelems(indets(cons,name))<>1 
         or ormap(x->numelems(indets(cons,name))<>1,cons) then
@@ -72,6 +77,7 @@ Seg:=module()
         return rangeBuild(AndProp(con2range~(cons)[]));
     end proc:
 
+    # 使用 RealRange 初始化
     rangeBuild:=proc(r)
         local this;
         this:=Object(Seg);
@@ -79,6 +85,7 @@ Seg:=module()
         return this;
     end proc:
 
+    # 将约束转化为RealRange
     con2range:=proc(c::{`=`,`<`,`<=`,`<>`})
         local v;
         if type(c,{`<`,`<=`}) then
@@ -93,41 +100,47 @@ Seg:=module()
         end if;
     end proc:
 
+    # 交集
     `and`:=proc()
         option overload;
         return rangeBuild(AndProp(map(x->x:-bound,[_passed])[]));
     end proc:
-
     `intersect`:=`and`;
 
+    # 并集
     `or`:=proc()
         option overload;
         return rangeBuild(OrProp(map(x->x:-bound,[_passed])[]));
     end proc:
-
     `union`:=`or`;
 
+    # 补集
     `not`:=proc(x::Seg,$)
         option overload;
         return rangeBuild(rangeNot(x:-bound));
     end proc:
-
     `&C`:=`not`;
 
+    # 差集
     `xor`:=proc(x::Seg,y::Seg,$)
         return x and (not y);
     end proc:
-
     `minus`:=`xor`;
 
+    # 子集
     `subset`:=proc(x::Seg,y::Seg,$)
         local z;
         z:=x and y;
         return evalb(z:-bound=x:-bound);
     end proc:
-
     `implies`:=`subset`;
 
+    # RealRange彻底求值
+    evalRange:=proc(x)
+        return expandRange(subsRange(x));
+    end proc:
+
+    # RealRange补集展开
     rangeNot:=proc(b)
         local lv,rv,lb,rb;
         if b=BottomProp then
@@ -167,10 +180,6 @@ Seg:=module()
         end if;
     end proc:
 
-    evalRange:=proc(x)
-        return expandRange(subsRange(x));
-    end proc:
-
     # 把 property 表达式中的集合都替换为 OrProp
     # 把 Non 展开
     subsRange:=proc(x)
@@ -185,6 +194,7 @@ Seg:=module()
         end if;
     end proc:
 
+    # 展开计算RealRange
     expandRange:=proc(x)
         local orv,nxt,rst,tmp;
         if op(0,x)=AndProp then
@@ -216,6 +226,7 @@ Seg:=module()
         end if;
     end proc:
 
+    # 
     range2str:=proc(b)
         local lc,lv,rc,rv,bs,r;
         if b=BottomProp then
@@ -263,10 +274,12 @@ Seg:=module()
         end if;
     end proc:
 
+    # 用于排序
     sortOps:=proc(x)
         return sort(x,key=leftBound);
     end proc:
 
+    # 区间左值
     leftBound:=proc(b)
         if b=BottomProp then
             return evalf(-infinity);
@@ -277,10 +290,12 @@ Seg:=module()
         end if;
     end proc:
 
+    # 默认输出
     ModulePrint:=proc(x::Seg)
         return formatRange(x:-bound);
     end proc:
 
+    # 将RealRange转化为区间表示形式
     formatRange:=proc(x)
         local r:=range2str(x);
         if r[1]="<" then
@@ -289,6 +304,7 @@ Seg:=module()
         return r;
     end proc:
 
+    # 根据区间的字符串表达形式初始化
     strBuild:=proc(_s::string)
         local r,s,cb,cx,cz,i,n,os,st,md,ed;
         s:=_s;
@@ -363,6 +379,7 @@ Seg:=module()
         return eval(subs(Open(infinity)=infinity,Open(-infinity)=-infinity,parse(s)));
     end proc:
 
+    # 辅助转化区间表达式为Maple表达式
     exprOutput:=proc(s,os,st,md,ed)
         local lv,rv,res;
         if s[st]="(" then
