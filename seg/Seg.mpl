@@ -34,7 +34,7 @@ Seg:=module()
             `subset`::static,       # 区间属于
 
             # 属性
-            bound,                  # 对应的 RealRange 对象
+            bound:=real,            # 对应的 RealRange 对象
 
             # 导出工具函数
             formatRange::static,    # 将RealRange转化为区间表示形式
