@@ -226,7 +226,7 @@ Seg:=module()
         end if;
     end proc:
 
-    # 
+    # 将RealRange转化为区间表示形式
     range2str:=proc(b)
         local lc,lv,rc,rv,bs,r;
         if b=BottomProp then
