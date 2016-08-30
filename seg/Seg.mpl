@@ -270,7 +270,9 @@ Seg:=module()
                 else
                     cz:=cz+1;
                 end if;
-            elif s[i]="," and cb=1 then
+            elif s[i]="," and cb=1 and cx=0 and cz=0 then
+            # 这么写保证了只有在其它表达式的()[]匹配的情况下才会将读取的`,`作为区间的分隔符，
+            # 考虑到了其它表达式中出现`,`的可能性。
                 md:=i;
             elif s[i]=")" then
                 if cx=0 and cb=1 then
