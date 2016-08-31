@@ -50,7 +50,6 @@ JavaCodeReader:=module()
 		description "similar to `read`";
 		local tmpFile;
 		tmpFile:=cat(fname,".tmp.mpl");
-		print(tmpFile);
 		ParseCode(fname,tmpFile,inEncode,outEncode);
 		read(tmpFile);
 		FileTools[Remove](tmpFile);
