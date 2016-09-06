@@ -1,15 +1,28 @@
-$ifndef _CLOSURE
-$define _CLOSURE
+$ifndef _CLOSURE_
+$define _CLOSURE_
 
 getClosure:=proc(A::Matrix)
     local _a,_b,n;
     n:=LinearAlgebra[RowDimension](A);
-    _a:=Matrix(1,n,[seq(a[i],i=1..n)]);
+    _a:=Matrix([seq(a[i],i=1..n)]);
     _b:=_a.A;
-    # 对于每个元素，选择表达式中包含的a[k]
-    _b:=map(x->indets(x,specindex(a)),_b);
-    print(_b^%T);
-    return ;
+    _b:=map(x->sym2ind(indets(x,specindex(a))),convert(_b,list));
+    return map(findClosure,[seq(1..n)],_b);
+end proc:
+
+sym2ind:=proc(s::set)
+    return map(x->op(1,x),s);
+end proc:
+
+findClosure:=proc(k::integer,A::list)
+    local aset,bset;
+    aset:={k};
+    bset:=A[k];
+    while aset<>bset do
+        aset:=aset union bset;
+        bset:=`union`(A[convert(bset,list)][]);
+    end do;
+    return aset;
 end proc:
 
 $endif
