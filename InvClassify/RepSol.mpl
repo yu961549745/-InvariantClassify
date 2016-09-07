@@ -33,7 +33,7 @@ RepSol:=module()
             printRep::static,       # 简要显示代表元和所有可能的成立条件
             fullPrintRep::static,   # 显示代表元和完整的成立条件以及对应的不变量方程和变换方程的解
             ModulePrint::static,    # 简要显示代表元
-            uniqueRep::static;      # 删去重复条件
+            uniqueAndSort::static;      # 删去重复条件
 
     # 用于拓展一个代表元对象所能代表的区域
     appendSol:=proc(r::RepSol,s::InvSol)
@@ -127,7 +127,7 @@ RepSol:=module()
     end proc:
 
     # 删去重复条件
-    uniqueRep:=proc(r::RepSol)
+    uniqueAndSort:=proc(r::RepSol)
         local id,con,fun,ind;
         fun:=(x,y,z)->[x,y,z];
         con:=getCon(r);

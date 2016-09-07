@@ -5,6 +5,7 @@ $define _COMBINE_
 
 $include "RepSol.mpl"
 $include "Utils.mpl"
+$include "ConRefine.mpl"
 
 RepsHolder:=module()
     option object;
@@ -48,7 +49,8 @@ formReps:=proc(_sols)
             RepsHolder:-reps[rep]:=r;
         end if ;
         map[2](RepSol:-appendSol,r,ss);
-        uniqueRep(r);
+        uniqueAndSort(r);
+        # conRefine(r);
     end do;
     return inds;
 end proc:

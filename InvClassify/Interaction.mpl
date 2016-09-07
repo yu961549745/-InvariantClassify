@@ -61,6 +61,7 @@ canTransform:=proc(r1,i1,r2,i2)
 end proc:
 
 # 检查两个解之间能否相互转化
+# TODO　这里没有考虑转化是否有成立的条件
 testTransform:=proc(s1,s2,base)
     local eq,sol,con;
     eq,sol,con:=solveTeq(s1:-rvec,s2:-rvec,base);
