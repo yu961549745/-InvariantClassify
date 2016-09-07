@@ -86,10 +86,21 @@ Seg:=module()
     end proc:
 
     # 将约束转化为RealRange
-    con2range:=proc(c::{`=`,`<`,`<=`,`<>`})
-        local v;
-        if type(c,{`<`,`<=`}) then
-            return op(2,convert(c,RealRange));
+    con2range:=proc(_c::{`=`,`<`,`<=`,`<>`})
+        local c,v;
+        c:=RealDomain:-solve({_c})[];
+        if type(c,`<`) then
+            if type(lhs(c),numeric) then
+                return RealRange(Open(lhs(c)),infinity);
+            else
+                return RealRange(-infinity,Open(rhs(c)));
+            end if;
+        elif type(c,`<=`) then
+            if type(lhs(c),numeric) then
+                return RealRange(lhs(c),infinity);
+            else
+                return RealRange(-infinity,rhs(c));
+            end if;
         else
             if type(c,`=`) then
                 return rhs(c);
