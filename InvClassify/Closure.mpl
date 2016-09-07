@@ -1,6 +1,7 @@
 $ifndef _CLOSURE_
 $define _CLOSURE_
 
+# 寻找变换矩阵的闭包
 getClosure:=proc(A::Matrix)
     local _a,_b,n;
     n:=LinearAlgebra[RowDimension](A);
@@ -10,10 +11,12 @@ getClosure:=proc(A::Matrix)
     return map(findClosure,[seq(1..n)],_b);
 end proc:
 
+# 提取a[k]的下标
 sym2ind:=proc(s::set)
     return map(x->op(1,x),s);
 end proc:
 
+# 寻找某个元素所在的最小闭包
 findClosure:=proc(k::integer,A::list)
     local aset,bset;
     aset:={k};
