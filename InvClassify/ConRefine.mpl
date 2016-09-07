@@ -1,9 +1,16 @@
+# 尽可能的化简解的约束
+
 $ifndef _CON_REFINE_
 $define _CON_REFINE_
+
+$include "Condition.mpl"
+$include "../seg/Seg.mpl"
 
 # 总的简化函数
 conRefine:=proc(r::RepSol)
     signRefine(r);
+    epRefine(r);
+    uniqueAndSort(r);# 简化之后重新对条件进行排序
     return;
 end proc:
 
@@ -24,21 +31,56 @@ end proc:
 
 # 尽可能删去和epsilon有关的约束
 epRefine:=proc(r::RepSol)
-    
+    r:-acon:=epDeal~(r:-acon);
 end proc:
 
 # 处理每个可能情况的约束条件
 epDeal:=proc(s::set)
-    local ca,ce;
+    local ca,ce,r;
     ce,ca:=selectremove(has,s,epsilon);
     ce:=ceDeal~(ce);
-    return ce union ca;
+    r:=ce union ca;
+    r:=classifySolve(r);
+    return r;
 end proc:
 
 # 单个关于epsilon的条件处理
 ceDeal:=proc(e)
     local rs;
     rs:=conSolve(e);
+    if numelems(rs)=0 then
+        # 无解则原样返回
+        return e;
+    elif numelems(rs)=1 then
+        # 只有一个解，则不论有多少条件都可以
+        return rs[][];
+    else
+       return multiConRefine(rs);
+    end if;
+end proc:
+
+multiConRefine:=proc(rs)
+    local s;
+    # 单变量约束的并集，只处理无约束和，x<>c的约束
+    if numelems(indets(rs,name))=1 and 
+        andmap(x->evalb(numelems(x)=1),rs) then
+        s:=`union`(seq(Seg(x),x in rs));
+        if s=real then
+            return NULL;
+        end if;
+        s:=&C s;
+        if type(s:-bound,numeric) then
+            return indets(rs,name)[]<>s:-bound;
+        else
+            return e;
+        end if;
+    # 删去一个共同条件之后能够构成单变量约束的并集
+    elif numelems(`intersect`(rs[]))=1 then
+        s:=`intersect`(rs[]);
+        return s[],multiConRefine(map(x->x minus s,rs));
+    else
+        return e;
+    end if;
 end proc:
 
 # 求解不等式，

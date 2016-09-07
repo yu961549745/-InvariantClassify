@@ -49,7 +49,7 @@ formReps:=proc(_sols)
             RepsHolder:-reps[rep]:=r;
         end if ;
         map[2](RepSol:-appendSol,r,ss);
-        uniqueRep(r);
+        uniqueAndSort(r);
         # conRefine(r);
     end do;
     return inds;
