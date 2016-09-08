@@ -47,7 +47,12 @@ end proc:
 # 单个关于epsilon的条件处理
 ceDeal:=proc(e)
     local rs;
-    rs:=conSolve(e);
+    # 有的时候solve会抽，对于这种情况不做处理
+    try
+        rs:=conSolve(e);
+    catch :
+        return e;
+    end try;
     if numelems(rs)=0 then
         # 无解则原样返回
         return e;
