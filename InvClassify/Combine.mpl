@@ -5,7 +5,6 @@ $define _COMBINE_
 
 $include "RepSol.mpl"
 $include "Utils.mpl"
-$include "ConRefine.mpl"
 
 RepsHolder:=module()
     option object;

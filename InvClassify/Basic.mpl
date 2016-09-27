@@ -222,6 +222,7 @@ getTransMatAndPDE:=proc(vv::list)
 end proc:
 
 # 计算不变量
+# 已化简并排序
 getInvariants:=proc(eqs)
     local res;
     flogf[1]("偏微分方程\n");
