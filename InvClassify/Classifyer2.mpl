@@ -10,83 +10,136 @@ $include "Logout.mpl"
 $include "Utils.mpl"
 $include "InvSol2.mpl"
 
-ClassifyHolder:=module()
-    local   cid,ieqCode,sols;
-    export  reset,      # 重置状态
-            addSol,     # 新增解
-            getSols,    # 获取解
-            getIeqCode, # 获取不变量方程的编号
-            getCname;   # 获取常数变量的名字
-    
-    reset:=proc()
-        cid:=0;
-        ieqCode:=0;
-        sols:={};
-        return;
-    end proc:
-
-    addSol:=proc(s::InvSol)
-        sols:=sols union {s};
-        return;
-    end proc:
-
-    getSols:=proc()
-        return sols;
-    end proc:
-
-    getCname:=proc()
-        cid:=cid+1;
-        return c[cid];
-    end proc:
-
-    getIeqCode:=proc()
-        ieqCode:=ieqCode+1;
-        return ieqCode;
-    end proc:
-
-end module:
+$include "ClassifyHolder.mpl"
 
 # 绑定函数
 reset:=ClassifyHolder:-reset;
 addSol:=ClassifyHolder:-addSol;
 getSols:=ClassifyHolder:-getSols;
-getCname:=ClassifyHolder:-getCname;
 getIeqCode:=ClassifyHolder:-getIeqCode;
 
 
 # 重新求解的入口
 classify:=proc(As,A,eqs)
-    local sol;
+    local sol,n;
     sol:=Object(InvSol);
     sol:-As:=As;
     sol:-A:=A;
+    n:=LinearAlgebra:-RowDimension(A);
+    sol:-nvars:=n;
+    sol:-vars:={seq(a[i],i=1..n)};
     sol:-oeq:=eqs;
     sol:-state:=0;
-    sol:-addCons:={};
     reset();
     resolve(sol);
 end proc:
 
 # 可重用的求解入口
 resolve:=proc(s::InvSol)
-    local nDeltas;
-    if   (s:-state=0) then
-        # 求解新的不变量
-        nDeltas:=getNewInvariants(s);
-        sol:=Object(s);
-        sol:-Deltas:=[sol:-Deltas[],nDeltas[]];
-        
-    elif (s:-state=1) then
-        # 建立和不变量方程
-    elif (s:-state=2) then
-        # 求解不变量方程
-    elif (s:-state=3) then
-        # 取代表元
-    elif (s:-state=4) then
-        # 求解变换方程
+    if      (s:-state=0) then
+        return solveOeq(s);     # 针对偏微分方程组进行求解
+    elif    (s:-state=1) then
+        return solveIeq(s);     # 针对不变量方程进行求解
+    elif    (s:-state=2) then
+        return solveRep(s);     # 取特解
+    elif    (s:-state=3) then
+        return sovlveTeq(s);    # 求解变换方程
+    else
+        error "unkown state";
     end if;
 end proc:
 
+# 针对偏微分方程组进行求解
+solveOeq:=proc(s::InvSol)
+    local deltas;
+    deltas:=getNewInvariants(s);
+    if deltas=[] then
+        solveByClosure(s);
+    else
+        genIeq(s,deltas);
+    end if;
+end proc:
+
+# 按封闭进行求解
+solveByClosure:=proc(s::InvSol)
+    local c,s1,s2;
+    c:=getMinClosure(getClosure(s:-A,getZeroCons(s)));
+    # 封闭不全为零
+    s1:=Object(s);
+    # 添加展示性约束
+    s1:-discons:=s1:-discons union {add(a[x]^2,x in c)<>0};
+    s1:-rep:=v[c[1]];
+    s1:-state:=4;
+    addSol(s1);
+    # 封闭全为零
+    s2:=Object(s);
+    addZeroCons(s2,{seq(a[x]=0,x in c)});
+    solveClosureAllZero(s2);
+end proc:
+
+# 处理封闭全为零的情况
+solveClosureAllZero:=proc(s::InvSol)
+    local s1;
+    if numelems(s:-vars)>1 then
+        solveOeq(s);
+    elif numelems(s:-vars)=1 then
+        s1:=Object(s);
+        s1:-rep:=v[op([1,1],s:-vars)];
+        s1:-state:=4;
+        addSol(s1);
+    else
+        return;
+    end if;
+end proc:
+
+# 生成不变量方程组
+genIeq:=proc(s::InvSol,deltas)
+    local spos,pos,n;
+    pos:=numelems(s:-Deltas)+1;
+    s:-Deltas:=[s:-Deltas[],deltas[]];
+    s:-orders:=findInvariantsOrder~(s:-Deltas);
+    n:=numelems(s:-Deltas);
+    # TODO　建立方程有待考虑
+    # 比如重新设计ieqCode为list，使其具有分支标记的功能
+    # 应该按照老方法，带着新不变量递归，这样才能正确的分支
+    for pos from spos to n do
+        buildIeq(s,pos);
+    end do;
+end proc:
+
+buildIeq:=proc(_s::InvSol,pos::posint)
+    local s,n,xpos,cid,getCname;
+    s:=Object(_s);
+    n:=numelems(s:-Deltas);
+    if type(s:-orders[pos],even) then
+        xpos:=[1,-1,0];
+    else
+        xpos:=[1,0];
+    end if;
+    cid:=findCid(s);
+    getCname:=proc()
+        cid:=cid+1;
+        return c[cid];
+    end proc:
+    rs:=Array(1..n,x->`if`(x>pos,getCname(),0));
+
+end proc:
+
+# 获取当前c的最后一个下标
+# 本做法保证一个不变量方程中的任意常数c，从c[1]开始依次编号
+# 而不与其它不变量方程中的任意常数c进行比较
+findCid:=proc(s::InvSol)
+    local rs:=select(type,rhs~(s:-ieq),specindex(c));
+    if rs=[] then
+        return 0;
+    else
+        return op(1,rs[-1]);
+    end if;
+end proc:
+
+
+
+# 求解新的不变量
 getNewInvariants:=proc(s::InvSol)
     local oeq,deltas;
 

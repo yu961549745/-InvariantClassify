@@ -140,10 +140,7 @@ buildInvEqs:=proc(_sol::InvSol,pos::posint)
     local sol,rs,i,n,x,xpos,eqs;
     n:=numelems(_sol:-Delta);
     # 分奇偶讨论
-    # 阶数可能是分数
-    # 不变量的次方还是不变量，直接看分子
-    # 不过现在不变量化简那边已经加了这种化简规则
-    if type(numer(_sol:-orders[pos]),even) then
+    if type((_sol:-orders[pos]),even) then
         xpos:=[1,-1,0];
     else
         xpos:=[1,0];

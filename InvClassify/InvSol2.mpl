@@ -7,44 +7,50 @@ InvSol:=module()
             # 公用变量
             As::static,     # 每个生成元的伴随矩阵
             A::static,      # 总的伴随矩阵
+            nvars::static,  # 总的变量个数
             # 实例变量
-            state,          # 状态代码
-            addCons::set,   # 附加条件，用于带入偏微分方程组
-            oeq,            # state=0 偏微分方程组
-            Deltas::list,   # state=1 不变量
-            ieq::list,      # state=2 不变量方程组，按照不变量顺序排序的完整方程格式
-            isols::list,    # state=2 不变量方程的解，按照一般性降序排序
-            icons::list,    # state=2 不变量方程的解的对应条件
-            reps::list,     # state=3 代表元，按照成立条件的多少升序排序
-            rsols::list,    # state=3 代表元对应的特解
-            teqs::list,     # state=4 变换方程，一个rep对应两个变换方程
-            tsols::list,    # state=4 变换方程的解，一个变换方程对应多个解
-            tcons::list,    # state=4 变换方程的解的对应条件
-            vars::set,      # 求解不变量方程时的变量集，随着系数被其它系数表示，或者被设为0，变量集变小
+            state,          # 状态代码，主要为人工干预提供入口
+                            # 0：还未生成不变量方程
+                            # 1：不变量方程求解失败
+                            # 2：取特解失败            
+                            # 3：变换方程求解失败
+                            # 4：求解完成       
+            oeq,            # 偏微分方程组
+            Deltas::list,   # 不变量
+            ieq::list,      # 不变量方程组，按不变量排序
+            isols::list,    # 不变量方程组的解
+            orders::list,   # 不变量的阶数
+            icons::list,    # 不变量方程组对应的条件
+            rsols::list,    # 不变量方程的特解
+            teq,            # 变换方程
+            tsols,          # 变换方程的解
+            tcons,          # 变换方程的解对应的条件
+            rep,            # 代表元
+            vars,           # 需要求解的系数
+            # 条件相关
+            # 不变量方程+附加约束+展示约束，描述了代表元所代表的元素的范围
+            # 后期只维护以下变量，而不修改icons,tcons等原始信息
+            addcons:={},    # 附加约束，能够参与计算，其中，
+                            # + 等式是对不变量方程的扩充，例如a[1]=0
+                            # + 不等式式对取值范围的描述，并能够进行处理，例如a[1]>0
+            discons:={},    # 展示约束，仅用于展示信息，不能参与计算，包括
+                            # + a[1]*a[3]>0 这种不能处理的多变量约束
             # 导出函数
-            ModulePrint::static,    # 简要显示
-            print::static;          # 完整显示
+            getZeroCons::static, # 获取为零约束
+            addZeroCons::static, # 添加为零约束
+            ModulePrint::static; # 显示函数
 
+    getZeroCons:=proc(s::InvSol)
+        return select(type,s:-addcons,equation);
+    end proc:
 
-    # # 简要显示
-    # ModulePrint:=proc(s)
-    #     if   (s:-state=0) then
-    #         return s:-oeq;
-    #     elif (s:-state=1) then
-    #         return s:-Deltas;
-    #     elif (s:-state=2) then
-    #         return s:-ieqs;
-    #     elif (s:-state=3) then
-    #         return s:-isols,s:-icons;
-    #     elif (s:-state=4) then
-    #         return s:-rsols;
-    #     elif (s:-state=5) then
-    #         return s:-teqs;
-    #     elif (s:-state=6) then
-    #         return s:-tsols,s:-tcons;
-    #     end if;
-    # end proc:
-
+    addZeroCons:=proc(s::InvSol,c::set)
+        s:-addcons:=s:-addcons union c;
+        s:-vars:=s:-vars minus indets(c,name);
+    end proc:
+                    
+            
+                            
 end module:
 
 $endif

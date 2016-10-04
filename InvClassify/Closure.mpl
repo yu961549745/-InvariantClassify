@@ -2,7 +2,7 @@ $ifndef _CLOSURE_
 $define _CLOSURE_
 
 # 寻找变换矩阵的闭包
-getClosure:=proc(A::Matrix,sol:=[])
+getClosure:=proc(A::Matrix,sol:={})
     local _a,_b,n;
     n:=LinearAlgebra[RowDimension](A);
     _a:=Matrix([seq(a[i],i=1..n)]);
@@ -27,6 +27,16 @@ findClosure:=proc(k::integer,A::list)
         bset:=`union`(bset,A[convert(bset,list)][]);
     end do;
     return aset;
+end proc:
+
+# 获取最小封闭
+# 输入参数为封闭的输出结果
+# 忽略空集
+getMinClosure:=proc(c::list(set))
+    local ns,ind;
+    ns:=map(x->`if`(x={},infinity,numelems(x)),c);
+    ind:=min[index](ns);
+    return c[ind];
 end proc:
 
 $endif

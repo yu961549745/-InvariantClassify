@@ -20,7 +20,7 @@ InvSol:=module()
         oisol,                      # 导出新偏微分方程的不变量方程的解（如果存在的话）
         oeq::set,                   # 导出不变量的偏微分方程
         Delta:=[],                  # 不变量
-        orders::list,               # 不变量对应的阶数
+        orders:=[],                 # 不变量对应的阶数
         ieqCode,                    # 不变量方程的代码
         ieq::list,                  # 不变量方程
         isol,                       # 不变量方程的解（一个InvSol对象只含一个解）
