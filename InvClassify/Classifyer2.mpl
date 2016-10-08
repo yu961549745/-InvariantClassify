@@ -60,6 +60,30 @@ solveOeq:=proc(s::InvSol)
     end if;
 end proc:
 
+# 求解新的不变量
+getNewInvariants:=proc(s::InvSol)
+    local oeq,deltas;
+
+    flogf[1]("-------------------------------------------------\n");
+    flogf[1]("求解新的不变量\n");
+    flogf[1]("附加约束\n");
+    flog[1](s:-addcons);
+
+    oeq:=remove(type,subs(s:-addcons[],s:-oeq),0);
+    flogf[1]("偏微分方程组\n");
+    flog[1](oeq);
+
+    # 求解新不变量（已化简）
+    deltas:=getInvariants(oeq);
+
+    # 检查是否有解
+    if not type(indets(deltas,name),set(specindex(a))) then
+        deltas:=[];
+    end if; 
+
+    return deltas;
+end proc:
+
 # 按封闭进行求解
 solveByClosure:=proc(s::InvSol)
     local c,s1,s2;
@@ -95,34 +119,66 @@ end proc:
 # 生成不变量方程组
 genIeq:=proc(s::InvSol,deltas)
     local spos,pos,n;
-    pos:=numelems(s:-Deltas)+1;
-    s:-Deltas:=[s:-Deltas[],deltas[]];
-    s:-orders:=findInvariantsOrder~(s:-Deltas);
-    n:=numelems(s:-Deltas);
-    # TODO　建立方程有待考虑
-    # 比如重新设计ieqCode为list，使其具有分支标记的功能
-    # 应该按照老方法，带着新不变量递归，这样才能正确的分支
-    for pos from spos to n do
-        buildIeq(s,pos);
-    end do;
+    if andmap(type,rhs~(s:-ieq),0) then
+        spos:=numelems(s:-Deltas)+1;
+        s:-Deltas:=[s:-Deltas[],deltas[]];
+        s:-orders:=findInvariantsOrder~(s:-Deltas);
+        n:=numelems(s:-Deltas);
+        for pos from spos to n do
+            buildIeq(s,pos);
+        end do;
+    else
+        appendIeq(s,deltas);
+    end if;
 end proc:
 
-buildIeq:=proc(_s::InvSol,pos::posint)
-    local s,n,xpos,cid,getCname;
+# 按照拓展的方式生成不变量方程
+# 对于 Delta[1]=c[1],...,Delta[n]=c[n]的方程，若生成了新的不变量Delta[n+1]
+# 新的方程为Delta[1]=c[1],...,Delta[n]=c[n],Delta[n+1]=c[n+1]
+appendIeq:=proc(_s::InvSol,deltas)
+    local s,cid,getCname;
+    cid:=findCid(_s);
+    getCname:=proc()
+        cid:=cid+1;
+        return c[cid];
+    end proc:
     s:=Object(_s);
-    n:=numelems(s:-Deltas);
-    if type(s:-orders[pos],even) then
+    s:-Deltas:=[s:-Deltas[],deltas[]];
+    s:-orders:=findInvariantsOrder~(s:-Deltas);
+    s:-ieq:=[s:-ieq[],seq(deltas[i]=getCname(),i=1..numelems(deltas))];
+    s:-state:=1;
+    resolve(s);
+end proc:
+
+# 按位置进行讨论，建立不变量方程
+# 讨论 Delta[k] 的取值
+# 此时 Delta[1..(k-1)]=0，Delta[(k+1)..n]=c[j]
+buildIeq:=proc(_s::InvSol,pos::posint)
+    local s,n,xpos,cid,getCname,x,rs;
+    n:=numelems(_s:-Deltas);
+    if type(_s:-orders[pos],even) then
         xpos:=[1,-1,0];
     else
         xpos:=[1,0];
     end if;
-    cid:=findCid(s);
+    cid:=0;# 因为前面全是0
     getCname:=proc()
         cid:=cid+1;
         return c[cid];
     end proc:
     rs:=Array(1..n,x->`if`(x>pos,getCname(),0));
-
+    for x in xpos do
+        # 只求解全零方程，其它情况将包含在下一个pos的情况中
+        if x=0 and pos<> n then
+            next;
+        end if;
+        rs[pos]:=x;
+        s:=Object(_s);
+        s:-ieqCode:=getIeqCode();
+        s:-ieq:=[seq(s:-Deltas[i]=rs[i],i=1..n)];
+        s:-state:=1;
+        resolve(s);
+    end do;
 end proc:
 
 # 获取当前c的最后一个下标
@@ -137,30 +193,26 @@ findCid:=proc(s::InvSol)
     end if;
 end proc:
 
-
-
-# 求解新的不变量
-getNewInvariants:=proc(s::InvSol)
-    local oeq,deltas;
-
+# 求解不变量方程
+solveIeq:=proc(s::InvSol)
     flogf[1]("-------------------------------------------------\n");
-    flogf[1]("求解新的不变量\n");
-    flogf[1]("附加约束\n");
-    flog[1](s:-addCons);
+    flogf[1]("求解不变量方程\n");
+    displayIeq(s);
 
-    oeq:=remove(type,subs(s:-addCons[],s:-oeq),0);
-    flogf[1]("偏微分方程组\n");
-    flog[1](oeq);
+    isols:=ieqsolve(s:-ieq,s:-vars);
+    icons:=findSolutionDomain~(isols);
+    print(isols);
+    print(icons);
 
-    # 求解新不变量（已化简）
-    deltas:=getInvariants(oeq);
+    # TODO
 
-    # 检查是否有解
-    if not type(indets(deltas,name),set(specindex(a))) then
-        deltas:=[];
-    end if; 
+end proc:
 
-    return deltas;
+# 不变量方程的求解函数
+# 当前求解方法的形式最为简单，尚未考虑求解不完全的情况
+ieqsolve:=proc(eq::list,vars::set)
+    return convert~([RealDomain:-solve(eq,vars,explicit)],list);
+    #return RealDomain:-solve(eq,[vars[]],explicit);
 end proc:
 
 $endif

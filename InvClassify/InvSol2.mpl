@@ -16,12 +16,13 @@ InvSol:=module()
                             # 3：变换方程求解失败
                             # 4：求解完成       
             oeq,            # 偏微分方程组
-            Deltas::list,   # 不变量
-            ieq::list,      # 不变量方程组，按不变量排序
-            isols::list,    # 不变量方程组的解
-            orders::list,   # 不变量的阶数
-            icons::list,    # 不变量方程组对应的条件
-            rsols::list,    # 不变量方程的特解
+            Deltas:=[],     # 不变量
+            ieq:=[],        # 不变量方程程组，按不变量排序
+            ieqCode,        # 不变量方程的编号
+            isols:=[],      # 不变量方程组的解
+            orders:=[],     # 不变量的阶数
+            icons:=[],      # 不变量方程组对应的条件
+            rsols:=[],      # 不变量方程的特解
             teq,            # 变换方程
             tsols,          # 变换方程的解
             tcons,          # 变换方程的解对应的条件
@@ -38,6 +39,7 @@ InvSol:=module()
             # 导出函数
             getZeroCons::static, # 获取为零约束
             addZeroCons::static, # 添加为零约束
+            displayIeq::static,  # 显示不变量方程
             ModulePrint::static; # 显示函数
 
     getZeroCons:=proc(s::InvSol)
@@ -48,8 +50,13 @@ InvSol:=module()
         s:-addcons:=s:-addcons union c;
         s:-vars:=s:-vars minus indets(c,name);
     end proc:
-                    
-            
+
+    displayIeq:=proc(s::InvSol)
+        local n;
+        n:=numelems(s:-ieq);
+        flog[1]([seq(Delta[i]=rhs(s:-ieq[i]),i=1..n)]);
+        flog[1]([seq(Delta[i]=s:-Deltas[i],i=1..n)]);
+    end proc:
                             
 end module:
 
