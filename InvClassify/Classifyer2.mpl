@@ -195,17 +195,45 @@ end proc:
 
 # 求解不变量方程
 solveIeq:=proc(s::InvSol)
+    local isols,icons,i,n,_s,cons; 
     flogf[1]("-------------------------------------------------\n");
     flogf[1]("求解不变量方程\n");
     displayIeq(s);
 
     isols:=ieqsolve(s:-ieq,s:-vars);
     icons:=findSolutionDomain~(isols);
-    print(isols);
-    print(icons);
 
-    # TODO
+    flogf[1]("约束条件\n");
+    flog[1](icons);
 
+    cons:=remove(type,`union`(icons[]),equation);
+    if andmap(isNonZeroCon,cons) then
+        # 按照封闭进行求解
+        printf("召唤封闭\n");
+    else
+        # 按照分支方法进行求解
+        n:=numelems(isols);
+        for i from 1 to n do
+            _s:=Object(s);
+            _s:-isols:=isols[i];
+            _s:-icons:=icons[i];
+            _s:-state:=2;
+            resolve(_s);
+        end do;
+    end if;
+end proc:
+
+# 取特解
+solveRep:=proc(s::InvSol)
+    print(fetchSolRep(s));
+end proc:
+
+# 检查是否是非零约束
+# 只考虑单变量非零约束
+# 这里只考虑 x<>0 的形式，不考虑 0<>x 的情况
+# 因为在求解约束条件时，能够保证把 0<>x 变成 x<>0
+isNonZeroCon:=proc(x)
+    return op(0,x)=`<>` and rhs(x)=0 and numelems(indets(x,name))=1;
 end proc:
 
 # 不变量方程的求解函数

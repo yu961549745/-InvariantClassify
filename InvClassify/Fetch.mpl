@@ -21,11 +21,19 @@ $define _FETCH_
 $include "Condition.mpl"
 $include "Utils.mpl"
 
-# 取特解
+# # 取特解 InvSol.mpl 版
+# fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
+#     local sol,con;
+#     sol:=_sol:-isol;
+#     con:=_sol:-icon union addcon;
+#     return fetchSpecSol(sol,con,_options['nonzero']);
+# end proc:
+
+# 取特解 InvSol2.mpl 版
 fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
     local sol,con;
-    sol:=_sol:-isol;
-    con:=_sol:-icon union addcon;
+    sol:=_sol:-isols;
+    con:=_sol:-icons union addcon;
     return fetchSpecSol(sol,con,_options['nonzero']);
 end proc:
 
