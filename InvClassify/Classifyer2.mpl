@@ -206,10 +206,12 @@ solveIeq:=proc(s::InvSol)
     flogf[1]("约束条件\n");
     flog[1](icons);
 
+    # 删除等式约束后，所有解的约束的并集只含单变量非零约束，则按封闭进行求解
+    # 允许不同的方程包含不同的单变量非零约束
     cons:=remove(type,`union`(icons[]),equation);
     if andmap(isNonZeroCon,cons) then
         # 按照封闭进行求解
-        printf("召唤封闭\n");
+        closureRefine(s,isols,icons);
     else
         # 按照分支方法进行求解
         n:=numelems(isols);
@@ -221,6 +223,31 @@ solveIeq:=proc(s::InvSol)
             resolve(_s);
         end do;
     end if;
+end proc:
+
+# 解的精简，按照封闭求解
+closureRefine:=proc(s::InvSol,isols,icons)
+    findGenSol(isols,icons);
+end proc:
+
+# 寻找一般解
+# 这个操作只在封闭中出现，因此方程的解至多只含等式约束和非零的约束
+# 因此选择具有非零约束的解中，约束最少的一个作为一般解
+findGenSol:=proc(isols,icons)
+    flogf[1]("选择一般解\n");
+    flog[1](isols);
+    flog[1](icons);
+
+    n:=numelems(isols);
+    ind:=[seq(i,i=1..n)];
+    ind:=select(x->ormap(isNonZeroCon,icons[x]),ind);
+    rcons:=remove()
+end proc:
+
+# 解的一般性
+solGenNess:=proc(con)
+    local n:=numelems(select(isNonZeroCon,con));
+    
 end proc:
 
 # 取特解
