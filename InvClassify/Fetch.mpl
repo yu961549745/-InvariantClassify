@@ -29,13 +29,14 @@ $include "Utils.mpl"
 #     return fetchSpecSol(sol,con,_options['nonzero']);
 # end proc:
 
-# 取特解 InvSol2.mpl 版
-fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
-    local sol,con;
-    sol:=_sol:-isols;
-    con:=_sol:-icons union addcon;
-    return fetchSpecSol(sol,con,_options['nonzero']);
-end proc:
+# # 取特解 InvSol2.mpl 版
+# # 这个写法要求InvSol只能有一个通解，这个不好吧？
+# fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
+#     local sol,con;
+#     sol:=_sol:-isols;
+#     con:=_sol:-icons union addcon;
+#     return fetchSpecSol(sol,con,_options['nonzero']);
+# end proc:
 
 # 根据方程和约束取特解
 fetchSpecSol:=proc(sol::list,con::set,{nonzero::boolean:=false})

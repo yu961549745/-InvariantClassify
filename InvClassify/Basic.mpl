@@ -225,8 +225,6 @@ end proc:
 # 已化简并排序
 getInvariants:=proc(eqs)
     local res;
-    flogf[1]("偏微分方程\n");
-    flog[1]~(eqs);
     res:=pdsolve(eqs);
     res:=res[];
     res:=[op(op(2,res))];

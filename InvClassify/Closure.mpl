@@ -2,6 +2,7 @@ $ifndef _CLOSURE_
 $define _CLOSURE_
 
 # 寻找变换矩阵的闭包
+# 代入的条件只能是等于0的条件，目的在于删去一些系数之后再求闭包
 getClosure:=proc(A::Matrix,sol:={})
     local _a,_b,n;
     n:=LinearAlgebra[RowDimension](A);

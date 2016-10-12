@@ -17,11 +17,12 @@ InvSol:=module()
                             # 4：求解完成       
             oeq,            # 偏微分方程组
             Deltas:=[],     # 不变量
+            orders:=[],     # 不变量的阶数
             ieq:=[],        # 不变量方程程组，按不变量排序
             ieqCode,        # 不变量方程的编号
             isols:=[],      # 不变量方程组的解
-            orders:=[],     # 不变量的阶数
             icons:=[],      # 不变量方程组对应的条件
+            isolInd:=1,     # 通解的下标
             rsols:=[],      # 不变量方程的特解
             teq,            # 变换方程
             tsols,          # 变换方程的解
@@ -37,10 +38,21 @@ InvSol:=module()
             discons:={},    # 展示约束，仅用于展示信息，不能参与计算，包括
                             # + a[1]*a[3]>0 这种不能处理的多变量约束
             # 导出函数
+            getSubs::static,     # 在求解新的不变量时代入的条件
             getZeroCons::static, # 获取为零约束
             addZeroCons::static, # 添加为零约束
             displayIeq::static,  # 显示不变量方程
             ModulePrint::static; # 显示函数
+    
+    getSubs:=proc(s::InvSol)
+        local r;
+        r:=getZeroCons(s);
+        r:=[r[]];
+        if s:-isols<>[] then
+            r:=[r[],s:-isols[s:-isolInd]];
+        end if;
+        return {r[]};
+    end proc:
 
     getZeroCons:=proc(s::InvSol)
         return select(type,s:-addcons,equation);
