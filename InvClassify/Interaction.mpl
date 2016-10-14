@@ -23,7 +23,7 @@ resolveSol:=proc(sol::InvSol,{newIsol:=[],newRep:=[],nocheck::boolean:=false})
     end if;
     resolve(s);
     nreps:=addReps(getNewSols());
-    printf("新产生代表元:\n");
+    printf("新产生代表元:");
     printReps(nreps);
     return nreps;
 end proc:
@@ -55,7 +55,7 @@ canTransform:=proc(r1,i1,r2,i2)
     if (eqs[4]=true) then
         return true;
     end if;
-    printf("无法求解变换方程\n");
+    printf("无法求解变换方程");
     print~([entries(eqs,nolist)]);
     return false;
 end proc:
@@ -67,11 +67,11 @@ testTransform:=proc(s1,s2,base)
     eq,sol,con:=solveTeq(s1:-rvec,s2:-rvec,base);
     if (sol<>[]) then
         print(s2:-rep);
-        printf("可以在\n");
+        printf("可以在");
         print(base:-isol);
-        printf("下，通过\n");
+        printf("下，通过");
         print(sol);
-        printf("转化为\n");
+        printf("转化为");
         print(s1:-rep);
         return true;
     else
@@ -84,8 +84,8 @@ printSols:=proc(sols)
     local n,i;
     n:=numelems(sols);
     for i from 1 to n do
-        printf("---------------------------------------------------------\n");
-        printf("sols[%d]\n",i);
+        printf("---------------------------------------------------------");
+        printf("sols[%d]",i);
         printSol(sols[i]);
     end do;
     return sols;
@@ -96,7 +96,7 @@ printReps:=proc(reps)
     local i,n;
     n:=numelems(reps);
     for i from 1 to n do
-        printf("代表元 [%d]---------------------------\n",i);
+        printf("代表元 [%d]---------------------------",i);
         printRep(reps[i]);
     end do;
 end proc:
@@ -114,14 +114,14 @@ summaryReps:=proc()
     n:=numelems(_reps);
     for i from 1 to n do
         r:=_reps[i];
-        printf("代表元 [%d]\n",i);
+        printf("代表元 [%d]",i);
         print(r:-rep);
-        printf("具有条件:\n");
+        printf("具有条件:");
         for id in r:-sid do
             print(getCon(r)[id]);
             print(r:-isol[id]);
             print(r:-tsol[id]);
-            printf("-------------------------------------\n");
+            printf("-------------------------------------");
         end do;
     end do;
     return;

@@ -11,6 +11,7 @@ $include "Utils.mpl"
 $include "InvSol2.mpl"
 $include "Closure.mpl"
 $include "ClassifyHolder.mpl"
+$include "GenSol.mpl"
 
 # 绑定函数
 reset:=ClassifyHolder:-reset;
@@ -36,6 +37,7 @@ end proc:
 
 # 可重用的求解入口
 resolve:=proc(s::InvSol)
+    flogf[1](convert(procname,string));
     if      (s:-state=0) then
         return solveOeq(s);     # 针对偏微分方程组进行求解
     elif    (s:-state=1) then
@@ -52,6 +54,7 @@ end proc:
 # 针对偏微分方程组进行求解
 solveOeq:=proc(s::InvSol)
     local deltas;
+    flogf[1](convert(procname,string));
     deltas:=getNewInvariants(s);
     if deltas=[] then
         solveByClosure(s);
@@ -65,15 +68,15 @@ end proc:
 # 该如何定义，该如何和别的地方进行协调？
 getNewInvariants:=proc(s::InvSol)
     local oeq,deltas;
-
-    flogf[1]("-------------------------------------------------\n");
-    flogf[1]("求解新的不变量\n");
-    flogf[1]("附加约束\n");
+    flogf[1](convert(procname,string));
+    flogf[1]("-------------------------------------------------");
+    flogf[1]("求解新的不变量");
+    flogf[1]("附加约束");
     flog[1](s:-addcons);
 
     # 问：求解新的不变量代入的到底是什么？
-    oeq:=subsOeq(s);
-    flogf[1]("偏微分方程组\n");
+    oeq:=getRealOeq(s);
+    flogf[1]("偏微分方程组");
     flog[1](oeq);
 
     # 求解新不变量（已化简）
@@ -87,36 +90,35 @@ getNewInvariants:=proc(s::InvSol)
     return deltas;
 end proc:
 
-# 获得新的偏微分方程
-subsOeq:=proc(s::InvSol)
-    # TODO　成败在此一举了，这里该整合所有属性的含义了
-    oeq:=s:-oeq;        # 旧的偏微分方程
-    vars:=s:-vars;      # 旧的求解变量
-    sol:=getSubs(s);    # 需要替换的解
-
-end proc:
-
 # 按封闭进行求解
 solveByClosure:=proc(s::InvSol)
     local c,s1,s2;
+    flogf[1](convert(procname,string));
     c:=getMinClosure(getClosure(s:-A,getZeroCons(s)));
+    c:={seq(a[x],x in c)};
     # 封闭不全为零
+    flogf[1]("封闭不全为零");
+    flog[1](c);
     s1:=Object(s);
     # 添加展示性约束
     s1:-discons:=s1:-discons union {add(a[x]^2,x in c)<>0};
-    s1:-rep:=v[c[1]];
+    s1:-rep:=v[op([1,1],c)];
     s1:-state:=4;
     addSol(s1);
     # 封闭全为零
+    flogf[1]("封闭全为零");
+    flog[1](c);
     s2:=Object(s);
     # 这里选择了在addcons中加入信息，而不是加入到解中
-    addZeroCons(s2,{seq(a[x]=0,x in c)});
-    solveClosureAllZero(s2);
+    solveClosureAllZero(s2,c);
 end proc:
 
 # 处理封闭全为零的情况
-solveClosureAllZero:=proc(s::InvSol)
+solveClosureAllZero:=proc(s::InvSol,c::set(specindex(a)))
     local s1;
+    flogf[1](convert(procname,string));
+    addZeroCons(s,{seq(x=0,x in c)});
+    updateVars(s);
     if numelems(s:-vars)>1 then
         solveOeq(s);
     elif numelems(s:-vars)=1 then
@@ -132,6 +134,7 @@ end proc:
 # 生成不变量方程组
 genIeq:=proc(s::InvSol,deltas)
     local spos,pos,n;
+    flogf[1](convert(procname,string));
     if andmap(type,rhs~(s:-ieq),0) then
         spos:=numelems(s:-Deltas)+1;
         s:-Deltas:=[s:-Deltas[],deltas[]];
@@ -150,6 +153,7 @@ end proc:
 # 新的方程为Delta[1]=c[1],...,Delta[n]=c[n],Delta[n+1]=c[n+1]
 appendIeq:=proc(_s::InvSol,deltas)
     local s,cid,getCname;
+    flogf[1](convert(procname,string));
     cid:=findCid(_s);
     getCname:=proc()
         cid:=cid+1;
@@ -168,6 +172,7 @@ end proc:
 # 此时 Delta[1..(k-1)]=0，Delta[(k+1)..n]=c[j]
 buildIeq:=proc(_s::InvSol,pos::posint)
     local s,n,xpos,cid,getCname,x,rs;
+    flogf[1](convert(procname,string));
     n:=numelems(_s:-Deltas);
     if type(_s:-orders[pos],even) then
         xpos:=[1,-1,0];
@@ -199,6 +204,7 @@ end proc:
 # 而不与其它不变量方程中的任意常数c进行比较
 findCid:=proc(s::InvSol)
     local rs:=select(type,rhs~(s:-ieq),specindex(c));
+    flogf[1](convert(procname,string));
     if rs=[] then
         return 0;
     else
@@ -208,60 +214,102 @@ end proc:
 
 # 求解不变量方程
 solveIeq:=proc(s::InvSol)
-    local isols,icons,i,n,_s,cons; 
-    flogf[1]("-------------------------------------------------\n");
-    flogf[1]("求解不变量方程\n");
+    local isols,icons,acons,tc,cc,discons,subcons,ind,i;
+    flogf[1](convert(procname,string));
+    flogf[1]("-------------------------------------------------");
+    flogf[1]("求解不变量方程");
     displayIeq(s);
-
-    # 问：求解的时候到底是针对所有变量求解，还是针对剩余变量求解？
-    # + 针对所有变量求解，则方程的解中包含所有变量的取值信息。
-    # + 但是不是通过求解不变量方程而得到的对象，将不含解的信息。
-
-    # 解的信息应该添加在addcons中，还是直接取在解中？
-    # + 上面的做法是加在addcons中，那么是否能做到加在解中呢？
-    # + 毕竟信息集中才比较好管理。
-
-    # 好了，现在我选择加入到解中，那么又该检查和addcons相关的东西了。
-    # 主要是getZeroCons，貌似从解中提取也不是不可以
-
-    # 所以！我要统一放在解中！！！！
-
-    # TODO START POINT -------------------------------------------------------------------------------------
     
-    isols,icons:=ieqsolve(s:-ieq,s:-vars);
+    # 针对全部变量求解
+    isols,icons:=ieqsolve(s:-ieq,{seq(a[i],i=1..s:-nvars)});
 
     flog[1](isols);
-    flogf[1]("约束条件\n");
+    flogf[1]("约束条件");
     flog[1](icons);
 
-    # 删除等式约束后，所有解的约束的并集只含单变量非零约束，则按封闭进行求解
-    # 允许不同的方程包含不同的单变量非零约束
-    cons:=remove(type,`union`(icons[]),equation);
-    if andmap(isNonZeroCon,cons) then
-        # 按照封闭进行求解
-        closureRefine(s,isols,icons);
+    # 进入封闭的求解条件
+    # 若只存在单变量大于零或小于零的的约束，则等价成非零约束进行求解。
+    # 只存在常数约束和非零约束
+    # 只存在一个具有单个单变量非零约束的一般解
+    # 若存在多个具有单个单变量非零约束的一般解，
+    #     若两个解不能比较，则选择其中一个进行求解。
+    #     若两个解等价，则分别进行封闭求解。
+    # 若不能进入封闭进行求解，则一个解对应一个特解分别进行求解
+
+    # 首先满足只存在单变量约束
+    acons:=`union`(icons[]);
+    if not andmap(x->evalb(numelems(indets(x,name))=1),acons) then
+        return branchSolve(s,isols,icons);
+    end if;
+
+    # 尝试将大于零或小于零的约束等价为非零约束
+    # 单变量约束只有3种可能：= <> <
+    acons:=select(type,acons,`<`);
+    if acons<>{} then
+        tc:=table();
+        for cc in acons do
+            if lhs(cc)=0 or rhs(cc)=0 then
+                tappend(t,indets(cc,name),cc);
+            else
+                # 存在不是大于零或者小于零的约束，则不进入封闭进行计算
+                return branchSolve(s,isols,icons);
+            end if;
+        end do;
+        # 对于同一个变量存在大于零和小于零的约束
+        # 一般这个约束会体现在值域的约束中，但是现在还没有计算值域
+        # 而且从其次性进行考虑，出现这种值域约束的同时，肯定会出现根号约束，
+        # 大部分情况下根号约束是不能处理的，不进行封闭计算。
+        # 可以给出一个例子，a[1]^2-a[2]^2=0，可以解出 a[1]=±a[2]
+        # 反正太复杂了我不走封闭了
+        if ormap(x->evalb(numelems(x)>1),[entries(tc,nolist)]) then
+            return branchSolve(s,isols,icons);
+        end if;
+        discons:={entries(tc,nolist)};
+        subcons:=seq((x)=(indets(x)[]<>0),x in discons);
+        # 处理掉<约束之后，只剩下单变量等式约束和非零约束，必然能够进行封闭运算
+        s:-discons:=s:-discons union discons;
+        icons:=subs(subcons,icons);
+    end if;
+
+    # 尝试进入封闭
+    ind:=findGenSolInd(icons,s:-nvars);
+    if type(ind,posint) then
+        # 只有一个极大元
+        closureRefine(s,isols,icons,ind);
     else
-        # 按照分支方法进行求解
-        n:=numelems(isols);
-        for i from 1 to n do
-            _s:=Object(s);
-            _s:-isols:=[isols[i]];
-            _s:-icons:=[icons[i]];
-            _s:-state:=2;
-            _s:-isolInd:=1;
-            resolve(_s);
+        # 有多个极大元，在不能比较的部分中选择包含元素个数最少的那组
+        ind:=MinSelect(ind,numelems)[];
+        for i in ind do
+            closureRefine(s,isols,icons,i);
         end do;
     end if;
+    
 end proc:
+
+# 按照分支方法进行求解
+branchSolve:=proc(s::InvSol,isols,icons)
+    local i,n,_s;
+    flogf[1](convert(procname,string));
+    n:=numelems(isols);
+    for i from 1 to n do
+        _s:=Object(s);
+        _s:-isols:=[isols[i]];
+        _s:-icons:=[icons[i]];
+        _s:-state:=2;
+        _s:-isolInd:=1;
+        resolve(_s);
+    end do;
+end proc:
+
 
 # 解的精简，按照封闭求解
 # 方程的解至多只含等式约束和非零的约束
-closureRefine:=proc(s::InvSol,isols,icons)
-    local ind,CL,zcons,s0,s1;
-    # 取一般解
-    ind:=findGenSolInd(isols,icons);
-    flogf[1]("一般解为：\n");
+closureRefine:=proc(_s::InvSol,isols,icons,ind::posint)
+    local CL,zcons,s,s0,s1;
+    flogf[1](convert(procname,string));
+    flogf[1]("特解为");
     flog[1](isols[ind]);
+    s:=Object(_s);
     # 取封闭
     CL:=getClosure(s:-A,getZeroCons(s));
     zcons:=select(isNonZeroCon,`union`(icons[]));# 提取约束
@@ -270,7 +318,7 @@ closureRefine:=proc(s::InvSol,isols,icons)
     zcons:=[zcons[]];
     CL:=`union`(CL[zcons][]);
     CL:={seq(a[x],x in CL)};# 系数表示
-    flogf[1]("封闭为\n");
+    flogf[1]("封闭为");
     flog[1](CL);
     # 封闭不全为零
     s1:=Object(s);
@@ -281,31 +329,27 @@ closureRefine:=proc(s::InvSol,isols,icons)
     s1:-discons:=s1:-discons union {add(x^2,x in CL)<>0};
     resolve(s1);
     # 封闭全为零
-    s0:=Object(s);
-
+    if checkIeq(s,CL) then
+        s0:=Object(s);
+        solveClosureAllZero(s0,CL);
+    end if;
 end proc:
 
-# 寻找一般解
-# 这个操作只在封闭中出现，因此方程的解至多只含等式约束和非零的约束
-# 因此选择具有非零约束的解中，约束最少的一个作为一般解
-findGenSolInd:=proc(isols,icons)
-    local ind,mnc,n,i,nn;
-    ind:=0;
-    mnc:=infinity;
-    n:=numelems(isols);
-    for i from 1 to n do
-        nn:=numelems(select(isNonZeroCon,icons[i]));
-        if nn>0 and nn<mnc then
-            ind:=i;
-            mnc:=nn;
-        end if;
-    end do;
-    return ind;
+# 检查封闭全为零是否满足方程
+checkIeq:=proc(s::InvSol,c::set(specindex(a)))
+    local eq;
+    try
+        eq:=subs(seq(x=0,x in c),s:-ieq);
+        return RealDomain:-solve(eq)<>NULL;
+    catch :
+        return false;
+    end try;
 end proc:
 
 # 取特解
 checkNewInvariants:=proc(s::InvSol)
     local deltas;
+    flogf[1](convert(procname,string));
     deltas:=getNewInvariants(s);
     if deltas=[] then
         solveRep(s);
@@ -317,8 +361,9 @@ end proc:
 # 取特解
 solveRep:=proc(s::InvSol)
     local rsols;
+    flogf[1](convert(procname,string));
     rsols:=fetchSpecSol~(s:-isols,s:-icons,nonzero);
-    flogf[1]("取特解\n");
+    flogf[1]("取特解");
     rsols:=`union`(rsols[]);
     print(rsols);
 end proc:

@@ -118,7 +118,7 @@ RepSol:=module()
         con:=getCon(r);
         n:=numelems(con);
         for i from 1 to n do
-            printf("[%d]------------------------------------------------------\n",i);
+            printf("[%d]------------------------------------------------------",i);
             print(con[i]);
             print(r:-isol[i]);
             print(r:-tsol[i]);

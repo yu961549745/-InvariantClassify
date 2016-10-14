@@ -15,6 +15,8 @@ ClassifyHolder:=module()
     end proc:
 
     addSol:=proc(s::InvSol)
+        flogf[1]("添加不变量");
+        flog[1](s:-rep);
         sols:=sols union {s};
         return;
     end proc:

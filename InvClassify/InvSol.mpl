@@ -118,63 +118,63 @@ InvSol:=module()
 
     # 输出解
     printSol:=proc(s::InvSol)
-        printf("---------------------------------------------------------\n");
+        printf("---------------------------------------------------------");
         if     (s:-stateCode=1) then
-            printf("新的不变量求解失败，状态代码1\n");
+            printf("新的不变量求解失败，状态代码1");
             print(s:-oieq);
-            printf("取解\n");
+            printf("取解");
             print(s:-oisol);
-            printf("求解失败的偏微分方程为\n");
+            printf("求解失败的偏微分方程为");
             print(s:-oeq);
         elif    (s:-stateCode=2) then
-            printf("不变量方程求解失败，状态代码2\n");
+            printf("不变量方程求解失败，状态代码2");
             print(getDisplayIeq(s));
         elif    (s:-stateCode=3) then
-            printf("取代表元失败，状态代码3\n");
+            printf("取代表元失败，状态代码3");
             print(getDisplayIeq(s));
-            printf("取解\n");
+            printf("取解");
             print(s:-isol);
         elif    (s:-stateCode=4) then
-            printf("变换方程求解失败，状态代码4\n");
+            printf("变换方程求解失败，状态代码4");
             print(getDisplayIeq(s));
-            printf("取解\n");
+            printf("取解");
             print(s:-isol);
-            printf("具有约束\n");
+            printf("具有约束");
             print(s:-icon);
-            printf("取代表元\n");
+            printf("取代表元");
             print(s:-rep);
-            printf("求解失败的两个变换方程为\n");
+            printf("求解失败的两个变换方程为");
             print~(s:-teq);
         elif    (s:-stateCode=5) then
-            printf("变换方程求解成功，状态代码5\n");
+            printf("变换方程求解成功，状态代码5");
             print(getDisplayIeq(s));
-            printf("取解\n");
+            printf("取解");
             print(s:-isol);
-            printf("具有约束\n");
+            printf("具有约束");
             print(s:-icon);
-            printf("取代表元\n");
+            printf("取代表元");
             print(s:-rep);
-            printf("变换方程有解\n");
+            printf("变换方程有解");
             printTeq(s,1);
             printTeq(s,2);
         end if;
-        printf("---------------------------------------------------------\n");
+        printf("---------------------------------------------------------");
         return;
     end proc:
 
     # 输出变换方程和解
     printTeq:=proc(sol,pos)
         if (sol:-tsol[pos]=[]) then
-            printf("变换方程 %d 无解\n",pos);
-            printf("方程为\n");
+            printf("变换方程 %d 无解",pos);
+            printf("方程为");
             print(sol:-teq[pos]);
         else
-            printf("变换方程 %d 有解\n",pos);
-            printf("方程为\n");
+            printf("变换方程 %d 有解",pos);
+            printf("方程为");
             print(sol:-teq[pos]);
-            printf("有解\n");
+            printf("有解");
             print(sol:-tsol[pos]);
-            printf("具有条件\n");
+            printf("具有条件");
             print(sol:-tcon[pos]);
         end if;
     end proc:

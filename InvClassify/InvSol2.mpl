@@ -15,7 +15,9 @@ InvSol:=module()
                             # 2：取特解失败            
                             # 3：变换方程求解失败
                             # 4：求解完成       
-            oeq,            # 偏微分方程组
+            oeq::static,    # 偏微分方程组，
+                            # 迭代过程中oeq保持不变
+                            # 通过变量代换来获取实际的oeq
             Deltas:=[],     # 不变量
             orders:=[],     # 不变量的阶数
             ieq:=[],        # 不变量方程程组，按不变量排序
@@ -24,7 +26,7 @@ InvSol:=module()
             icons:=[],      # 不变量方程组对应的条件
             isolInd:=1,     # 通解的下标
             rsols:=[],      # 不变量方程的特解
-            teq,            # 变换方程
+            teqs,            # 变换方程
             tsols,          # 变换方程的解
             tcons,          # 变换方程的解对应的条件
             rep,            # 代表元
@@ -39,19 +41,47 @@ InvSol:=module()
                             # + a[1]*a[3]>0 这种不能处理的多变量约束
             # 导出函数
             getSubs::static,     # 在求解新的不变量时代入的条件
+            updateVars::static,  # 更新求解变量 
+            getRealOeq::static,  # 获取代换后的oeq
             getZeroCons::static, # 获取为零约束
             addZeroCons::static, # 添加为零约束
             displayIeq::static,  # 显示不变量方程
             ModulePrint::static; # 显示函数
+
+    ModulePrint:=proc(s::InvSol)
+        if   s:-state=0 then
+            return s:-oeq;
+        elif s:-state=1 then
+            return s:-ieq;
+        elif s:-state=2 then
+            return s:-isols;
+        elif s:-state=3 then
+            return s:-teqs;
+        elif s:-state=4 then
+            return s:-rep;
+        end if;
+    end proc:
     
     getSubs:=proc(s::InvSol)
         local r;
         r:=getZeroCons(s);
         r:=[r[]];
         if s:-isols<>[] then
-            r:=[r[],s:-isols[s:-isolInd]];
+            r:=[r[],s:-isols[s:-isolInd][]];
         end if;
-        return {r[]};
+        return remove(x->evalb(lhs(x)=rhs(x)),{r[]});
+    end proc:
+
+    updateVars:=proc(s::InvSol)
+        s:-vars:=s:-vars minus indets(lhs~(getSubs(s)),name);
+    end proc:
+
+    getRealOeq:=proc(s::InvSol)
+        local oeq:=s:-oeq;
+        updateVars(s);
+        oeq:=PDETools:-dsubs(phi(seq(a[i],i=1..s:-nvars))=phi(s:-vars[]),oeq);
+        oeq:=eval(subs(getSubs(s)[],oeq)) minus {0};
+        return oeq;
     end proc:
 
     getZeroCons:=proc(s::InvSol)

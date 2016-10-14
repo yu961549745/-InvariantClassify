@@ -34,6 +34,7 @@ flogf:=proc()
     end if;
     if (v>=LogLevelHolder:-logLevel) then
         printf(_passed);
+        printf("\n");
     end if;
     return;
 end proc:

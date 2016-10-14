@@ -64,5 +64,9 @@ uniqueObj:=proc(s,key,{index::boolean:=false})
     return [entries(t,nolist)];
 end proc:
 
+# 选择目标函数值最小的元素
+MinSelect:=proc(v::list,fun)
+    return v[min[index]([seq(fun(x),x in v)])];
+end proc:
 
 $endif

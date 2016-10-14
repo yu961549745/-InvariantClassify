@@ -11,8 +11,6 @@ $define _BASIC_
 $include "Logout.mpl"
 $include "InvSimplify.mpl"
 
-
-
 $ifndef _HEADERS_
 PDETools:-declare(quiet):
 macro(Pa=`\x26\x50\x61\x72\x74\x69\x61\x6C\x44\x3B`);# 偏导符号作为函数名
@@ -200,7 +198,7 @@ getTransMatAndPDE:=proc(vv::list)
     AD:=Array(1..n);
     ADA:=LinearAlgebra[IdentityMatrix](n);
     ADT:=Matrix(1..n,1..n);
-    flogf[2]("Adjoint transformation matrixes :\n");
+    flogf[2]("Adjoint transformation matrixes :");
     for i from 1 to n do
         AD[i]:=LinearAlgebra[MatrixExponential](Matrix(convert(MK[i],list)),-epsilon[i]);
         ADA:=ADA.AD[i];
@@ -229,11 +227,11 @@ getInvariants:=proc(eqs)
     res:=res[];
     res:=[op(op(2,res))];
     res:=sortByComplexity(res);# 按照复杂度升序输出
-    flogf[1]("解得的不变量\n");
+    flogf[1]("解得的不变量");
     map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
     res:=simplifyInvariants(res);# 不变量化简
     res:=sortByComplexity(res);# 按照复杂度升序输出
-    flogf[1]("化简后的不变量\n");
+    flogf[1]("化简后的不变量");
     map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
     return res;
 end proc;

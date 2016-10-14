@@ -98,12 +98,12 @@ resolve:=proc(sol::InvSol)
             sol:-Delta:=[sol:-Delta[],nDelta[]]:
             # 整体化简不变量
             if (1>=LogLevelHolder:-logLevel) then
-                flogf[1]("-----------------------------------------------\n");
-                flogf[1]("对新增不变量按照原不变量进行化简\n");
-                flogf[1]("化简前\n");
+                flogf[1]("-----------------------------------------------");
+                flogf[1]("对新增不变量按照原不变量进行化简");
+                flogf[1]("化简前");
                 printDeltas(sol:-Delta);
                 sol:-Delta:=simplifyInvariants(sol:-Delta);
-                flogf[1]("化简后\n");
+                flogf[1]("化简后");
                 printDeltas(sol:-Delta);
             end if;
         else
@@ -199,11 +199,11 @@ end proc:
 # 这么写会导致和非自由变量有关的偏导都变成0
 subsOeq:=proc(_sol::InvSol,isol)
     local oeq,sol,v,vv,vars,Delta;
-    flogf[1]("--------------------------------------------------------------\n");
-    flogf[1]("求解新的不变量\n");
+    flogf[1]("--------------------------------------------------------------");
+    flogf[1]("求解新的不变量");
     flog[1]({seq(Delta[i]=0,i=1..numelems(_sol:-Delta))});
     flog[2](getDisplayDelta(_sol));
-    flogf[1]("取解\n");
+    flogf[1]("取解");
     flog[1](isol);
     oeq:=_sol:-oeq;
     vars:=_sol:-vars;
@@ -256,17 +256,17 @@ solveAllZero:=proc(_sol)
             nnsol:=Object(nsol);
             nnsol:-stateCode:=4;
             setRep(nnsol,rep);
-            flogf[1]("--------------------------------------------------------------\n");
-            flogf[1]("求解全零方程\n");
+            flogf[1]("--------------------------------------------------------------");
+            flogf[1]("求解全零方程");
             flog[1](getDisplayIeq(nnsol));
             flog[1](getDisplayDelta(nnsol));
-            flogf[1]("取解\n");
+            flogf[1]("取解");
             flog[1](nnsol:-isol);
-            flogf[1]("具有约束条件\n");
+            flogf[1]("具有约束条件");
             flog[1](nnsol:-icon);
-            flogf[1]("取特解\n");
+            flogf[1]("取特解");
             flog[1](nnsol:-rvec);
-            flogf[1]("取代表元\n");
+            flogf[1]("取代表元");
             flog[1](nnsol:-rep);
             resolve(nnsol);
         end do;
@@ -276,31 +276,31 @@ end proc:
 # 取代表元
 fetchRep:=proc(_sol::InvSol)
     local n,_ax;
-    flogf[1]("--------------------------------------------------------------\n");
-    flogf[1]("对于不变量方程\n");
+    flogf[1]("--------------------------------------------------------------");
+    flogf[1]("对于不变量方程");
     flog[1](getDisplayIeq(_sol));
     flog[1](getDisplayDelta(_sol));
-    flogf[1]("取解\n");
+    flogf[1]("取解");
     flog[1](_sol:-isol);
-    flogf[1]("具有约束条件\n");
+    flogf[1]("具有约束条件");
     flog[1](_sol:-icon);
     n:=_sol:-nvars;
     _ax:=fetchSolRep(_sol);
     if (_ax=NULL) then# 取特解失败
         addSol(_sol);
-        flogf[1]("取特解失败\n");
+        flogf[1]("取特解失败");
         return;
     end if;
     setRep(_sol,_ax);
     if (_sol:-rep=0) then
-        flogf[1]("代表元取0\n");
+        flogf[1]("代表元取0");
         return;
     end if;
     _ax:=Matrix(_ax);
     _sol:-stateCode:=4;
-    flogf[1]("取特解\n");
+    flogf[1]("取特解");
     flog[1](convert(_ax,list));
-    flogf[1]("取代表元\n");
+    flogf[1]("取代表元");
     flog[1](_sol:-rep);
     resolve(_sol);
 end proc:
@@ -316,11 +316,11 @@ solveTransEq:=proc(_sol::InvSol)
     _sol:-teq[2],_sol:-tsol[2],_sol:-tcon[2]:=solveTeq(ax,_ax,_sol);
     if andmap(x->(x=[]),_sol:-tsol) then
         # 无解
-        flogf[1]("变换方程求解失败\n");
+        flogf[1]("变换方程求解失败");
         addSol(_sol);
     else
         # 有解
-        flogf[1]("变换方程有解\n");
+        flogf[1]("变换方程有解");
         _sol:-stateCode:=5;
         addSol(_sol);
         # 在logLevel为1时输出
