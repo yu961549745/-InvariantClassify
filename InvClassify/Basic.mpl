@@ -227,12 +227,12 @@ getInvariants:=proc(eqs)
     res:=res[];
     res:=[op(op(2,res))];
     res:=sortByComplexity(res);# 按照复杂度升序输出
-    flogf[1]("解得的不变量");
-    map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
+    flogf[0]("解得的不变量");
+    map(x->flog[0]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
     res:=simplifyInvariants(res);# 不变量化简
     res:=sortByComplexity(res);# 按照复杂度升序输出
-    flogf[1]("化简后的不变量");
-    map(x->flog[1]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
+    flogf[0]("化简后的不变量");
+    map(x->flog[0]('Delta'[x]=res[x]),[seq(i,i=1..numelems(res))]);
     return res;
 end proc;
 

@@ -7,7 +7,7 @@ LogLevelHolder:=module()
 end module:
 
 # 设置输出级别
-setLogLevel:=proc(v::{1,2,3})
+setLogLevel:=proc(v::{0,1,2,3})
     LogLevelHolder:-logLevel:=v;
     return;
 end proc:

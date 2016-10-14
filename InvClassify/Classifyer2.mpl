@@ -37,7 +37,7 @@ end proc:
 
 # 可重用的求解入口
 resolve:=proc(s::InvSol)
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     if      (s:-state=0) then
         return solveOeq(s);     # 针对偏微分方程组进行求解
     elif    (s:-state=1) then
@@ -54,11 +54,14 @@ end proc:
 # 针对偏微分方程组进行求解
 solveOeq:=proc(s::InvSol)
     local deltas;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     deltas:=getNewInvariants(s);
-    if deltas=[] then
+    if deltas=[] or convert(deltas,set) subset convert(s:-Deltas,set) then
+        flogf[1]("没有新的不变量");
         solveByClosure(s);
     else
+        flogf[1]("解得新的不变量");
+        flog[1]~(deltas);
         genIeq(s,deltas);
     end if;
 end proc:
@@ -68,16 +71,16 @@ end proc:
 # 该如何定义，该如何和别的地方进行协调？
 getNewInvariants:=proc(s::InvSol)
     local oeq,deltas;
-    flogf[1](convert(procname,string));
-    flogf[1]("-------------------------------------------------");
-    flogf[1]("求解新的不变量");
-    flogf[1]("附加约束");
-    flog[1](s:-addcons);
+    flogf[0](convert(procname,string));
+    flogf[0]("-------------------------------------------------");
+    flogf[0]("求解新的不变量");
+    flogf[0]("附加约束");
+    flog[0](s:-addcons);
 
     # 问：求解新的不变量代入的到底是什么？
     oeq:=getRealOeq(s);
-    flogf[1]("偏微分方程组");
-    flog[1](oeq);
+    flogf[0]("偏微分方程组");
+    flog[0](oeq);
 
     # 求解新不变量（已化简）
     deltas:=getInvariants(oeq);
@@ -93,7 +96,7 @@ end proc:
 # 按封闭进行求解
 solveByClosure:=proc(s::InvSol)
     local c,s1,s2;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     c:=getMinClosure(getClosure(s:-A,getZeroCons(s)));
     c:={seq(a[x],x in c)};
     # 封闭不全为零
@@ -106,8 +109,6 @@ solveByClosure:=proc(s::InvSol)
     s1:-state:=4;
     addSol(s1);
     # 封闭全为零
-    flogf[1]("封闭全为零");
-    flog[1](c);
     s2:=Object(s);
     # 这里选择了在addcons中加入信息，而不是加入到解中
     solveClosureAllZero(s2,c);
@@ -116,7 +117,10 @@ end proc:
 # 处理封闭全为零的情况
 solveClosureAllZero:=proc(s::InvSol,c::set(specindex(a)))
     local s1;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
+    flogf[1]("-------------------------------------------------");
+    flogf[1]("封闭全为零");
+    flog[1](c);
     addZeroCons(s,{seq(x=0,x in c)});
     updateVars(s);
     if numelems(s:-vars)>1 then
@@ -134,7 +138,7 @@ end proc:
 # 生成不变量方程组
 genIeq:=proc(s::InvSol,deltas)
     local spos,pos,n;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     if andmap(type,rhs~(s:-ieq),0) then
         spos:=numelems(s:-Deltas)+1;
         s:-Deltas:=[s:-Deltas[],deltas[]];
@@ -153,7 +157,7 @@ end proc:
 # 新的方程为Delta[1]=c[1],...,Delta[n]=c[n],Delta[n+1]=c[n+1]
 appendIeq:=proc(_s::InvSol,deltas)
     local s,cid,getCname;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     cid:=findCid(_s);
     getCname:=proc()
         cid:=cid+1;
@@ -172,7 +176,7 @@ end proc:
 # 此时 Delta[1..(k-1)]=0，Delta[(k+1)..n]=c[j]
 buildIeq:=proc(_s::InvSol,pos::posint)
     local s,n,xpos,cid,getCname,x,rs;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     n:=numelems(_s:-Deltas);
     if type(_s:-orders[pos],even) then
         xpos:=[1,-1,0];
@@ -204,7 +208,7 @@ end proc:
 # 而不与其它不变量方程中的任意常数c进行比较
 findCid:=proc(s::InvSol)
     local rs:=select(type,rhs~(s:-ieq),specindex(c));
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     if rs=[] then
         return 0;
     else
@@ -215,7 +219,7 @@ end proc:
 # 求解不变量方程
 solveIeq:=proc(s::InvSol)
     local isols,icons,acons,tc,cc,discons,subcons,ind,i;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     flogf[1]("-------------------------------------------------");
     flogf[1]("求解不变量方程");
     displayIeq(s);
@@ -249,7 +253,7 @@ solveIeq:=proc(s::InvSol)
         tc:=table();
         for cc in acons do
             if lhs(cc)=0 or rhs(cc)=0 then
-                tappend(t,indets(cc,name),cc);
+                tappend(tc,indets(cc,name)[],cc);
             else
                 # 存在不是大于零或者小于零的约束，则不进入封闭进行计算
                 return branchSolve(s,isols,icons);
@@ -265,10 +269,16 @@ solveIeq:=proc(s::InvSol)
             return branchSolve(s,isols,icons);
         end if;
         discons:={entries(tc,nolist)};
+        discons:=map(x->x[],discons);
         subcons:=seq((x)=(indets(x)[]<>0),x in discons);
         # 处理掉<约束之后，只剩下单变量等式约束和非零约束，必然能够进行封闭运算
         s:-discons:=s:-discons union discons;
         icons:=subs(subcons,icons);
+    end if;
+
+    # 然后至少要有一个非零约束
+    if not ormap(isNonZeroCon,`union`(icons[])) then
+        return branchSolve(s,isols,icons);
     end if;
 
     # 尝试进入封闭
@@ -289,7 +299,7 @@ end proc:
 # 按照分支方法进行求解
 branchSolve:=proc(s::InvSol,isols,icons)
     local i,n,_s;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     n:=numelems(isols);
     for i from 1 to n do
         _s:=Object(s);
@@ -306,8 +316,8 @@ end proc:
 # 方程的解至多只含等式约束和非零的约束
 closureRefine:=proc(_s::InvSol,isols,icons,ind::posint)
     local CL,zcons,s,s0,s1;
-    flogf[1](convert(procname,string));
-    flogf[1]("特解为");
+    flogf[0](convert(procname,string));
+    flogf[1]("一般解为");
     flog[1](isols[ind]);
     s:=Object(_s);
     # 取封闭
@@ -330,30 +340,52 @@ closureRefine:=proc(_s::InvSol,isols,icons,ind::posint)
     resolve(s1);
     # 封闭全为零
     if checkIeq(s,CL) then
+        flogf[1]("封闭全为零有解");
         s0:=Object(s);
         solveClosureAllZero(s0,CL);
+    else
+        flogf[1]("封闭全为零无解");
     end if;
 end proc:
 
 # 检查封闭全为零是否满足方程
 checkIeq:=proc(s::InvSol,c::set(specindex(a)))
-    local eq;
+    local eq,e;
     try
         eq:=subs(seq(x=0,x in c),s:-ieq);
-        return RealDomain:-solve(eq)<>NULL;
+        eq:=remove(x->lhs(x)=rhs(x),eq);
+        for e in eq do
+            if not isVar(lhs(e)) then
+                if isVar(rhs(e)) then
+                    return false;
+                else
+                    if lhs(x)<>rhs(x) then
+                        return false;
+                    end if;
+                end if;
+            end if;
+        end do;
+        return true;
     catch :
         return false;
     end try;
 end proc:
 
+isVar:=proc(x)
+    return indets(x,name)<>{};
+end proc:
+
 # 取特解
 checkNewInvariants:=proc(s::InvSol)
     local deltas;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     deltas:=getNewInvariants(s);
-    if deltas=[] then
+    if deltas=[] or convert(deltas,set) subset convert(s:-Deltas,set) then
+        flogf[1]("没有新的不变量");
         solveRep(s);
     else
+        flogf[1]("解得新的不变量");
+        flog[1]~(deltas);
         genIeq(s,deltas);
     end if;
 end proc:
@@ -361,7 +393,7 @@ end proc:
 # 取特解
 solveRep:=proc(s::InvSol)
     local rsols;
-    flogf[1](convert(procname,string));
+    flogf[0](convert(procname,string));
     rsols:=fetchSpecSol~(s:-isols,s:-icons,nonzero);
     flogf[1]("取特解");
     rsols:=`union`(rsols[]);
