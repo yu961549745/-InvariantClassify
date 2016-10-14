@@ -282,6 +282,7 @@ solveIeq:=proc(s::InvSol)
     end if;
 
     # 尝试进入封闭
+    # TODO 还没加入一般解只有一个非零约束的判定
     ind:=findGenSolInd(icons,s:-nvars);
     if type(ind,posint) then
         # 只有一个极大元
