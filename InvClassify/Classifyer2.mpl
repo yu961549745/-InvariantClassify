@@ -12,6 +12,7 @@ $include "InvSol2.mpl"
 $include "Closure.mpl"
 $include "ClassifyHolder.mpl"
 $include "GenSol.mpl"
+$include "TeqSol.mpl"
 
 # 绑定函数
 reset:=ClassifyHolder:-reset;
@@ -408,24 +409,19 @@ end proc:
 solveTeq:=proc(s::InvSol)
     local ESC;
     ESC:=map[2](specTeqSolve,s,s:-rsols);
-    printESC~(ESC);
+    TeqSol:-printTsol~(ESC);
 end proc:
 
-printESC:=proc(ESC)
-    flogf[1]("===============================");
-    flog[1]~(ESC[1][2..3]);
-    flogf[1]("-------------------------------");
-    flog[1]~(ESC[2][2..3]);
-    flogf[1]("===============================");
-    return;
-end proc:
+$include "TConRefine.mpl"
 
 specTeqSolve:=proc(sol::InvSol,spec::list)
-    local ax,_ax;
+    local ax,_ax,res;
     ax:=Matrix([seq(a[i],i=1..sol:-nvars)]);
     _ax:=Matrix(spec);
-    return [solveSpecTeq(ax,_ax,sol),
-            solveSpecTeq(_ax,ax,sol)];
+    res:=TeqSol(spec,[solveSpecTeq(ax,_ax,sol),
+                      solveSpecTeq(_ax,ax,sol)]);
+    res:=tconRefine(res);
+    return res;
 end proc:
 
 solveSpecTeq:=proc(va,vb,s::InvSol)

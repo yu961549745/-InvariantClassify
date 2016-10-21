@@ -1,4 +1,9 @@
-find:=proc(v::list,k)
-    return map(i->`if`(v[i]=k,i,NULL),[seq(1..numelems(v))]);
+ceRefine:=proc(_e)
+    local e;
+    e:=factor(_e);
+    if type(e,`*`) then
+        
+    else
+        return e;
+    end if; 
 end proc:
-find([0,1,0,1,1],1);
