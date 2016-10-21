@@ -69,4 +69,9 @@ MinSelect:=proc(v::list,fun)
     return v[min[index]([seq(fun(x),x in v)])];
 end proc:
 
+# 寻找特定值的下标
+find:=proc(v::list,k)
+    return map(i->`if`(v[i]=k,i,NULL),[seq(1..numelems(v))]);
+end proc:
+
 $endif

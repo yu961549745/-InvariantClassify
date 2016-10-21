@@ -45,8 +45,13 @@ InvSol:=module()
             getRealOeq::static,  # 获取代换后的oeq
             getZeroCons::static, # 获取为零约束
             addZeroCons::static, # 添加为零约束
+            getIsolCons::static, # 返回通解的约束
             displayIeq::static,  # 显示不变量方程
             ModulePrint::static; # 显示函数
+
+    getIsolCons:=proc(s::InvSol)
+        return s:-addcons union s:-discons union s:-icons[s:-isolInd];
+    end proc:
 
     ModulePrint:=proc(s::InvSol)
         if   s:-state=0 then

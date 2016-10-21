@@ -45,7 +45,7 @@ resolve:=proc(s::InvSol)
     elif    (s:-state=2) then
         return checkNewInvariants(s); # 检查是否产生了新的不变量
     elif    (s:-state=3) then
-        return sovlveTeq(s);    # 求解变换方程
+        return solveTeq(s);    # 求解变换方程
     else
         error "unkown state";
     end if;
@@ -77,7 +77,6 @@ getNewInvariants:=proc(s::InvSol)
     flogf[0]("附加约束");
     flog[0](s:-addcons);
 
-    # 问：求解新的不变量代入的到底是什么？
     oeq:=getRealOeq(s);
     flogf[0]("偏微分方程组");
     flog[0](oeq);
@@ -395,11 +394,92 @@ end proc:
 solveRep:=proc(s::InvSol)
     local rsols;
     flogf[0](convert(procname,string));
-    rsols:=fetchSpecSol~(s:-isols,s:-icons,nonzero);
+    rsols:=fetchSpecSol~(s:-isols,s:-icons,nonzero);# 针对所有解取特解
     flogf[1]("取特解");
     rsols:=`union`(rsols[]);
-    print(rsols);
+    rsols:=convert(rsols,list);
+    flog[1](rsols);
+    s:-rsols:=rsols;
+    s:-state:=3;
+    resolve(s);
 end proc:
+
+# 建立不变量方程并求解
+solveTeq:=proc(s::InvSol)
+    local ESC;
+    ESC:=map[2](specTeqSolve,s,s:-rsols);
+    printESC~(ESC);
+end proc:
+
+printESC:=proc(ESC)
+    flogf[1]("===============================");
+    flog[1]~(ESC[1][2..3]);
+    flogf[1]("-------------------------------");
+    flog[1]~(ESC[2][2..3]);
+    flogf[1]("===============================");
+    return;
+end proc:
+
+specTeqSolve:=proc(sol::InvSol,spec::list)
+    local ax,_ax;
+    ax:=Matrix([seq(a[i],i=1..sol:-nvars)]);
+    _ax:=Matrix(spec);
+    return [solveSpecTeq(ax,_ax,sol),
+            solveSpecTeq(_ax,ax,sol)];
+end proc:
+
+solveSpecTeq:=proc(va,vb,s::InvSol)
+    local teq,tsol,tcon,var,n,eqs,eq,_eq,_con,_sol;
+    n:=numelems(va);
+    teq:=subs(s:-isols[s:-isolInd][],convert(va-vb.s:-A,list));
+    var:={seq(epsilon[i],i=1..n)};
+    tsol:=teqsolve(teq,var);
+    if (tsol=[]) then
+        # 求解失败，尝试二次求解法方法
+        # 首次求解
+        eqs:=teqsolve(teq);
+        # 二次求解
+        tsol:=[];
+        tcon:=[];
+        for eq in eqs do
+            _eq,_con:=selectremove(has,eq,epsilon);
+            _con:=remove(x->type(x,`=`) and (lhs(x)=rhs(x)),_con);
+            _con:=convert(_con,set);
+            _sol:=teqsolve(_eq,var,_explicit);
+            _con:=map(x->getTsolCons(x,s) union _con,_sol);
+            tsol:=[tsol[],_sol[]];
+            tcon:=[tcon[],_con[]];
+        end do;
+    else
+        # 求解成功，直接计算约束
+        tcon:=map(x->getTsolCons(x,s),tsol);
+    end if;
+    # 清理矛盾解
+    tsol:=zip((s,c)->if (undefined in rhs~(c)) then NULL else s end if,
+             tsol,tcon);
+    tcon:=remove(c->(undefined in rhs~(c)),tcon);
+    return [teq,tsol,tcon];
+end proc:
+
+# 自定义变换方程求解函数
+teqsolve:=proc({_explicit::boolean:=false})
+    local res;
+    if _explicit then
+        res:=[RealDomain:-solve(_rest,explicit)];
+    else
+        res:=convert~([RealDomain:-solve(_rest)],radical);
+    end if;
+    return convert~(res,list);
+end proc:
+
+# 获取变换方程的解的约束条件
+# 删除只含 epsilon 的约束
+# 删除 s:-discons 主要是为了删除只能 a[k]>0 的约束，这依赖于 solveIeq 的相关操作。
+# 删除通解中存在的约束
+getTsolCons:=proc(tsol,s::InvSol)
+    return (select(has,findSolutionDomain(tsol),{a,c}) minus getIsolCons(s));
+end proc:
+
 
 # 检查是否是非零约束
 # 只考虑单变量非零约束
