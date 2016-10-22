@@ -8,7 +8,7 @@ $include "InvOrder.mpl"
 $include "InvSimplify.mpl"
 $include "Logout.mpl"
 $include "Utils.mpl"
-$include "InvSol2.mpl"
+$include "InvSol.mpl"
 $include "Closure.mpl"
 $include "ClassifyHolder.mpl"
 $include "GenSol.mpl"
@@ -540,7 +540,7 @@ end proc:
 
 # 不变量方程的求解函数
 ieqsolve:=proc(eq::list,vars::set)
-    local isols,icons,zcons;
+    local isols,icons,zcons,ind;
     isols:=convert~([RealDomain:-solve(eq,vars,explicit)],list);
     icons:=findSolutionDomain~(isols);
     # 对于单变量约束的情况，尝试进行补全
@@ -551,7 +551,16 @@ ieqsolve:=proc(eq::list,vars::set)
         isols:=SolveTools[SortByComplexity](isols);
         icons:=findSolutionDomain~(isols);
     end if;
+    # 删除对c有约束的解
+    ind:=map(k->`if`(chkCCons(icons[k]),NULL,k),[seq(1..numelems(isols))]);
+    isols:=isols[ind];
+    icons:=icons[ind];
     return isols,icons;
+end proc:
+
+# 检查是存在仅和c有关的约束
+chkCCons:=proc(con)
+    return ormap(x->type(indets(x,name),set(specindex(c))),con);
 end proc:
 
 # 选择最优代表元
