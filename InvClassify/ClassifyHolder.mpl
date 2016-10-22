@@ -2,15 +2,18 @@ $ifndef _CLASSIFY_HOLDER_
 $define _CLASSIFY_HOLDER_
 
 ClassifyHolder:=module()
-    local   ieqCode,sols;
+    local   ieqCode,sols,unsolvedSols;
     export  reset,      # 重置状态
             addSol,     # 新增解
             getSols,    # 获取解
+            addUnsolvedSol,
+            getUnsolvedSols,
             getIeqCode; # 获取不变量方程的编号
     
     reset:=proc()
         ieqCode:=0;
         sols:={};
+        unsolvedSols:={};
         return;
     end proc:
 
@@ -28,6 +31,15 @@ ClassifyHolder:=module()
     getIeqCode:=proc()
         ieqCode:=ieqCode+1;
         return ieqCode;
+    end proc:
+
+    addUnsolvedSol:=proc(s)
+        unsolvedSols:=unsolvedSols union {s};
+        return;
+    end proc:
+
+    getUnsolvedSols:=proc()
+        return unsolvedSols;
     end proc:
 
 end module:

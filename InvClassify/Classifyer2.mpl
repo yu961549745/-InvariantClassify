@@ -13,12 +13,15 @@ $include "Closure.mpl"
 $include "ClassifyHolder.mpl"
 $include "GenSol.mpl"
 $include "TeqSol.mpl"
+$include "TsolsList.mpl"
 
 # 绑定函数
 reset:=ClassifyHolder:-reset;
 addSol:=ClassifyHolder:-addSol;
 getSols:=ClassifyHolder:-getSols;
 getIeqCode:=ClassifyHolder:-getIeqCode;
+addUnsolvedSol:=ClassifyHolder:-addUnsolvedSol;
+getUnsolvedSols:=ClassifyHolder:-getUnsolvedSols;
 
 
 # 重新求解的入口
@@ -46,7 +49,12 @@ resolve:=proc(s::InvSol)
     elif    (s:-state=2) then
         return checkNewInvariants(s); # 检查是否产生了新的不变量
     elif    (s:-state=3) then
-        return solveTeq(s);    # 求解变换方程
+        return solveTeq(s);     # 求解变换方程
+    elif    (s:-state=4) then
+        return selectRep(s);    # 选择最优代表元
+    elif    (s:-state=5) then
+        addSol(s);              # 求解成功
+        return;                 
     else
         error "unkown state";
     end if;
@@ -106,8 +114,8 @@ solveByClosure:=proc(s::InvSol)
     # 添加展示性约束
     s1:-discons:=s1:-discons union {add(a[x]^2,x in c)<>0};
     s1:-rep:=v[op([1,1],c)];
-    s1:-state:=4;
-    addSol(s1);
+    s1:-state:=5;
+    resolve(s1);
     # 封闭全为零
     s2:=Object(s);
     # 这里选择了在addcons中加入信息，而不是加入到解中
@@ -128,8 +136,8 @@ solveClosureAllZero:=proc(s::InvSol,c::set(specindex(a)))
     elif numelems(s:-vars)=1 then
         s1:=Object(s);
         s1:-rep:=v[op([1,1],s:-vars)];
-        s1:-state:=4;
-        addSol(s1);
+        s1:-state:=5;
+        resolve(s1);
     else
         return;
     end if;
@@ -409,10 +417,17 @@ end proc:
 solveTeq:=proc(s::InvSol)
     local ESC;
     ESC:=map[2](specTeqSolve,s,s:-rsols);
-    TeqSol:-printTsol~(ESC);
+    if not ormap(TeqSol:-hasSol,ESC) then
+        WARNING("变换方程均无解\n");
+        addUnsolvedSol(s);
+        return;
+    end if;
+    s:-tsols:=ESC;
+    s:-state:=4;
+    return resolve(s);
 end proc:
 
-$include "TConRefine.mpl"
+# $include "TConRefine.mpl"
 
 specTeqSolve:=proc(sol::InvSol,spec::list)
     local ax,_ax,res;
@@ -420,7 +435,6 @@ specTeqSolve:=proc(sol::InvSol,spec::list)
     _ax:=Matrix(spec);
     res:=TeqSol(spec,[solveSpecTeq(ax,_ax,sol),
                       solveSpecTeq(_ax,ax,sol)]);
-    res:=tconRefine(res);
     return res;
 end proc:
 
@@ -499,6 +513,20 @@ ieqsolve:=proc(eq::list,vars::set)
         icons:=findSolutionDomain~(isols);
     end if;
     return isols,icons;
+end proc:
+
+# 选择最优代表元
+selectRep:=proc(s::InvSol)
+    local tlist;
+    tlist:=TsolsList(s:-tsols);
+    printTsolsList(tlist);
+    s:-tsolsList:=tlist;
+    s:-rep:=tlist:-reps[1];
+    s:-tInd:=tlist:-torders[1];
+    s:-tsol:=tlist:-tsols[1];
+    s:-tcon:=tlist:-tcons[1];
+    s:-state:=5;
+    resolve(s);
 end proc:
 
 

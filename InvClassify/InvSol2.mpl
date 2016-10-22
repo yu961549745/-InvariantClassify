@@ -14,7 +14,8 @@ InvSol:=module()
                             # 1：不变量方程求解失败
                             # 2：取特解失败            
                             # 3：变换方程求解失败
-                            # 4：求解完成       
+                            # 4：等待选择最优代表元
+                            # 5：求解完成       
             oeq::static,    # 偏微分方程组，
                             # 迭代过程中oeq保持不变
                             # 通过变量代换来获取实际的oeq
@@ -26,10 +27,15 @@ InvSol:=module()
             icons:=[],      # 不变量方程组对应的条件
             isolInd:=1,     # 通解的下标
             rsols:=[],      # 不变量方程的特解
-            teqs,            # 变换方程
-            tsols,          # 变换方程的解
-            tcons,          # 变换方程的解对应的条件
+            tsols:=[],      # TeqSol对象list
+            tsolsList,      # TsolsList 对象
             rep,            # 代表元
+            # 最优变换方程的解
+            teq,
+            tInd,            
+            tsol,
+            tcon,
+
             vars,           # 需要求解的系数
             # 条件相关
             # 不变量方程+附加约束+展示约束，描述了代表元所代表的元素的范围
@@ -54,15 +60,9 @@ InvSol:=module()
     end proc:
 
     ModulePrint:=proc(s::InvSol)
-        if   s:-state=0 then
-            return s:-oeq;
-        elif s:-state=1 then
-            return s:-ieq;
-        elif s:-state=2 then
-            return s:-isols;
-        elif s:-state=3 then
-            return s:-teqs;
-        elif s:-state=4 then
+        if s:-state<5 then
+            return sprintf("unsolved %d",s:-state);
+        else
             return s:-rep;
         end if;
     end proc:
