@@ -112,7 +112,7 @@ solveByClosure:=proc(s::InvSol)
     flog[1](c);
     s1:=Object(s);
     # 添加展示性约束
-    s1:-discons:=s1:-discons union {add(a[x]^2,x in c)<>0};
+    s1:-discons:=s1:-discons union {add(x^2,x in c)<>0};
     s1:-rep:=v[op([1,1],c)];
     s1:-state:=5;
     resolve(s1);
@@ -224,9 +224,14 @@ findCid:=proc(s::InvSol)
     end if;
 end proc:
 
+# 是否等价于封闭全为零的解 
+isClosureSol:=proc(s::list)
+    return andmap(x->evalb(rhs(x)=0 or lhs(x)=rhs(x)),s);
+end proc:
+
 # 求解不变量方程
 solveIeq:=proc(s::InvSol)
-    local isols,icons,acons,tc,cc,discons,subcons,ind,i;
+    local isols,icons,acons,tc,cc,discons,subcons,ind,i,isol;
     flogf[0](convert(procname,string));
     flogf[1]("-------------------------------------------------");
     flogf[1]("求解不变量方程");
@@ -238,6 +243,16 @@ solveIeq:=proc(s::InvSol)
     flog[1](isols);
     flogf[1]("约束条件");
     flog[1](icons);
+
+    # 等价于封闭全为零进行求解
+    if andmap(isClosureSol,isols) then
+        flogf[1]("等价于封闭为零");
+        for isol in isols do
+            solveClosureAllZero(Object(s),
+            indets(select(x->rhs(x)=0,isol),name));
+        end do;
+        return;
+    end if;
 
     # 进入封闭的求解条件
     # 若只存在单变量大于零或小于零的的约束，则等价成非零约束进行求解。
@@ -309,6 +324,7 @@ end proc:
 branchSolve:=proc(s::InvSol,isols,icons)
     local i,n,_s;
     flogf[0](convert(procname,string));
+    flogf[1]("分支求解");
     n:=numelems(isols);
     for i from 1 to n do
         _s:=Object(s);
@@ -316,6 +332,7 @@ branchSolve:=proc(s::InvSol,isols,icons)
         _s:-icons:=[icons[i]];
         _s:-state:=2;
         _s:-isolInd:=1;
+        _s:-useBranch:=true;
         resolve(_s);
     end do;
 end proc:
@@ -401,16 +418,28 @@ end proc:
 
 # 取特解
 solveRep:=proc(s::InvSol)
-    local rsols;
+    local rsols,_s,rsol;
     flogf[0](convert(procname,string));
     rsols:=fetchSpecSol~(s:-isols,s:-icons,nonzero);# 针对所有解取特解
+    flogf[1]("一般解为");
+    flog[1](s:-isols[s:-isolInd]);
     flogf[1]("取特解");
     rsols:=`union`(rsols[]);
     rsols:=convert(rsols,list);
     flog[1](rsols);
-    s:-rsols:=rsols;
-    s:-state:=3;
-    resolve(s);
+    if not s:-useBranch then
+        s:-rsols:=rsols;
+        s:-state:=3;
+        resolve(s);
+    else
+        for rsol in rsols do
+            _s:=Object(s);
+            _s:-rsols:=[rsol];
+            _s:-state:=3;
+            resolve(_s);
+        end do;
+    end if;
+    return;
 end proc:
 
 # 建立不变量方程并求解
@@ -418,7 +447,7 @@ solveTeq:=proc(s::InvSol)
     local ESC;
     ESC:=map[2](specTeqSolve,s,s:-rsols);
     if not ormap(TeqSol:-hasSol,ESC) then
-        WARNING("变换方程均无解\n");
+        WARNING("-----------------------------变换方程均无解\n");
         addUnsolvedSol(s);
         return;
     end if;
@@ -452,11 +481,16 @@ solveSpecTeq:=proc(va,vb,s::InvSol)
         tsol:=[];
         tcon:=[];
         for eq in eqs do
-            _eq,_con:=selectremove(has,eq,epsilon);
-            _con:=remove(x->type(x,`=`) and (lhs(x)=rhs(x)),_con);
-            _con:=convert(_con,set);
-            _sol:=teqsolve(_eq,var,_explicit);
-            _con:=map(x->getTsolCons(x,s) union _con,_sol);
+            if not checkTeqSol(teq,eq) then
+                _sol:=[[]];
+                _con:=[{}];
+            else
+                _eq,_con:=selectremove(has,eq,epsilon);
+                _con:=remove(x->type(x,`=`) and (lhs(x)=rhs(x)),_con);
+                _con:=convert(_con,set);
+                _sol:=teqsolve(_eq,var,_explicit);
+                _con:=map(x->getTsolCons(x,s) union _con,_sol);
+            end if;
             tsol:=[tsol[],_sol[]];
             tcon:=[tcon[],_con[]];
         end do;
@@ -469,6 +503,11 @@ solveSpecTeq:=proc(va,vb,s::InvSol)
              tsol,tcon);
     tcon:=remove(c->(undefined in rhs~(c)),tcon);
     return [teq,tsol,tcon];
+end proc:
+
+# 检查解是否满足条件
+checkTeqSol:=proc(teq,sol)
+    return andmap(type,RealDomain:-simplify(subs(sol[],teq)),0);
 end proc:
 
 # 自定义变换方程求解函数

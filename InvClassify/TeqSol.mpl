@@ -13,7 +13,6 @@ TeqSol:=module()
             tcons,          # 解对应的条件
 
             printTsol::static,
-            sortSols::static,
             getNSols::static,
             getRep::static,
             ModuleApply::static,    # 构造函数
@@ -28,7 +27,6 @@ TeqSol:=module()
         s:-teqInd:=[1$numelems(ESC[1][2]),2$numelems(ESC[2][2])];
         s:-tsols:=[ESC[1][2][],ESC[2][2][]];
         s:-tcons:=[ESC[1][3][],ESC[2][3][]];
-        # sortSols(s);
         return s;
     end proc:
 
@@ -53,22 +51,6 @@ TeqSol:=module()
         end do;
         printf("=======================================\n");
         return;
-    end proc:
-
-    # 对解进行排序
-    # 有解的排在无解的前面
-    # 约束条件少的排前面
-    # 约束条件相同按复杂度排序
-    sortSols:=proc(s::TeqSol)
-        local ind,n;
-        n:=numelems(s:-tsols);
-        ind:=numelems~(s:-tcons)*n*10
-            +sortByComplexity(s:-tcons,index)
-            +map(x->`if`(x=[],1,0),s:-tsols)*n^2*100;
-        ind:=sort(ind,output=permutation);
-        s:-teqInd:=s:-teqInd[ind];
-        s:-tsols:=s:-tsols[ind];
-        s:-tcons:=s:-tcons[ind];
     end proc:
 
     getNSols:=proc(s::TeqSol)

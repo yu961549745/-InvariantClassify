@@ -1,6 +1,7 @@
 $ifndef _CLASSIFY_HOLDER_
 $define _CLASSIFY_HOLDER_
 
+$include "Utils.mpl"
 ClassifyHolder:=module()
     local   ieqCode,sols,unsolvedSols;
     export  reset,      # 重置状态
@@ -18,14 +19,17 @@ ClassifyHolder:=module()
     end proc:
 
     addSol:=proc(s::InvSol)
-        flogf[1]("添加不变量");
+        flogf[1]("添加代表元");
         flog[1](s:-rep);
         sols:=sols union {s};
         return;
     end proc:
 
     getSols:=proc()
-        return sols;
+        local res:=sols;
+        res:=uniqueObj(res,InvSol:-uniqueKey);
+        res:=sort(res,'key'=(x->x:-ieqCode));
+        return res;
     end proc:
 
     getIeqCode:=proc()

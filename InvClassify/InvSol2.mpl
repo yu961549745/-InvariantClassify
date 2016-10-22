@@ -22,10 +22,11 @@ InvSol:=module()
             Deltas:=[],     # 不变量
             orders:=[],     # 不变量的阶数
             ieq:=[],        # 不变量方程程组，按不变量排序
-            ieqCode,        # 不变量方程的编号
+            ieqCode:=0,     # 不变量方程的编号
             isols:=[],      # 不变量方程组的解
             icons:=[],      # 不变量方程组对应的条件
             isolInd:=1,     # 通解的下标
+            useBranch:=false,# 使用分支求解则假设每个特解都是不等价的
             rsols:=[],      # 不变量方程的特解
             tsols:=[],      # TeqSol对象list
             tsolsList,      # TsolsList 对象
@@ -53,6 +54,10 @@ InvSol:=module()
             addZeroCons::static, # 添加为零约束
             getIsolCons::static, # 返回通解的约束
             displayIeq::static,  # 显示不变量方程
+            printSol::static,
+            getDisplayIeq::static,
+            getDisplayCons::static,
+            uniqueKey::static,
             ModulePrint::static; # 显示函数
 
     getIsolCons:=proc(s::InvSol)
@@ -65,6 +70,39 @@ InvSol:=module()
         else
             return s:-rep;
         end if;
+    end proc:
+
+    uniqueKey:=proc(s::InvSol)
+        return ModulePrint(s);
+    end proc:
+
+    printSol:=proc(s::InvSol)
+        if s:-state<5 then
+            printf("求解失败 %d",s:-state);
+        else
+            printf("--------------------------------\n");
+            print(s:-rep);
+            print(getDisplayCons(s));
+            if s:-isols<>[] then
+                print(s:-isols[s:-isolInd]);
+                print(s:-tsol);
+                print(s:-tcon);
+            end if;
+        end if;
+    end proc:
+
+    getDisplayIeq:=proc(s::InvSol)
+        return [seq(Delta[i]=rhs(s:-ieq[i]),i=1..numelems(s:-ieq))];
+    end proc:
+
+    getDisplayCons:=proc(s::InvSol)
+        local res:={};
+        if s:-isols<>[] then
+            res:=res union s:-icons[s:-isolInd];
+        end if;
+        res:=res union s:-addcons union s:-discons;
+        res:=res minus convert(s:-ieq,set);
+        return [getDisplayIeq(s)[],res[]];
     end proc:
     
     getSubs:=proc(s::InvSol)

@@ -46,6 +46,7 @@ TsolsList:=module()
         for i from 1 to n do
             printf(`if`(s:-torders[i]=1,"正向\n","逆向\n"));
             print(s:-reps[i]);
+            # print(s:-teqs[i]);
             print(s:-tsols[i]);
             print(s:-tcons[i]);
         end do;

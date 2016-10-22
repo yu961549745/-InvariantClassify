@@ -28,7 +28,7 @@ end proc:
 # 等价于寻找偏序集的极大元
 # 返回下标的list
 findGenVec:=proc(v::list)
-    local mInd,i,j,n,isAdd,ind,t;
+    local mInd,i,j,n,isAdd,ind,t,gen,mgen,maxind;
     n:=numelems(v);
     mInd:=table();
     mInd[1]:=1;
@@ -55,8 +55,14 @@ findGenVec:=proc(v::list)
         for i in ind do
             tappend(t,v[i],i);
         end do;
-        return [entries(t,nolist)];
-    end if 
+        ind:=[entries(t,nolist)];
+        # 选择一般性最大的分组
+        gen:=map(x->add(v[x[1]]),ind);
+        mgen:=max(gen);
+        maxind:=find(gen,mgen);
+        ind:=ind[maxind];
+        return ind;
+    end if;
 end proc:
 
 `&>=`:=proc(x::list,y::list)
