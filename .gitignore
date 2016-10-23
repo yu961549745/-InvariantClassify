@@ -4,3 +4,4 @@ test.mw
 *.sav
 *.mw
 /MplTest
+/build.bat

@@ -348,7 +348,7 @@ closureRefine:=proc(_s::InvSol,isols,icons,ind::posint)
     s:=Object(_s);
     # 取封闭
     CL:=getClosure(s:-A,getZeroCons(s));
-    zcons:=select(isNonZeroCon,`union`(icons[]));# 提取约束
+    zcons:=select(isNonZeroCon,icons[ind]);# 提取约束
     zcons:=indets(zcons,name);# 提取变量
     zcons:=map(x->op(1,x),zcons);# 提取下标
     zcons:=[zcons[]];
@@ -455,8 +455,6 @@ solveTeq:=proc(s::InvSol)
     s:-state:=4;
     return resolve(s);
 end proc:
-
-# $include "TConRefine.mpl"
 
 specTeqSolve:=proc(sol::InvSol,spec::list)
     local ax,_ax,res;
