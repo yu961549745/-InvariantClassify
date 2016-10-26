@@ -21,23 +21,6 @@ $define _FETCH_
 $include "Condition.mpl"
 $include "Utils.mpl"
 
-# # 取特解 InvSol.mpl 版
-# fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
-#     local sol,con;
-#     sol:=_sol:-isol;
-#     con:=_sol:-icon union addcon;
-#     return fetchSpecSol(sol,con,_options['nonzero']);
-# end proc:
-
-# # 取特解 InvSol2.mpl 版
-# # 这个写法要求InvSol只能有一个通解，这个不好吧？
-# fetchSolRep:=proc(_sol::InvSol,{nonzero::boolean:=false,addcon:={}})
-#     local sol,con;
-#     sol:=_sol:-isols;
-#     con:=_sol:-icons union addcon;
-#     return fetchSpecSol(sol,con,_options['nonzero']);
-# end proc:
-
 # 根据方程和约束取特解
 fetchSpecSol:=proc(sol::list,con::set,{nonzero::boolean:=false})
     local vars,vf,eq,ca,cc,res,ccv,sc;
@@ -85,9 +68,9 @@ end proc:
 # 对于和a有关的约束，采用逐步替换的方法取特解
 fetchBySingleCons:=proc(vars,_vf,_eq,_ca,nonzero)
     local vf,eq,ca,sca,res,req,tmp,i,n;
-    vf:=_vf;
-    eq:=_eq;
-    ca:=_ca;
+    vf:=_vf;# 自由变量
+    eq:=_eq;# 不等式方程的解等式约束
+    ca:=_ca;# 求解跟a有关的约束得到的解
     # 对于单变量约束，采用最邻近整数方式取特解
     # 逐步替换多变量约束中的变量，最终都取得特解
     while true do
@@ -100,6 +83,7 @@ fetchBySingleCons:=proc(vars,_vf,_eq,_ca,nonzero)
         ca:=subs(sca[],ca);
     end do;
     # 由于对不等约束的求解可能存在等式约束，因此最后剩下的是等式约束
+    # BUG  出错的问题在于上面得到的ca可能会有等式约束
     eq:=eq union ca;
     req:=eq union {seq(x=x,x in vf)};
     req:=rhs~(convert(req,list));
