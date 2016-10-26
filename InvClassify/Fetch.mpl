@@ -67,7 +67,7 @@ end proc:
 
 # 对于和a有关的约束，采用逐步替换的方法取特解
 fetchBySingleCons:=proc(vars,_vf,_eq,_ca,nonzero)
-    local vf,eq,ca,sca,res,req,tmp,i,n;
+    local vf,eq,ca,sca,res,req,tmp,i,n,ra;
     vf:=_vf;# 自由变量
     eq:=_eq;# 不等式方程的解等式约束
     ca:=_ca;# 求解跟a有关的约束得到的解
@@ -84,11 +84,17 @@ fetchBySingleCons:=proc(vars,_vf,_eq,_ca,nonzero)
     end do;
     # 由于对不等约束的求解可能存在等式约束，因此最后剩下的是等式约束
     # BUG  出错的问题在于上面得到的ca可能会有等式约束
-    eq:=eq union ca;
-    req:=eq union {seq(x=x,x in vf)};
-    req:=rhs~(convert(req,list));
+    ca,ra:=selectremove(type,ca,equation);
     vf:={seq(x=0,x in vf)};
-    res:=eval(subs(vf[],eq[],req));
+    eq:=eq union ca union vf;
+    req:=vars;
+    # 带入两次是因为带入一次可能不完全
+    res:=eval(subs(eq[],req));
+    res:=eval(subs(eq[],res));
+    # 假设还有变量存在，就重新求解
+    if indets(res,specindex(a))<>{} then
+        res:=fetchSpecSol([seq(a[i]=res[i],i=1..numelems(vars))],{});
+    end if;
     if nonzero then
         if andmap(type,res,0) then
             n:=numelems(vf);
