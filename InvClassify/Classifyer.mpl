@@ -466,12 +466,21 @@ specTeqSolve:=proc(sol::InvSol,spec::list)
 end proc:
 
 solveSpecTeq:=proc(va,vb,s::InvSol)
-    local teq,tsol,tcon,var,n,eqs,eq,_eq,_con,_sol;
+    local teq,tsol,tcon,var,n,eqs,eq,_eq,_con,_sol,needResolve;
     n:=numelems(va);
     teq:=subs(s:-isols[s:-isolInd][],convert(va-vb.s:-A,list));
     var:={seq(epsilon[i],i=1..n)};
-    tsol:=teqsolve(teq,var);
-    if (tsol=[]) then
+    flogf[0]("求解变换方程");
+    flog[0](teq);
+    needResolve:=false;
+    try # 设置最长求解时间
+        tsol:=timelimit(3,teqsolve(teq,var));
+    catch:
+        flogf[1]("直接求解超时");
+        flog[1](teq);
+        needResolve:=true;
+    end try;
+    if needResolve or tsol=[] then
         # 求解失败，尝试二次求解法方法
         # 首次求解
         eqs:=teqsolve(teq);
